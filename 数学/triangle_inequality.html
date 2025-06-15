@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>三角形边长原理 (2D)</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { border: 1px solid #ccc; background-color: #fff; }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 350px;
+            font-size: 16px;
+            line-height: 1.6;
+            z-index: 10;
+        }
+        #info h2 {
+            color: #333;
+            margin-top: 0;
+            font-size: 20px;
+        }
+        #info p {
+            color: #555;
+            margin-bottom: 10px;
+        }
+        #info .highlight {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .principle {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+        .principle strong {
+            color: #0056b3;
+            font-weight: 700;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        #currentLength {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 10px;
+        }
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        #angleSlider {
+            width: 200px;
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        .input-group label {
+            display: inline-block;
+            width: 80px;
+        }
+        .input-group input {
+            width: 100px;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <a href="../math.html" class="back-button"><i class="fas fa-arrow-left"></i> 返回</a>
+    <div id="info">
+        <h2>三角形边长原理</h2>
+        <p>一个三角形的两条边的长分别是 <span class="highlight" id="sideAValue">6</span> 厘米 和 <span class="highlight" id="sideBValue">9</span> 厘米。</p>
+        <p>问题是：第三条边的长度一定大于(<span class="highlight" id="minLength">?</span>)厘米,小于(<span class="highlight" id="maxLength">?</span>)厘米。</p>
+        <div class="principle">
+            <p><strong>核心原理:</strong> 三角形任意两边之和<strong>大于</strong>第三边，任意两边之差<strong>小于</strong>第三边。</p>
+            <p><strong>推论:</strong> 第三边的长度范围在<strong>两边之差</strong>和<strong>两边之和</strong>之间。</p>
+        </div>
+        <p><strong>计算:</strong><br>
+            两边之和: <span id="sumValue" class="highlight">?</span><br>
+            两边之差: <span id="diffValue" class="highlight">?</span>
+        </p>
+        <p id="currentLength">当前第三边长度: <span>0.00</span> 厘米</p>
+    </div>
+
+    <div id="controls">
+        <div class="input-group">
+            <label for="inputSideA">边长 A:</label>
+            <input type="number" id="inputSideA" value="6" min="1" step="1">
+        </div>
+        <div class="input-group">
+            <label for="inputSideB">边长 B:</label>
+            <input type="number" id="inputSideB" value="9" min="1" step="1">
+        </div>
+        <label for="angleSlider">调整角度:</label>
+        <input type="range" id="angleSlider" min="0" max="180" value="90" step="1">
+    </div>
+
+    <canvas id="triangleCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('triangleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const inputSideA = document.getElementById('inputSideA');
+        const inputSideB = document.getElementById('inputSideB');
+        const angleSlider = document.getElementById('angleSlider');
+
+        const sideAValueSpan = document.getElementById('sideAValue');
+        const sideBValueSpan = document.getElementById('sideBValue');
+        const minLengthSpan = document.getElementById('minLength');
+        const maxLengthSpan = document.getElementById('maxLength');
+        const sumValueSpan = document.getElementById('sumValue');
+        const diffValueSpan = document.getElementById('diffValue');
+        const currentLengthSpan = document.querySelector('#currentLength span');
+
+        let sideA = parseFloat(inputSideA.value);
+        let sideB = parseFloat(inputSideB.value);
+        let angleDegrees = parseFloat(angleSlider.value);
+        let currentZoom = 1.0; // Initial zoom level
+        let scale = 20; // Initial pixels per unit (cm)
+
+        function calculateScale() {
+            const maxPossibleLength = sideA + sideB;
+            // Determine a scale that fits the longest possible side (sum of A and B)
+            // within 80% of the canvas width/height
+            const maxDimension = Math.max(canvas.width, canvas.height) * 0.8;
+            scale = maxDimension / (maxPossibleLength * 2); // *2 because origin is in center, so it can extend both ways
+            scale = Math.max(5, Math.min(scale, 50)); // Keep scale within reasonable bounds
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#eee';
+            ctx.lineWidth = 0.5;
+            const gridSize = 20 * currentZoom; // Grid lines every 20 pixels, scaled by zoom
+
+            const originX = canvas.width / 2;
+            const originY = canvas.height / 2;
+
+            // Draw horizontal lines
+            for (let i = 0; i < canvas.height / 2; i += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, originY + i);
+                ctx.lineTo(canvas.width, originY + i);
+                ctx.moveTo(0, originY - i);
+                ctx.lineTo(canvas.width, originY - i);
+                ctx.stroke();
+            }
+            // Draw vertical lines
+            for (let i = 0; i < canvas.width / 2; i += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(originX + i, 0);
+                ctx.lineTo(originX + i, canvas.height);
+                ctx.moveTo(originX - i, 0);
+                ctx.lineTo(originX - i, canvas.height);
+                ctx.stroke();
+            }
+
+            // Draw main axes
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, originY);
+            ctx.lineTo(canvas.width, originY);
+            ctx.moveTo(originX, 0);
+            ctx.lineTo(originX, canvas.height);
+            ctx.stroke();
+        }
+
+        function drawTriangle() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid(); // Draw grid first
+
+            const originX = canvas.width / 2;
+            const originY = canvas.height / 2;
+
+            // Point A (origin)
+            const pointA = { x: originX, y: originY };
+
+            // Point B (end of side A)
+            const pointB = { x: pointA.x + sideA * scale * currentZoom, y: pointA.y };
+
+            // Point C (end of side B, rotated by angle)
+            const angleRadians = angleDegrees * Math.PI / 180;
+            const pointC = {
+                x: pointA.x + sideB * scale * currentZoom * Math.cos(angleRadians),
+                y: pointA.y - sideB * scale * currentZoom * Math.sin(angleRadians) // Y-axis is inverted in canvas
+            };
+
+            // Draw Side A
+            ctx.strokeStyle = '#ff0000'; // Red
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(pointA.x, pointA.y);
+            ctx.lineTo(pointB.x, pointB.y);
+            ctx.stroke();
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.fillText(`A: ${sideA}cm`, (pointA.x + pointB.x) / 2, pointA.y + 15);
+
+            // Draw Side B
+            ctx.strokeStyle = '#0000ff'; // Blue
+            ctx.beginPath();
+            ctx.moveTo(pointA.x, pointA.y);
+            ctx.lineTo(pointC.x, pointC.y);
+            ctx.stroke();
+            ctx.fillText(`B: ${sideB}cm`, (pointA.x + pointC.x) / 2 + 10, (pointA.y + pointC.y) / 2 - 10);
+
+
+            // Calculate length of Side C (using Law of Cosines)
+            // c^2 = a^2 + b^2 - 2ab cos(theta)
+            const lengthSideC = Math.sqrt(
+                sideA * sideA +
+                sideB * sideB -
+                2 * sideA * sideB * Math.cos(angleRadians)
+            );
+
+            // Determine color for Side C
+            const minPossible = Math.abs(sideA - sideB);
+            const maxPossible = sideA + sideB;
+
+            let sideCColor = '#00ff00'; // Green for valid triangle
+            if (lengthSideC <= minPossible + 0.01 || lengthSideC >= maxPossible - 0.01) { // Add tolerance for floating point
+                sideCColor = '#ffa500'; // Orange for collapsed/invalid
+            }
+
+            // Draw Side C
+            ctx.strokeStyle = sideCColor;
+            ctx.beginPath();
+            ctx.moveTo(pointB.x, pointB.y);
+            ctx.lineTo(pointC.x, pointC.y);
+            ctx.stroke();
+            ctx.fillText(`C: ${lengthSideC.toFixed(2)}cm`, (pointB.x + pointC.x) / 2 + 10, (pointB.y + pointC.y) / 2 + 10);
+
+
+            // Update info panel
+            sideAValueSpan.textContent = sideA;
+            sideBValueSpan.textContent = sideB;
+            minLengthSpan.textContent = minPossible.toFixed(0);
+            maxLengthSpan.textContent = maxPossible.toFixed(0);
+            sumValueSpan.textContent = `${sideA} + ${sideB} = ${maxPossible.toFixed(0)}`;
+            diffValueSpan.textContent = `${Math.max(sideA, sideB)} - ${Math.min(sideA, sideB)} = ${minPossible.toFixed(0)}`;
+            currentLengthSpan.textContent = lengthSideC.toFixed(2);
+        }
+
+        // Event Listeners
+        inputSideA.addEventListener('input', () => {
+            sideA = parseFloat(inputSideA.value);
+            if (isNaN(sideA) || sideA <= 0) sideA = 1; // Prevent invalid input
+            inputSideA.value = sideA; // Update input field if changed
+            calculateScale(); // Recalculate scale
+            drawTriangle();
+        });
+
+        inputSideB.addEventListener('input', () => {
+            sideB = parseFloat(inputSideB.value);
+            if (isNaN(sideB) || sideB <= 0) sideB = 1; // Prevent invalid input
+            inputSideB.value = sideB; // Update input field if changed
+            calculateScale(); // Recalculate scale
+            drawTriangle();
+        });
+
+        angleSlider.addEventListener('input', () => {
+            angleDegrees = parseFloat(angleSlider.value);
+            drawTriangle();
+        });
+
+        canvas.addEventListener('wheel', (event) => {
+            event.preventDefault(); // Prevent page scrolling
+            const zoomFactor = 1.1;
+            if (event.deltaY < 0) {
+                // Zoom in
+                currentZoom *= zoomFactor;
+            } else {
+                // Zoom out
+                currentZoom /= zoomFactor;
+            }
+            // Limit zoom to prevent extreme values
+            currentZoom = Math.max(0.1, Math.min(currentZoom, 5.0));
+            drawTriangle();
+        });
+
+        // Initial setup
+        calculateScale();
+        drawTriangle();
+    </script>
+</body>
+</html>

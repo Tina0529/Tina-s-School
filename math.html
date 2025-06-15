@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数学 - 馨儿的知识乐园</title>
+    
+    <!-- CDN Resources -->
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', Tahoma, Arial, Roboto, "Droid Sans", "Helvetica Neue", "Droid Sans Fallback", "Heiti SC", "Hiragino Sans GB", Simsun, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .font-serif-sc {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .font-sans-sc {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .topic-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-left-color 0.3s ease;
+            border-left: 5px solid #a5b4fc; /* Indigo-300 */
+        }
+        .topic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-left-color: #3b82f6; /* Blue-500 */
+        }
+        .back-link {
+            transition: color 0.3s ease;
+        }
+        .back-link:hover {
+            color: #3b82f6; /* Blue-500 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Page Container -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="font-serif-sc text-4xl md:text-5xl font-bold text-blue-600 mb-2">
+                <i class="fa-solid fa-calculator mr-3"></i>数学知识点
+            </h1>
+            <p class="font-sans-sc text-lg text-gray-500">探索数字与图形的奥秘</p>
+        </header>
+
+        <!-- Main Content: Topics Grid -->
+        <main class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- Topic: 三角形边长原理 -->
+                <a href="数学/triangle_inequality.html" class="topic-card flex flex-col bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="font-serif-sc text-xl font-bold text-gray-900 mb-2">三角形边长原理</h2>
+                    <p class="font-sans-sc text-gray-600 text-sm flex-grow">
+                        学习三角形三边之间重要的数量关系：两边之和大于第三边，两边之差小于第三边。
+                    </p>
+                    <div class="mt-3 pt-3 border-t border-gray-100">
+                        <p class="font-sans-sc text-xs text-gray-500"><strong>思路总结:</strong> 第三边的长度必须在“两边之和”与“两边之差”这个开区间内。</p>
+                    </div>
+                </a>
+
+                <!-- Topic: 环形跑道追及问题 -->
+                <a href="数学/circular_track_race.html" class="topic-card flex flex-col bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="font-serif-sc text-xl font-bold text-gray-900 mb-2">环形跑道追及问题</h2>
+                    <p class="font-sans-sc text-gray-600 text-sm flex-grow">
+                        分析在环形跑道上，两人同向或反向运动时的相遇问题。
+                    </p>
+                    <div class="mt-3 pt-3 border-t border-gray-100">
+                        <p class="font-sans-sc text-xs text-gray-500"><strong>思路总结:</strong> 关键在于理解“相遇”和“追及”的距离关系。反向是路程和，同向是路程差。</p>
+                    </div>
+                </a>
+
+                <!-- Placeholder for future topics -->
+                <div class="topic-card flex flex-col bg-gray-50 p-6 rounded-lg border-l-5 border-dashed border-gray-300 items-center justify-center" style="border-left-width: 5px;">
+                     <i class="fa-solid fa-plus text-gray-400 text-3xl"></i>
+                     <p class="text-gray-400 mt-2 text-sm">更多知识点即将上线</p>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Back to Home Link -->
+        <div class="text-center mt-12">
+            <a href="index.html" class="back-link font-sans-sc text-gray-600 text-lg">
+                <i class="fa-solid fa-arrow-left mr-2"></i>返回主页
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tina's School - 馨儿的知识乐园</title>
+    
+    <!-- CDN Resources -->
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', Tahoma, Arial, Roboto, "Droid Sans", "Helvetica Neue", "Droid Sans Fallback", "Heiti SC", "Hiragino Sans GB", Simsun, sans-serif;
+            background-color: #fdfdfd;
+        }
+        .font-serif-sc {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .font-sans-sc {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        /* Custom gradient text */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        /* Subtle background pattern */
+        .bg-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        /* Card hover effect */
+        .knowledge-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .knowledge-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Page Container -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header / Hero Section -->
+        <header class="text-center py-20 sm:py-28 bg-pattern">
+            <h1 class="font-serif-sc text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-500 to-teal-400 text-gradient mb-4">
+                馨儿的知识乐园
+            </h1>
+            <p class="font-sans-sc text-lg md:text-xl text-gray-500 max-w-2xl mx-auto">
+                一个为成长中的你精心准备的知识宝库。在这里，我们一同探索世界，发现美好，见证每一个"Aha!"时刻。
+            </p>
+        </header>
+
+        <!-- Main Content: Knowledge Grid -->
+        <main class="py-16">
+            <!-- Section Title -->
+            <div class="text-center mb-12">
+                <h2 class="font-serif-sc text-3xl font-bold">知识分类</h2>
+                <div class="w-24 h-1 bg-blue-500 mx-auto mt-2"></div>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Card: 语文 -->
+                <div class="knowledge-card bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-8">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mr-4">
+                                <i class="fa-solid fa-book-open text-2xl"></i>
+                            </div>
+                            <h3 class="font-serif-sc text-2xl font-bold">语文</h3>
+                        </div>
+                        <p class="font-sans-sc text-gray-600">从唐诗宋词到现代文学，感受文字的力量与美。</p>
+                    </div>
+                </div>
+
+                <!-- Card: 数学 -->
+                <a href="math.html" class="knowledge-card block bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-8">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center mr-4">
+                                <i class="fa-solid fa-calculator text-2xl"></i>
+                            </div>
+                            <h3 class="font-serif-sc text-2xl font-bold">数学</h3>
+                        </div>
+                        <p class="font-sans-sc text-gray-600">探索数字与图形的奥秘，培养严谨的逻辑思维。</p>
+                    </div>
+                </a>
+
+                <!-- Card: 英语 -->
+                <div class="knowledge-card bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-8">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-green-100 text-green-500 flex items-center justify-center mr-4">
+                                <i class="fa-solid fa-earth-americas text-2xl"></i>
+                            </div>
+                            <h3 class="font-serif-sc text-2xl font-bold">英语</h3>
+                        </div>
+                        <p class="font-sans-sc text-gray-600">打开一扇新的窗，与世界自由对话。</p>
+                    </div>
+                </div>
+
+                <!-- Card: 科学 -->
+                <div class="knowledge-card bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-8">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-500 flex items-center justify-center mr-4">
+                                <i class="fa-solid fa-flask-vial text-2xl"></i>
+                            </div>
+                            <h3 class="font-serif-sc text-2xl font-bold">科学</h3>
+                        </div>
+                        <p class="font-sans-sc text-gray-600">观察、实验、思考，解开自然现象背后的秘密。</p>
+                    </div>
+                </div>
+
+                <!-- Card: 艺术 -->
+                <div class="knowledge-card bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-8">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center mr-4">
+                                <i class="fa-solid fa-palette text-2xl"></i>
+                            </div>
+                            <h3 class="font-serif-sc text-2xl font-bold">艺术</h3>
+                        </div>
+                        <p class="font-sans-sc text-gray-600">用色彩、音符和线条，表达内心的无限创意。</p>
+                    </div>
+                </div>
+
+                <!-- Card: 历史 -->
+                <div class="knowledge-card bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-8">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-500 flex items-center justify-center mr-4">
+                                <i class="fa-solid fa-landmark text-2xl"></i>
+                            </div>
+                            <h3 class="font-serif-sc text-2xl font-bold">历史</h3>
+                        </div>
+                        <p class="font-sans-sc text-gray-600">穿越时空，与先贤对话，从过去中汲取智慧。</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Data Visualization Section -->
+        <section class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="font-serif-sc text-3xl font-bold">知识图谱</h2>
+                <div class="w-24 h-1 bg-teal-500 mx-auto mt-2"></div>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <div class="mermaid flex justify-center">
+graph TD
+    A[知识核心] --> B(文科);
+    A --> C(理科);
+    B --> B1(语文);
+    B --> B2(英语);
+    B --> B3(历史);
+    C --> C1(数学);
+    C --> C2(科学);
+    C --> C3(编程);
+    B1 --> D{诗词鉴赏};
+    C1 --> E{几何学};
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-10 mt-16 border-t border-gray-200">
+            <p class="font-sans-sc text-gray-500">
+                为 Tina 打造 &copy; <span id="year"></span>. 充满爱与智慧的旅程。
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- Mermaid.js Script -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.min.js"></script>
+    <script>
+        // Initialize Mermaid.js
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+
+        // Set current year in footer
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>

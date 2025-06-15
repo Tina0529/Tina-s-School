@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>环形跑道追及问题 (2D)</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { border: 1px solid #ccc; background-color: #fff; }
+        #info {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 300px;
+            font-size: 16px;
+            line-height: 1.6;
+            z-index: 10;
+        }
+        #info h2 {
+            color: #333;
+            margin-top: 0;
+            font-size: 20px;
+        }
+        #info p {
+            color: #555;
+            margin-bottom: 10px;
+        }
+        #info .highlight {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .principle {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .principle strong {
+            color: #0056b3;
+            font-weight: 700;
+        }
+        .back-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            z-index: 20;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        #controls {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .speed-input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .speed-input-group label {
+            width: 80px;
+        }
+        .speed-input-group input {
+            width: 60px;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        #lapsInfo {
+            margin-top: 10px;
+            font-size: 15px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <a href="../math.html" class="back-button"><i class="fas fa-arrow-left"></i> 返回</a>
+    <div id="info">
+        <h2>环形跑道追及问题</h2>
+        <p>小军和小阳在一条环形跑道上跑步，两人从同一地点同时出发。</p>
+        <div class="principle">
+            <p><strong>核心原理 (相遇与追及):</strong></p>
+            <ul>
+                <li><strong>反向相遇:</strong> 两人共同走完一圈。路程和 = 速度和 × 相遇时间。</li>
+                <li><strong>同向追及:</strong> 速度快的人比速度慢的人多跑一圈。路程差 = 速度差 × 追及时间。</li>
+            </ul>
+        </div>
+        <p><strong>场景一：反向而行</strong> (40秒后相遇)</p>
+        <p id="question1">问题1：这个环形跑道长多少米?</p>
+        <p id="answer1" class="highlight">答案1: 计算中...</p>
+        <p><strong>场景二：同向而行</strong></p>
+        <p id="question2">问题2：那么多少秒后两人能再次相遇?</p>
+        <p id="answer2" class="highlight">答案2: 计算中...</p>
+        <p id="currentStatus">当前状态: 准备开始</p>
+        <div id="lapsInfo">
+            <p>小军圈数: <span id="xiaojunLaps">0</span></p>
+            <p>小阳圈数: <span id="xiaoyangLaps">0</span></p>
+        </div>
+    </div>
+
+    <div id="controls">
+        <div class="speed-input-group">
+            <label for="xiaojunSpeed">小军速度 (m/s):</label>
+            <input type="number" id="xiaojunSpeed" value="3" min="0.1" step="0.1">
+        </div>
+        <div class="speed-input-group">
+            <label for="xiaoyangSpeed">小阳速度 (m/s):</label>
+            <input type="number" id="xiaoyangSpeed" value="2" min="0.1" step="0.1">
+        </div>
+        <button id="startScenario1Button">开始场景一 (反向)</button>
+        <button id="startScenario2Button">开始场景二 (同向)</button>
+        <button id="fastForwardButton">加速</button>
+        <button id="resetButton">重置</button>
+    </div>
+
+    <canvas id="trackCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('trackCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const xiaojunSpeedInput = document.getElementById('xiaojunSpeed');
+        const xiaoyangSpeedInput = document.getElementById('xiaoyangSpeed');
+        const startScenario1Button = document.getElementById('startScenario1Button');
+        const startScenario2Button = document.getElementById('startScenario2Button');
+        const fastForwardButton = document.getElementById('fastForwardButton');
+        const resetButton = document.getElementById('resetButton');
+        const answer1Elem = document.getElementById('answer1');
+        const answer2Elem = document.getElementById('answer2');
+        const currentStatusElem = document.getElementById('currentStatus');
+        const xiaojunLapsSpan = document.getElementById('xiaojunLaps');
+        const xiaoyangLapsSpan = document.getElementById('xiaoyangLaps');
+
+        let xiaojunSpeed = parseFloat(xiaojunSpeedInput.value);
+        let xiaoyangSpeed = parseFloat(xiaoyangSpeedInput.value);
+        const meetingTimeOpposite = 40; // seconds
+
+        const trackRadius = 200; // pixels
+        const runnerRadius = 10; // pixels, larger for visibility
+        const pathOffset = 5; // Pixels offset for paths to show both colors
+        const startAngle = -Math.PI / 2; // Start at top (0, -R) for visual clarity
+
+        let animationPhase = 0; // 0: ready, 1: opposite, 2: same direction
+        let elapsedTime = 0;
+        let trackLength = 0; // meters, will be calculated
+        let timeToMeetSameDirection = 0;
+        let animationRunning = false;
+        let animationSpeedMultiplier = 1; // For fast forward
+
+        let xiaojunCurrentAngle = startAngle;
+        let xiaoyangCurrentAngle = startAngle;
+
+        let xiaojunLaps = 0;
+        let xiaoyangLaps = 0;
+
+        // Store paths as arrays of angles for drawing arcs
+        let xiaojunPathAngles = [];
+        let xiaoyangPathAngles = [];
+
+        function calculateProblem() {
+            // Scenario 1: Opposite directions
+            const relativeSpeedOpposite = xiaojunSpeed + xiaoyangSpeed;
+            trackLength = relativeSpeedOpposite * meetingTimeOpposite;
+            answer1Elem.textContent = `答案1: ${trackLength.toFixed(2)} 米`;
+
+            // Scenario 2: Same direction
+            const relativeSpeedSame = Math.abs(xiaojunSpeed - xiaoyangSpeed);
+            if (relativeSpeedSame === 0) {
+                timeToMeetSameDirection = Infinity; // They will never meet if speeds are equal
+                answer2Elem.textContent = `答案2: 速度相同，不会再次相遇`;
+            } else {
+                timeToMeetSameDirection = trackLength / relativeSpeedSame;
+                answer2Elem.textContent = `答案2: ${timeToMeetSameDirection.toFixed(2)} 秒`;
+            }
+        }
+
+        function drawTrack() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Draw track
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, trackRadius, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#888888';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+            // Draw paths
+            ctx.lineWidth = 3;
+
+            // Xiaojun's path (Red)
+            ctx.strokeStyle = '#ff0000';
+            ctx.beginPath();
+            if (xiaojunPathAngles.length > 0) {
+                ctx.arc(centerX, centerY, trackRadius - pathOffset, xiaojunPathAngles[0], xiaojunCurrentAngle, false); // false for clockwise
+            }
+            ctx.stroke();
+
+            // Xiaoyang's path (Blue)
+            ctx.strokeStyle = '#0000ff';
+            ctx.beginPath();
+            if (xiaoyangPathAngles.length > 0) {
+                ctx.arc(centerX, centerY, trackRadius + pathOffset, xiaoyangPathAngles[0], xiaoyangCurrentAngle, animationPhase === 1); // true for counter-clockwise in opposite direction
+            }
+            ctx.stroke();
+
+            // Draw runners
+            ctx.fillStyle = '#ff0000'; // Red for Xiaojun
+            ctx.beginPath();
+            ctx.arc(centerX + (trackRadius - pathOffset) * Math.cos(xiaojunCurrentAngle), centerY + (trackRadius - pathOffset) * Math.sin(xiaojunCurrentAngle), runnerRadius, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillText("小军", centerX + (trackRadius - pathOffset) * Math.cos(xiaojunCurrentAngle) + runnerRadius + 5, centerY + (trackRadius - pathOffset) * Math.sin(xiaojunCurrentAngle) + 5);
+
+
+            ctx.fillStyle = '#0000ff'; // Blue for Xiaoyang
+            ctx.beginPath();
+            ctx.arc(centerX + (trackRadius + pathOffset) * Math.cos(xiaoyangCurrentAngle), centerY + (trackRadius + pathOffset) * Math.sin(xiaoyangCurrentAngle), runnerRadius, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillText("小阳", centerX + (trackRadius + pathOffset) * Math.cos(xiaoyangCurrentAngle) - runnerRadius - 30, centerY + (trackRadius + pathOffset) * Math.sin(xiaoyangCurrentAngle) + 5);
+        }
+
+        function resetSimulation() {
+            animationPhase = 0;
+            elapsedTime = 0;
+            animationRunning = false;
+            animationSpeedMultiplier = 1;
+            xiaojunCurrentAngle = startAngle;
+            xiaoyangCurrentAngle = startAngle;
+            xiaojunLaps = 0;
+            xiaoyangLaps = 0;
+            xiaojunPathAngles = [];
+            xiaoyangPathAngles = [];
+
+            currentStatusElem.textContent = '当前状态: 准备开始';
+            answer1Elem.textContent = '答案1: 计算中...';
+            answer2Elem.textContent = '答案2: 计算中...';
+            xiaojunLapsSpan.textContent = '0';
+            xiaoyangLapsSpan.textContent = '0';
+
+            xiaojunSpeedInput.disabled = false;
+            xiaoyangSpeedInput.disabled = false;
+            startScenario1Button.disabled = false;
+            startScenario2Button.disabled = false; // Scenario 2 button always enabled
+            fastForwardButton.disabled = false; // Fast forward always enabled
+            fastForwardButton.textContent = '加速'; // Reset fast forward button text
+            calculateProblem();
+            drawTrack();
+        }
+
+        function startScenario1() {
+            xiaojunSpeed = parseFloat(xiaojunSpeedInput.value);
+            xiaoyangSpeed = parseFloat(xiaoyangSpeedInput.value);
+
+            if (xiaojunSpeed <= 0 || xiaoyangSpeed <= 0) {
+                alert("速度必须大于0！");
+                return;
+            }
+
+            resetSimulationStateForNewScenario();
+            calculateProblem();
+            animationRunning = true;
+            animationPhase = 1; // Start with opposite direction
+            currentStatusElem.textContent = '当前状态: 场景一 (反向而行)';
+            startScenario1Button.disabled = true;
+            startScenario2Button.disabled = true;
+            xiaojunPathAngles.push(startAngle);
+            xiaoyangPathAngles.push(startAngle);
+        }
+
+        function startScenario2() {
+            xiaojunSpeed = parseFloat(xiaojunSpeedInput.value);
+            xiaoyangSpeed = parseFloat(xiaoyangSpeedInput.value);
+
+            if (xiaojunSpeed <= 0 || xiaoyangSpeed <= 0) {
+                alert("速度必须大于0！");
+                return;
+            }
+            if (xiaojunSpeed === xiaoyangSpeed) {
+                alert("同向而行时，速度相同将无法再次相遇！");
+                return;
+            }
+
+            resetSimulationStateForNewScenario();
+            calculateProblem();
+            animationRunning = true;
+            animationPhase = 2;
+            currentStatusElem.textContent = '当前状态: 场景二 (同向而行)';
+            startScenario1Button.disabled = true;
+            startScenario2Button.disabled = true;
+            xiaojunPathAngles.push(startAngle);
+            xiaoyangPathAngles.push(startAngle);
+        }
+
+        function resetSimulationStateForNewScenario() {
+            elapsedTime = 0;
+            animationRunning = false;
+            animationSpeedMultiplier = 1;
+            xiaojunCurrentAngle = startAngle;
+            xiaoyangCurrentAngle = startAngle;
+            xiaojunLaps = 0;
+            xiaoyangLaps = 0;
+            xiaojunPathAngles = [];
+            xiaoyangPathAngles = [];
+            xiaojunSpeedInput.disabled = true;
+            xiaoyangSpeedInput.disabled = true;
+            fastForwardButton.textContent = '加速';
+        }
+
+
+        startScenario1Button.addEventListener('click', startScenario1);
+        startScenario2Button.addEventListener('click', startScenario2);
+
+        fastForwardButton.addEventListener('click', () => {
+            animationSpeedMultiplier = (animationSpeedMultiplier === 1) ? 5 : 1; // Toggle speed
+            fastForwardButton.textContent = (animationSpeedMultiplier === 1) ? '加速' : '正常速度';
+        });
+
+        resetButton.addEventListener('click', resetSimulation);
+        xiaojunSpeedInput.addEventListener('input', calculateProblem);
+        xiaoyangSpeedInput.addEventListener('input', calculateProblem);
+
+        let lastTime = 0;
+        function animate(currentTime) {
+            requestAnimationFrame(animate);
+
+            if (!lastTime) lastTime = currentTime;
+            const deltaTime = (currentTime - lastTime) / 1000 * animationSpeedMultiplier; // seconds
+            lastTime = currentTime;
+
+            if (animationRunning) {
+                const circumference = trackLength; // meters
+                const anglePerMeter = (2 * Math.PI) / circumference; // radians per meter
+
+                if (animationPhase === 1) { // Opposite directions
+                    elapsedTime += deltaTime;
+                    const distanceXiaojun = xiaojunSpeed * elapsedTime;
+                    const distanceXiaoyang = xiaoyangSpeed * elapsedTime;
+
+                    xiaojunCurrentAngle = startAngle + (distanceXiaojun * anglePerMeter);
+                    xiaoyangCurrentAngle = startAngle - (distanceXiaoyang * anglePerMeter);
+
+                    // Check for meeting point
+                    if ((xiaojunSpeed + xiaoyangSpeed) * elapsedTime >= trackLength) {
+                        animationRunning = false;
+                        // Snap to exact meeting point for visual accuracy
+                        const exactTime = meetingTimeOpposite;
+                        xiaojunCurrentAngle = startAngle + (xiaojunSpeed * exactTime * anglePerMeter);
+                        xiaoyangCurrentAngle = startAngle - (xiaoyangSpeed * exactTime * anglePerMeter);
+
+                        currentStatusElem.textContent = `当前状态: 场景一完成，相遇于 ${meetingTimeOpposite} 秒。`;
+                        startScenario1Button.disabled = true;
+                        startScenario2Button.disabled = false; // Enable start scenario 2 button
+                        fastForwardButton.disabled = false; // Keep fast forward enabled for next scenario
+                        fastForwardButton.textContent = '加速'; // Reset fast forward button text
+                    }
+                } else if (animationPhase === 2) { // Same direction
+                    elapsedTime += deltaTime;
+                    const distanceXiaojun = xiaojunSpeed * elapsedTime;
+                    const distanceXiaoyang = xiaoyangSpeed * elapsedTime;
+
+                    xiaojunCurrentAngle = startAngle + (distanceXiaojun * anglePerMeter);
+                    xiaoyangCurrentAngle = startAngle + (distanceXiaoyang * anglePerMeter);
+
+                    // Update laps
+                    xiaojunLaps = Math.floor((xiaojunCurrentAngle - startAngle) / (2 * Math.PI));
+                    xiaoyangLaps = Math.floor((xiaoyangCurrentAngle - startAngle) / (2 * Math.PI));
+                    xiaojunLapsSpan.textContent = xiaojunLaps;
+                    xiaoyangLapsSpan.textContent = xiaoyangLaps;
+
+                    if (timeToMeetSameDirection !== Infinity && elapsedTime >= timeToMeetSameDirection) {
+                        animationRunning = false;
+                        // Snap to exact meeting point
+                        const exactTime = timeToMeetSameDirection;
+                        xiaojunCurrentAngle = startAngle + (xiaojunSpeed * exactTime * anglePerMeter);
+                        xiaoyangCurrentAngle = startAngle + (xiaoyangSpeed * exactTime * anglePerMeter);
+
+                        currentStatusElem.textContent = `当前状态: 场景二完成，再次相遇于 ${timeToMeetSameDirection.toFixed(2)} 秒。`;
+                        startScenario1Button.disabled = true;
+                        startScenario2Button.disabled = true;
+                        fastForwardButton.disabled = true;
+                        fastForwardButton.textContent = '加速';
+                    } else if (timeToMeetSameDirection === Infinity) {
+                        currentStatusElem.textContent = `当前状态: 场景二 (同向而行) - 速度相同，不会再次相遇。`;
+                        startScenario1Button.disabled = true;
+                        startScenario2Button.disabled = true;
+                        fastForwardButton.disabled = true;
+                        fastForwardButton.textContent = '加速';
+                    }
+                }
+            }
+            drawTrack();
+        }
+
+        // Initial setup
+        resetSimulation();
+        animate();
+    </script>
+</body>
+</html>
