@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平行四边形与三角形面积 - 馨儿的知识乐园</title>
+    <link rel="icon" href="../img/icon.png">
+    
+    <!-- CDN Resources -->
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .font-serif-sc {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .font-sans-sc {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #3b82f6;
+            transition: transform 0.3s ease;
+        }
+        
+        .section-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .principle-box {
+            background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+            border-left: 4px solid #007bff;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .principle-box strong {
+            color: #0056b3;
+            font-weight: 700;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: #5a6268;
+        }
+        
+        .canvas-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-group label {
+            font-weight: 500;
+            color: #495057;
+            min-width: 60px;
+        }
+        
+        .control-group input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 80px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .formula-display {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #0056b3;
+            margin: 15px 0;
+            padding: 10px;
+            background: #e7f3ff;
+            border-radius: 6px;
+        }
+        
+        .connection-arrow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            font-size: 20px;
+            color: #6c757d;
+        }
+        
+        .disabled-section {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+        
+        .progress-step.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .progress-step.completed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .progress-line {
+            width: 60px;
+            height: 2px;
+            background: #e9ecef;
+            transition: all 0.3s;
+        }
+        
+        .progress-line.completed {
+            background: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <a href="../math.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> 返回数学页面
+    </a>
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- 页面标题 -->
+        <header class="text-center mb-8">
+            <h1 class="font-serif-sc text-4xl font-bold text-blue-600 mb-4">
+                <i class="fas fa-shapes mr-3"></i>平行四边形与三角形面积
+            </h1>
+            <p class="font-sans-sc text-lg text-gray-600">通过图形变换理解面积公式</p>
+        </header>
+
+        <!-- 进度指示器 -->
+        <div class="progress-indicator">
+            <div class="progress-step active" id="step1">1</div>
+            <div class="progress-line" id="line1"></div>
+            <div class="progress-step" id="step2">2</div>
+            <div class="progress-line" id="line2"></div>
+            <div class="progress-step" id="step3">3</div>
+        </div>
+
+        <!-- 全局控制面板 -->
+        <div class="section-card p-6 mb-6">
+            <h3 class="font-serif-sc text-xl font-bold mb-4 text-center">调整图形尺寸</h3>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="baseLength">底边长度：</label>
+                    <input type="number" id="baseLength" value="8" min="3" max="15" step="1">
+                    <span>cm</span>
+                </div>
+                <div class="control-group">
+                    <label for="height">高度：</label>
+                    <input type="number" id="height" value="6" min="3" max="12" step="1">
+                    <span>cm</span>
+                </div>
+                <button class="btn btn-secondary" id="resetBtn">重置所有</button>
+            </div>
+        </div>
+
+        <!-- 第一部分：平行四边形 -->
+        <div class="section-card p-6 mb-6" id="parallelogramSection">
+            <h2 class="font-serif-sc text-2xl font-bold mb-4 text-center">
+                <i class="fas fa-square text-blue-500 mr-2"></i>第一步：平行四边形面积
+            </h2>
+            
+            <div class="principle-box">
+                <p><strong>核心原理：</strong>将平行四边形通过"剪切-移动-拼接"变成矩形</p>
+                <p><strong>关键发现：</strong>变形前后面积保持不变，所以平行四边形面积 = 底 × 高</p>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="parallelogramCanvas" width="600" height="400"></canvas>
+            </div>
+
+            <div class="formula-display" id="parallelogramFormula">
+                平行四边形面积 = 底 × 高 = 8 × 6 = 48 cm²
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="animateParallelogram">开始变形动画</button>
+                <button class="btn btn-secondary" id="resetParallelogram">重置平行四边形</button>
+            </div>
+        </div>
+
+        <!-- 连接箭头 -->
+        <div class="connection-arrow">
+            <i class="fas fa-arrow-down"></i>
+            <span class="ml-3">既然平行四边形面积 = 底 × 高，那么三角形呢？</span>
+        </div>
+
+        <!-- 第二部分：三角形 -->
+        <div class="section-card p-6 disabled-section" id="triangleSection">
+            <h2 class="font-serif-sc text-2xl font-bold mb-4 text-center">
+                <i class="fas fa-play text-green-500 mr-2"></i>第二步：三角形面积
+            </h2>
+            
+            <div class="principle-box">
+                <p><strong>核心原理：</strong>将三角形复制并旋转拼接，形成一个平行四边形</p>
+                <p><strong>关键发现：</strong>三角形是平行四边形的一半，所以三角形面积 = 底 × 高 ÷ 2</p>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="triangleCanvas" width="600" height="400"></canvas>
+            </div>
+
+            <div class="formula-display" id="triangleFormula">
+                三角形面积 = 底 × 高 ÷ 2 = 8 × 6 ÷ 2 = 24 cm²
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="animateTriangle">开始拼接动画</button>
+                <button class="btn btn-secondary" id="resetTriangle">重置三角形</button>
+            </div>
+        </div>
+
+        <!-- 总结部分 -->
+        <div class="section-card p-6 mt-8 disabled-section" id="summarySection">
+            <h2 class="font-serif-sc text-2xl font-bold mb-4 text-center">
+                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>总结
+            </h2>
+            
+            <div class="principle-box">
+                <p><strong>公式关系：</strong></p>
+                <p>• 平行四边形面积 = 底 × 高</p>
+                <p>• 三角形面积 = 底 × 高 ÷ 2</p>
+                <p><strong>关键理解：</strong>三角形面积公式来源于平行四边形，因为三角形是平行四边形的一半。</p>
+            </div>
+            
+            <div class="text-center mt-6">
+                <div class="formula-display">
+                    <div>当前尺寸下：</div>
+                    <div>平行四边形面积 = <span id="finalParallelogramArea">48</span> cm²</div>
+                    <div>三角形面积 = <span id="finalTriangleArea">24</span> cm²</div>
+                    <div class="mt-2 text-sm text-gray-600">验证：48 ÷ 2 = 24 ✓</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let baseLength = 8;
+        let height = 6;
+        let currentStep = 1;
+
+        // Canvas 上下文
+        const parallelogramCanvas = document.getElementById('parallelogramCanvas');
+        const triangleCanvas = document.getElementById('triangleCanvas');
+        const parallelogramCtx = parallelogramCanvas.getContext('2d');
+        const triangleCtx = triangleCanvas.getContext('2d');
+
+        // 动画状态
+        let parallelogramAnimating = false;
+        let triangleAnimating = false;
+        let parallelogramStep = 0; // 0: 初始, 1: 闪烁切割, 2: 移动, 3: 完成
+        let triangleStep = 0; // 0: 初始, 1: 复制, 2: 旋转, 3: 移动, 4: 完成
+
+        // 动画参数
+        let animationProgress = 0;
+        let animationSpeed = 0.008; // 放缓动画速度
+        let blinkCount = 0;
+        let blinkState = false;
+
+        // DOM 元素
+        const baseLengthInput = document.getElementById('baseLength');
+        const heightInput = document.getElementById('height');
+        const resetBtn = document.getElementById('resetBtn');
+        const animateParallelogramBtn = document.getElementById('animateParallelogram');
+        const resetParallelogramBtn = document.getElementById('resetParallelogram');
+        const animateTriangleBtn = document.getElementById('animateTriangle');
+        const resetTriangleBtn = document.getElementById('resetTriangle');
+
+        // --- 初始化和更新 ---
+        function init() {
+            updateDimensions();
+            updateProgress();
+        }
+
+        function updateDimensions() {
+            baseLength = parseInt(baseLengthInput.value);
+            height = parseInt(heightInput.value);
+
+            const parallelogramArea = baseLength * height;
+            const triangleArea = (baseLength * height / 2).toFixed(2).replace('.00', '');
+
+            document.getElementById('parallelogramFormula').innerHTML =
+                `平行四边形面积 = 底 × 高 = ${baseLength} × ${height} = ${parallelogramArea} cm²`;
+            document.getElementById('triangleFormula').innerHTML =
+                `三角形面积 = 底 × 高 ÷ 2 = ${baseLength} × ${height} ÷ 2 = ${triangleArea} cm²`;
+
+            document.getElementById('finalParallelogramArea').textContent = parallelogramArea;
+            document.getElementById('finalTriangleArea').textContent = triangleArea;
+
+            resetAll();
+        }
+
+        // --- 绘制工具 ---
+        function drawGrid(ctx, width, height) {
+            ctx.strokeStyle = '#f0f0f0';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, height);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= height; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(width, i);
+                ctx.stroke();
+            }
+        }
+
+        function drawShape(ctx, points, fillStyle, strokeStyle) {
+            ctx.fillStyle = fillStyle;
+            ctx.strokeStyle = strokeStyle;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // --- 平行四边形部分 ---
+        function getParallelogramData(centerX, centerY, scale) {
+            const base = baseLength * scale;
+            const h = height * scale;
+            const skew = h * 0.4; // 倾斜度
+
+            const p_bl = { x: centerX - base / 2, y: centerY + h / 2 }; // bottom-left
+            const p_br = { x: centerX + base / 2, y: centerY + h / 2 }; // bottom-right
+            const p_tr = { x: centerX + base / 2 + skew, y: centerY - h / 2 }; // top-right
+            const p_tl = { x: centerX - base / 2 + skew, y: centerY - h / 2 }; // top-left
+
+            const points = [p_bl, p_br, p_tr, p_tl];
+            
+            // 垂足：从左上角垂直向下到底边
+            const footOfPerpendicular = { x: p_tl.x, y: p_bl.y };
+            
+            // 切割出的三角形：左下角、垂足、左上角
+            const cutTriangle = [p_bl, footOfPerpendicular, p_tl];
+            
+            // 剩余的梯形：垂足、右下角、右上角、左上角
+            const trapezoid = [footOfPerpendicular, p_br, p_tr, p_tl];
+
+            return { base, h, skew, points, cutTriangle, trapezoid, footOfPerpendicular };
+        }
+
+        function drawParallelogram() {
+            parallelogramCtx.clearRect(0, 0, parallelogramCanvas.width, parallelogramCanvas.height);
+            drawGrid(parallelogramCtx, parallelogramCanvas.width, parallelogramCanvas.height);
+            const centerX = parallelogramCanvas.width / 2;
+            const centerY = parallelogramCanvas.height / 2;
+            const scale = 20;
+
+            const pData = getParallelogramData(centerX, centerY, scale);
+
+            if (parallelogramStep === 0) { // 初始状态
+                drawShape(parallelogramCtx, pData.points, 'rgba(54, 162, 235, 0.3)', '#36a2eb');
+            } else if (parallelogramStep === 1) { // 闪烁
+                drawShape(parallelogramCtx, pData.points, 'rgba(54, 162, 235, 0.3)', '#36a2eb');
+                if (blinkState) {
+                    drawShape(parallelogramCtx, pData.cutTriangle, 'rgba(255, 193, 7, 0.8)', '#ffc107');
+                }
+            } else if (parallelogramStep === 2) { // 移动
+                const moveDistance = animationProgress * pData.base;
+                const movingTriangle = pData.cutTriangle.map(p => ({ x: p.x + moveDistance, y: p.y }));
+                drawShape(parallelogramCtx, pData.trapezoid, 'rgba(54, 162, 235, 0.3)', '#36a2eb');
+                drawShape(parallelogramCtx, movingTriangle, 'rgba(255, 193, 7, 0.9)', '#ff8c00');
+            } else if (parallelogramStep === 3) { // 完成
+                // 绘制剩余的梯形部分（左边垂直）
+                drawShape(parallelogramCtx, pData.trapezoid, 'rgba(54, 162, 235, 0.3)', '#36a2eb');
+                
+                // 绘制移动到右边的三角形（最终位置）
+                const moveDistance = pData.base; // 移动距离等于底边长度
+                const finalTriangle = pData.cutTriangle.map(p => ({
+                    x: p.x + moveDistance, 
+                    y: p.y
+                }));
+                drawShape(parallelogramCtx, finalTriangle, 'rgba(255, 193, 7, 0.7)', '#ffc107');
+                
+                parallelogramCtx.fillStyle = '#333';
+                parallelogramCtx.font = '18px sans-serif';
+                parallelogramCtx.textAlign = 'center';
+                parallelogramCtx.fillText('完成！变成矩形', centerX, centerY - pData.h / 2 - 40);
+                parallelogramCtx.fillText(`面积 = 底 × 高 = ${baseLength} × ${height} = ${baseLength * height}cm²`, centerX, centerY + pData.h / 2 + 60);
+            }
+            drawParallelogramAnnotations(parallelogramCtx, pData);
+        }
+
+        function drawParallelogramAnnotations(ctx, pData) {
+            const { base, h, skew, points } = pData;
+            
+            // 始终标注顶边（上方）
+            const topCenterX = (points[3].x + points[2].x) / 2;
+            ctx.strokeStyle = '#ff6384';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(points[3].x, points[3].y - 5);
+            ctx.lineTo(points[2].x, points[2].y - 5);
+            ctx.stroke();
+            ctx.fillStyle = '#333';
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`底 = ${baseLength}cm`, topCenterX, points[3].y - 15);
+
+            // 高度标注保持不变
+            const heightLine = [{ x: points[3].x, y: points[3].y }, { x: points[3].x, y: points[0].y }];
+            ctx.strokeStyle = '#4bc0c0';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(heightLine[0].x, heightLine[0].y);
+            ctx.lineTo(heightLine[1].x, heightLine[1].y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            const rightAngleSize = 12;
+            ctx.strokeStyle = '#4bc0c0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(heightLine[1].x, heightLine[1].y);
+            ctx.lineTo(heightLine[1].x - rightAngleSize, heightLine[1].y);
+            ctx.lineTo(heightLine[1].x - rightAngleSize, heightLine[1].y - rightAngleSize);
+            ctx.lineTo(heightLine[1].x, heightLine[1].y - rightAngleSize);
+            ctx.closePath();
+            ctx.stroke();
+
+            ctx.textAlign = 'right';
+            ctx.fillText(`高 = ${height}cm`, heightLine[0].x - 15, (heightLine[0].y + heightLine[1].y) / 2);
+        }
+
+        // --- 三角形部分 ---
+        function getTriangleData(centerX, centerY, scale) {
+            const base = baseLength * scale;
+            const h = height * scale;
+            const points = [
+                { x: centerX - base / 2, y: centerY + h / 2 },
+                { x: centerX + base / 2, y: centerY + h / 2 },
+                { x: centerX, y: centerY - h / 2 }
+            ];
+            return { base, h, points };
+        }
+
+        function drawTriangle() {
+            triangleCtx.clearRect(0, 0, triangleCanvas.width, triangleCanvas.height);
+            drawGrid(triangleCtx, triangleCanvas.width, triangleCanvas.height);
+            const centerX = triangleCanvas.width / 2;
+            const centerY = triangleCanvas.height / 2;
+            const scale = 20;
+
+            const tData = getTriangleData(centerX, centerY, scale);
+            const originalTriangle = tData.points;
+
+            if (triangleStep === 0) { // 初始
+                drawShape(triangleCtx, originalTriangle, 'rgba(255, 99, 132, 0.3)', '#ff6384');
+            } else if (triangleStep === 1) { // 复制 - 完全重叠，通过闪烁显示
+                drawShape(triangleCtx, originalTriangle, 'rgba(255, 99, 132, 0.3)', '#ff6384');
+                // 复制的三角形完全重叠，通过不同颜色显示
+                const copyTriangle = [...originalTriangle];
+                drawShape(triangleCtx, copyTriangle, 'rgba(75, 192, 192, 0.6)', '#4bc0c0');
+            } else if (triangleStep === 2) { // 旋转180度，以右下角为轴心
+                drawShape(triangleCtx, originalTriangle, 'rgba(255, 99, 132, 0.3)', '#ff6384');
+                
+                // 旋转中心：右下角顶点
+                const pivot = originalTriangle[1]; // 右下角
+                const angle = animationProgress * Math.PI; // 180度 = π弧度
+                
+                // 计算旋转后的点
+                const rotatedTriangle = originalTriangle.map(point => {
+                    const dx = point.x - pivot.x;
+                    const dy = point.y - pivot.y;
+                    return {
+                        x: pivot.x + dx * Math.cos(angle) - dy * Math.sin(angle),
+                        y: pivot.y + dx * Math.sin(angle) + dy * Math.cos(angle)
+                    };
+                });
+                
+                drawShape(triangleCtx, rotatedTriangle, 'rgba(75, 192, 192, 0.6)', '#4bc0c0');
+            } else if (triangleStep === 3) { // 移动 - 旋转后精确拼接
+                drawShape(triangleCtx, originalTriangle, 'rgba(255, 99, 132, 0.3)', '#ff6384');
+                
+                // 先计算旋转180度后的位置
+                const pivot = originalTriangle[1]; // 右下角
+                const angle = Math.PI; // 180度
+                
+                const rotatedTriangle = originalTriangle.map(point => {
+                    const dx = point.x - pivot.x;
+                    const dy = point.y - pivot.y;
+                    return {
+                        x: pivot.x + dx * Math.cos(angle) - dy * Math.sin(angle),
+                        y: pivot.y + dx * Math.sin(angle) + dy * Math.cos(angle)
+                    };
+                });
+                
+                // 计算目标位置：使旋转后的三角形与原三角形拼接成平行四边形
+                // 目标：旋转后的顶点(原来的[2])应该到达原三角形的[0]位置
+                const targetPoint = originalTriangle[0]; // 原三角形的左下角
+                const rotatedTopPoint = rotatedTriangle[2]; // 旋转后的顶点
+                
+                // 计算需要的平移向量
+                const translateX = (targetPoint.x - rotatedTopPoint.x) * animationProgress;
+                const translateY = (targetPoint.y - rotatedTopPoint.y) * animationProgress;
+                
+                // 应用平移
+                const movingTriangle = rotatedTriangle.map(point => ({
+                    x: point.x + translateX,
+                    y: point.y + translateY
+                }));
+                
+                drawShape(triangleCtx, movingTriangle, 'rgba(75, 192, 192, 0.6)', '#4bc0c0');
+            } else if (triangleStep === 4) { // 完成
+                drawShape(triangleCtx, originalTriangle, 'rgba(255, 99, 132, 0.3)', '#ff6384');
+                
+                // 最终的第二个三角形：旋转180度后精确拼接形成平行四边形
+                const pivot = originalTriangle[1]; // 右下角
+                const angle = Math.PI; // 180度
+                
+                const rotatedTriangle = originalTriangle.map(point => {
+                    const dx = point.x - pivot.x;
+                    const dy = point.y - pivot.y;
+                    return {
+                        x: pivot.x + dx * Math.cos(angle) - dy * Math.sin(angle),
+                        y: pivot.y + dx * Math.sin(angle) + dy * Math.cos(angle)
+                    };
+                });
+                
+                // 精确拼接：旋转后的顶点对应原三角形的左下角
+                const targetPoint = originalTriangle[0]; // 原三角形的左下角
+                const rotatedTopPoint = rotatedTriangle[2]; // 旋转后的顶点
+                
+                const translateX = targetPoint.x - rotatedTopPoint.x;
+                const translateY = targetPoint.y - rotatedTopPoint.y;
+                
+                const finalT2Points = rotatedTriangle.map(point => ({
+                    x: point.x + translateX,
+                    y: point.y + translateY
+                }));
+                
+                drawShape(triangleCtx, finalT2Points, 'rgba(75, 192, 192, 0.3)', '#4bc0c0');
+                
+                // 绘制分割线显示两个三角形
+                triangleCtx.strokeStyle = '#666';
+                triangleCtx.lineWidth = 1;
+                triangleCtx.setLineDash([3, 3]);
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(originalTriangle[2].x, originalTriangle[2].y);
+                triangleCtx.lineTo(originalTriangle[1].x, originalTriangle[1].y);
+                triangleCtx.stroke();
+                triangleCtx.setLineDash([]);
+                
+                triangleCtx.fillStyle = '#333';
+                triangleCtx.font = '16px sans-serif';
+                triangleCtx.textAlign = 'center';
+                triangleCtx.fillText('两个三角形拼成平行四边形！', centerX, centerY - tData.h / 2 - 35);
+                triangleCtx.fillText(`平行四边形面积 = ${baseLength * height}cm²`, centerX, centerY + tData.h / 2 + 50);
+                triangleCtx.fillText(`所以一个三角形面积 = ${(baseLength * height / 2).toFixed(2).replace('.00', '')}cm²`, centerX, centerY + tData.h / 2 + 75);
+            }
+            
+            // 添加三角形的标注
+            drawTriangleAnnotations(triangleCtx, tData);
+        }
+
+        function drawTriangleAnnotations(ctx, tData) {
+            const { points } = tData;
+            
+            // 标注底边（红色）
+            const baseCenterX = (points[0].x + points[1].x) / 2;
+            ctx.strokeStyle = '#ff6384';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y + 5);
+            ctx.lineTo(points[1].x, points[1].y + 5);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`底 = ${baseLength}cm`, baseCenterX, points[0].y + 35);
+            
+            // 标注高（蓝色虚线）
+            const heightLine = [
+                { x: points[2].x, y: points[2].y }, // 顶点
+                { x: points[2].x, y: points[0].y }  // 垂足（底边上的点）
+            ];
+            
+            ctx.strokeStyle = '#4bc0c0';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(heightLine[0].x, heightLine[0].y);
+            ctx.lineTo(heightLine[1].x, heightLine[1].y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // 绘制直角标记
+            const rightAngleSize = 12;
+            ctx.strokeStyle = '#4bc0c0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(heightLine[1].x, heightLine[1].y);
+            ctx.lineTo(heightLine[1].x - rightAngleSize, heightLine[1].y);
+            ctx.lineTo(heightLine[1].x - rightAngleSize, heightLine[1].y - rightAngleSize);
+            ctx.lineTo(heightLine[1].x, heightLine[1].y - rightAngleSize);
+            ctx.closePath();
+            ctx.stroke();
+            
+            // 标注高度数值
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'right';
+            ctx.fillText(`高 = ${height}cm`, heightLine[0].x - 15, (heightLine[0].y + heightLine[1].y) / 2);
+        }
+
+        // --- 动画和控制逻辑 ---
+        function updateProgress() {
+            [1, 2, 3].forEach(i => {
+                document.getElementById(`step${i}`).className = 'progress-step';
+                if (i < 3) document.getElementById(`line${i}`).className = 'progress-line';
+            });
+            if (currentStep >= 1) document.getElementById('step1').classList.add('active');
+            if (parallelogramStep === 3) {
+                document.getElementById('step1').classList.add('completed');
+                document.getElementById('line1').classList.add('completed');
+            }
+            if (currentStep >= 2) document.getElementById('step2').classList.add('active');
+            if (triangleStep === 4) {
+                document.getElementById('step2').classList.add('completed');
+                document.getElementById('line2').classList.add('completed');
+            }
+            if (currentStep >= 3) document.getElementById('step3').classList.add('active');
+        }
+
+        function toggleSection(sectionId, enabled) {
+            document.getElementById(sectionId).classList.toggle('disabled-section', !enabled);
+        }
+
+        function animateParallelogram() {
+            if (parallelogramAnimating) return;
+            parallelogramAnimating = true;
+            animateParallelogramBtn.disabled = true;
+            parallelogramStep = 1;
+            animationProgress = 0;
+            blinkCount = 0;
+            blinkState = false;
+
+            const animate = () => {
+                if (!parallelogramAnimating) return;
+                if (parallelogramStep === 1) {
+                    animationProgress += 0.1;
+                    if (animationProgress >= 1) {
+                        blinkState = !blinkState;
+                        animationProgress = 0;
+                        if (blinkState) blinkCount++;
+                        if (blinkCount >= 3 && !blinkState) {
+                            parallelogramStep = 2;
+                            animationProgress = 0;
+                        }
+                    }
+                } else if (parallelogramStep === 2) {
+                    animationProgress = Math.min(1, animationProgress + animationSpeed);
+                    if (animationProgress === 1) {
+                        parallelogramStep = 3;
+                        parallelogramAnimating = false;
+                        animateParallelogramBtn.textContent = '动画完成';
+                        currentStep = 2;
+                        toggleSection('triangleSection', true);
+                        updateProgress();
+                    }
+                }
+                drawParallelogram();
+                if (parallelogramAnimating) requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        }
+
+        function animateTriangle() {
+            if (triangleAnimating) return;
+            triangleAnimating = true;
+            animateTriangleBtn.disabled = true;
+            triangleStep = 1;
+            animationProgress = 0;
+
+            const animate = () => {
+                if (!triangleAnimating) return;
+                if (triangleStep === 1) { // 复制阶段，延长显示时间
+                    if (animationProgress === 0) drawTriangle();
+                    animationProgress = Math.min(1, animationProgress + 0.015); // 进一步减慢速度
+                    if (animationProgress === 1) {
+                        triangleStep = 2;
+                        animationProgress = 0;
+                    }
+                } else if (triangleStep === 2) { // 旋转
+                    animationProgress = Math.min(1, animationProgress + animationSpeed);
+                    if (animationProgress === 1) {
+                        triangleStep = 3;
+                        animationProgress = 0;
+                    }
+                } else if (triangleStep === 3) { // 移动
+                    animationProgress = Math.min(1, animationProgress + animationSpeed);
+                    if (animationProgress === 1) {
+                        triangleStep = 4;
+                        triangleAnimating = false;
+                        animateTriangleBtn.textContent = '动画完成';
+                        currentStep = 3;
+                        toggleSection('summarySection', true);
+                        updateProgress();
+                    }
+                }
+                drawTriangle();
+                if (triangleAnimating) requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        }
+
+        function resetAll() {
+            parallelogramAnimating = false;
+            triangleAnimating = false;
+            parallelogramStep = 0;
+            triangleStep = 0;
+            animationProgress = 0;
+            currentStep = 1;
+
+            animateParallelogramBtn.textContent = '开始变形动画';
+            animateParallelogramBtn.disabled = false;
+            animateTriangleBtn.textContent = '开始拼接动画';
+            animateTriangleBtn.disabled = false;
+
+            toggleSection('triangleSection', false);
+            toggleSection('summarySection', false);
+
+            drawParallelogram();
+            drawTriangle();
+            updateProgress();
+        }
+
+        function resetParallelogram() {
+            parallelogramAnimating = false;
+            parallelogramStep = 0;
+            animateParallelogramBtn.textContent = '开始变形动画';
+            animateParallelogramBtn.disabled = false;
+            drawParallelogram();
+        }
+
+        function resetTriangle() {
+            triangleAnimating = false;
+            triangleStep = 0;
+            animateTriangleBtn.textContent = '开始拼接动画';
+            animateTriangleBtn.disabled = false;
+            drawTriangle();
+        }
+
+        // --- 事件监听 ---
+        baseLengthInput.addEventListener('input', updateDimensions);
+        heightInput.addEventListener('input', updateDimensions);
+        resetBtn.addEventListener('click', resetAll);
+        animateParallelogramBtn.addEventListener('click', animateParallelogram);
+        resetParallelogramBtn.addEventListener('click', resetParallelogram);
+        animateTriangleBtn.addEventListener('click', animateTriangle);
+        resetTriangleBtn.addEventListener('click', resetTriangle);
+
+        init();
+    </script>
+</body>
+</html>
