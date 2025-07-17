@@ -235,6 +235,8 @@
             <div class="progress-step" id="step2">2</div>
             <div class="progress-line" id="line2"></div>
             <div class="progress-step" id="step3">3</div>
+            <div class="progress-line" id="line3"></div>
+            <div class="progress-step" id="step4">4</div>
         </div>
 
         <!-- 全局控制面板 -->
@@ -249,6 +251,16 @@
                 <div class="control-group">
                     <label for="height">高度：</label>
                     <input type="number" id="height" value="6" min="3" max="12" step="1">
+                    <span>cm</span>
+                </div>
+                <div class="control-group">
+                    <label for="topBase">上底：</label>
+                    <input type="number" id="topBase" value="4" min="2" max="8" step="1">
+                    <span>cm</span>
+                </div>
+                <div class="control-group">
+                    <label for="bottomBase">下底：</label>
+                    <input type="number" id="bottomBase" value="10" min="6" max="15" step="1">
                     <span>cm</span>
                 </div>
                 <button class="btn btn-secondary" id="resetBtn">重置所有</button>
@@ -311,6 +323,37 @@
             </div>
         </div>
 
+        <!-- 连接箭头 -->
+        <div class="connection-arrow">
+            <i class="fas fa-arrow-down"></i>
+            <span class="ml-3">现在让我们看看梯形的面积公式</span>
+        </div>
+
+        <!-- 第三部分：梯形 -->
+        <div class="section-card p-6 disabled-section" id="trapezoidSection">
+            <h2 class="font-serif-sc text-2xl font-bold mb-4 text-center">
+                <i class="fas fa-mountain text-purple-500 mr-2"></i>第三步：梯形面积
+            </h2>
+            
+            <div class="principle-box">
+                <p><strong>核心原理：</strong>将梯形复制并旋转180度，两个梯形拼接成平行四边形</p>
+                <p><strong>关键发现：</strong>平行四边形的底 = 上底 + 下底，所以梯形面积 = (上底 + 下底) × 高 ÷ 2</p>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="trapezoidCanvas" width="600" height="400"></canvas>
+            </div>
+
+            <div class="formula-display" id="trapezoidFormula">
+                梯形面积 = (上底 + 下底) × 高 ÷ 2 = (4 + 10) × 6 ÷ 2 = 42 cm²
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="animateTrapezoid">开始拼接动画</button>
+                <button class="btn btn-secondary" id="resetTrapezoid">重置梯形</button>
+            </div>
+        </div>
+
         <!-- 总结部分 -->
         <div class="section-card p-6 mt-8 disabled-section" id="summarySection">
             <h2 class="font-serif-sc text-2xl font-bold mb-4 text-center">
@@ -321,7 +364,8 @@
                 <p><strong>公式关系：</strong></p>
                 <p>• 平行四边形面积 = 底 × 高</p>
                 <p>• 三角形面积 = 底 × 高 ÷ 2</p>
-                <p><strong>关键理解：</strong>三角形面积公式来源于平行四边形，因为三角形是平行四边形的一半。</p>
+                <p>• 梯形面积 = (上底 + 下底) × 高 ÷ 2</p>
+                <p><strong>关键理解：</strong>所有面积公式都源于平行四边形，通过不同的变换和组合得到。</p>
             </div>
             
             <div class="text-center mt-6">
@@ -329,7 +373,8 @@
                     <div>当前尺寸下：</div>
                     <div>平行四边形面积 = <span id="finalParallelogramArea">48</span> cm²</div>
                     <div>三角形面积 = <span id="finalTriangleArea">24</span> cm²</div>
-                    <div class="mt-2 text-sm text-gray-600">验证：48 ÷ 2 = 24 ✓</div>
+                    <div>梯形面积 = <span id="finalTrapezoidArea">42</span> cm²</div>
+                    <div class="mt-2 text-sm text-gray-600">验证：48 ÷ 2 = 24 ✓，(4+10) × 6 ÷ 2 = 42 ✓</div>
                 </div>
             </div>
         </div>
@@ -339,19 +384,25 @@
         // 全局变量
         let baseLength = 8;
         let height = 6;
+        let topBase = 4;
+        let bottomBase = 10;
         let currentStep = 1;
 
         // Canvas 上下文
         const parallelogramCanvas = document.getElementById('parallelogramCanvas');
         const triangleCanvas = document.getElementById('triangleCanvas');
+        const trapezoidCanvas = document.getElementById('trapezoidCanvas');
         const parallelogramCtx = parallelogramCanvas.getContext('2d');
         const triangleCtx = triangleCanvas.getContext('2d');
+        const trapezoidCtx = trapezoidCanvas.getContext('2d');
 
         // 动画状态
         let parallelogramAnimating = false;
         let triangleAnimating = false;
+        let trapezoidAnimating = false;
         let parallelogramStep = 0; // 0: 初始, 1: 闪烁切割, 2: 移动, 3: 完成
         let triangleStep = 0; // 0: 初始, 1: 复制, 2: 旋转, 3: 移动, 4: 完成
+        let trapezoidStep = 0; // 0: 初始, 1: 复制, 2: 旋转, 3: 移动, 4: 完成
 
         // 动画参数
         let animationProgress = 0;
@@ -362,11 +413,15 @@
         // DOM 元素
         const baseLengthInput = document.getElementById('baseLength');
         const heightInput = document.getElementById('height');
+        const topBaseInput = document.getElementById('topBase');
+        const bottomBaseInput = document.getElementById('bottomBase');
         const resetBtn = document.getElementById('resetBtn');
         const animateParallelogramBtn = document.getElementById('animateParallelogram');
         const resetParallelogramBtn = document.getElementById('resetParallelogram');
         const animateTriangleBtn = document.getElementById('animateTriangle');
         const resetTriangleBtn = document.getElementById('resetTriangle');
+        const animateTrapezoidBtn = document.getElementById('animateTrapezoid');
+        const resetTrapezoidBtn = document.getElementById('resetTrapezoid');
 
         // --- 初始化和更新 ---
         function init() {
@@ -377,17 +432,23 @@
         function updateDimensions() {
             baseLength = parseInt(baseLengthInput.value);
             height = parseInt(heightInput.value);
+            topBase = parseInt(topBaseInput.value);
+            bottomBase = parseInt(bottomBaseInput.value);
 
             const parallelogramArea = baseLength * height;
             const triangleArea = (baseLength * height / 2).toFixed(2).replace('.00', '');
+            const trapezoidArea = ((topBase + bottomBase) * height / 2).toFixed(2).replace('.00', '');
 
             document.getElementById('parallelogramFormula').innerHTML =
                 `平行四边形面积 = 底 × 高 = ${baseLength} × ${height} = ${parallelogramArea} cm²`;
             document.getElementById('triangleFormula').innerHTML =
                 `三角形面积 = 底 × 高 ÷ 2 = ${baseLength} × ${height} ÷ 2 = ${triangleArea} cm²`;
+            document.getElementById('trapezoidFormula').innerHTML =
+                `梯形面积 = (上底 + 下底) × 高 ÷ 2 = (${topBase} + ${bottomBase}) × ${height} ÷ 2 = ${trapezoidArea} cm²`;
 
             document.getElementById('finalParallelogramArea').textContent = parallelogramArea;
             document.getElementById('finalTriangleArea').textContent = triangleArea;
+            document.getElementById('finalTrapezoidArea').textContent = trapezoidArea;
 
             resetAll();
         }
@@ -714,11 +775,212 @@
             ctx.fillText(`高 = ${height}cm`, heightLine[0].x - 15, (heightLine[0].y + heightLine[1].y) / 2);
         }
 
+        // --- 梯形部分 ---
+        function getTrapezoidData(centerX, centerY, scale) {
+            const topW = topBase * scale;
+            const bottomW = bottomBase * scale;
+            const h = height * scale;
+            
+            // 梯形四个顶点：左下、右下、右上、左上
+            const points = [
+                { x: centerX - bottomW / 2, y: centerY + h / 2 },     // 左下
+                { x: centerX + bottomW / 2, y: centerY + h / 2 },     // 右下
+                { x: centerX + topW / 2, y: centerY - h / 2 },        // 右上
+                { x: centerX - topW / 2, y: centerY - h / 2 }         // 左上
+            ];
+            
+            return { topW, bottomW, h, points };
+        }
+
+        function drawTrapezoid() {
+            trapezoidCtx.clearRect(0, 0, trapezoidCanvas.width, trapezoidCanvas.height);
+            drawGrid(trapezoidCtx, trapezoidCanvas.width, trapezoidCanvas.height);
+            const centerX = trapezoidCanvas.width / 2;
+            const centerY = trapezoidCanvas.height / 2;
+            const scale = 20;
+
+            const tData = getTrapezoidData(centerX, centerY, scale);
+            const originalTrapezoid = tData.points;
+
+            if (trapezoidStep === 0) { // 初始
+                drawShape(trapezoidCtx, originalTrapezoid, 'rgba(128, 0, 128, 0.3)', '#800080');
+            } else if (trapezoidStep === 1) { // 复制 - 完全重叠，通过闪烁显示
+                drawShape(trapezoidCtx, originalTrapezoid, 'rgba(128, 0, 128, 0.3)', '#800080');
+                // 复制的梯形完全重叠，通过不同颜色显示
+                const copyTrapezoid = [...originalTrapezoid];
+                drawShape(trapezoidCtx, copyTrapezoid, 'rgba(255, 165, 0, 0.6)', '#ff8c00');
+            } else if (trapezoidStep === 2) { // 旋转180度，以右上角为轴心
+                drawShape(trapezoidCtx, originalTrapezoid, 'rgba(128, 0, 128, 0.3)', '#800080');
+                
+                // 旋转中心：右上角顶点
+                const pivot = originalTrapezoid[2]; // 右上角
+                const angle = animationProgress * Math.PI; // 180度 = π弧度
+                
+                // 计算旋转后的点
+                const rotatedTrapezoid = originalTrapezoid.map(point => {
+                    const dx = point.x - pivot.x;
+                    const dy = point.y - pivot.y;
+                    return {
+                        x: pivot.x + dx * Math.cos(angle) - dy * Math.sin(angle),
+                        y: pivot.y + dx * Math.sin(angle) + dy * Math.cos(angle)
+                    };
+                });
+                
+                drawShape(trapezoidCtx, rotatedTrapezoid, 'rgba(255, 165, 0, 0.6)', '#ff8c00');
+            } else if (trapezoidStep === 3) { // 移动 - 旋转后精确拼接
+                drawShape(trapezoidCtx, originalTrapezoid, 'rgba(128, 0, 128, 0.3)', '#800080');
+                
+                // 先计算旋转180度后的位置
+                const pivot = originalTrapezoid[2]; // 右上角
+                const angle = Math.PI; // 180度
+                
+                const rotatedTrapezoid = originalTrapezoid.map(point => {
+                    const dx = point.x - pivot.x;
+                    const dy = point.y - pivot.y;
+                    return {
+                        x: pivot.x + dx * Math.cos(angle) - dy * Math.sin(angle),
+                        y: pivot.y + dx * Math.sin(angle) + dy * Math.cos(angle)
+                    };
+                });
+                
+                // 计算目标位置：使旋转后的梯形与原梯形拼接成平行四边形
+                // 目标：旋转后的右下角应该与原梯形的右上角重合
+                const targetPoint = originalTrapezoid[2]; // 原梯形的右上角
+                const rotatedTargetPoint = rotatedTrapezoid[1]; // 旋转后的右下角
+                
+                // 计算需要的平移向量
+                const translateX = (targetPoint.x - rotatedTargetPoint.x) * animationProgress;
+                const translateY = (targetPoint.y - rotatedTargetPoint.y) * animationProgress;
+                
+                // 应用平移
+                const movingTrapezoid = rotatedTrapezoid.map(point => ({
+                    x: point.x + translateX,
+                    y: point.y + translateY
+                }));
+                
+                drawShape(trapezoidCtx, movingTrapezoid, 'rgba(255, 165, 0, 0.6)', '#ff8c00');
+            } else if (trapezoidStep === 4) { // 完成
+                drawShape(trapezoidCtx, originalTrapezoid, 'rgba(128, 0, 128, 0.3)', '#800080');
+                
+                // 最终的第二个梯形：旋转180度后精确拼接形成平行四边形
+                const pivot = originalTrapezoid[2]; // 右上角
+                const angle = Math.PI; // 180度
+                
+                const rotatedTrapezoid = originalTrapezoid.map(point => {
+                    const dx = point.x - pivot.x;
+                    const dy = point.y - pivot.y;
+                    return {
+                        x: pivot.x + dx * Math.cos(angle) - dy * Math.sin(angle),
+                        y: pivot.y + dx * Math.sin(angle) + dy * Math.cos(angle)
+                    };
+                });
+                
+                // 精确拼接：旋转后的右下角对应原梯形的右上角
+                const targetPoint = originalTrapezoid[2]; // 原梯形的右上角
+                const rotatedTargetPoint = rotatedTrapezoid[1]; // 旋转后的右下角
+                
+                const translateX = targetPoint.x - rotatedTargetPoint.x;
+                const translateY = targetPoint.y - rotatedTargetPoint.y;
+                
+                const finalT2Points = rotatedTrapezoid.map(point => ({
+                    x: point.x + translateX,
+                    y: point.y + translateY
+                }));
+                
+                drawShape(trapezoidCtx, finalT2Points, 'rgba(255, 165, 0, 0.3)', '#ff8c00');
+                
+                // 绘制分割线显示两个梯形
+                trapezoidCtx.strokeStyle = '#666';
+                trapezoidCtx.lineWidth = 1;
+                trapezoidCtx.setLineDash([3, 3]);
+                trapezoidCtx.beginPath();
+                trapezoidCtx.moveTo(originalTrapezoid[2].x, originalTrapezoid[2].y);
+                trapezoidCtx.lineTo(finalT2Points[1].x, finalT2Points[1].y);
+                trapezoidCtx.stroke();
+                trapezoidCtx.setLineDash([]);
+                
+                trapezoidCtx.fillStyle = '#333';
+                trapezoidCtx.font = '16px sans-serif';
+                trapezoidCtx.textAlign = 'center';
+                trapezoidCtx.fillText('两个梯形拼成平行四边形！', centerX, centerY - tData.h / 2 - 35);
+                const parallelogramArea = (topBase + bottomBase) * height;
+                const singleTrapezoidArea = ((topBase + bottomBase) * height / 2).toFixed(2).replace('.00', '');
+                trapezoidCtx.fillText(`平行四边形面积 = (上底+下底) × 高 = ${parallelogramArea}cm²`, centerX, centerY + tData.h / 2 + 50);
+                trapezoidCtx.fillText(`所以一个梯形面积 = ${singleTrapezoidArea}cm²`, centerX, centerY + tData.h / 2 + 75);
+            }
+            
+            // 添加梯形的标注
+            drawTrapezoidAnnotations(trapezoidCtx, tData);
+        }
+
+        function drawTrapezoidAnnotations(ctx, tData) {
+            const { points } = tData;
+            
+            // 标注下底（红色）
+            const bottomCenterX = (points[0].x + points[1].x) / 2;
+            ctx.strokeStyle = '#ff6384';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y + 5);
+            ctx.lineTo(points[1].x, points[1].y + 5);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`下底 = ${bottomBase}cm`, bottomCenterX, points[0].y + 35);
+            
+            // 标注上底（绿色）
+            const topCenterX = (points[3].x + points[2].x) / 2;
+            ctx.strokeStyle = '#4caf50';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(points[3].x, points[3].y - 5);
+            ctx.lineTo(points[2].x, points[2].y - 5);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'center';
+            ctx.fillText(`上底 = ${topBase}cm`, topCenterX, points[3].y - 15);
+            
+            // 标注高（蓝色虚线）
+            const heightLine = [
+                { x: points[3].x, y: points[3].y }, // 左上角
+                { x: points[3].x, y: points[0].y }  // 垂足（左下角的y坐标）
+            ];
+            
+            ctx.strokeStyle = '#4bc0c0';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(heightLine[0].x, heightLine[0].y);
+            ctx.lineTo(heightLine[1].x, heightLine[1].y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // 绘制直角标记
+            const rightAngleSize = 12;
+            ctx.strokeStyle = '#4bc0c0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(heightLine[1].x, heightLine[1].y);
+            ctx.lineTo(heightLine[1].x + rightAngleSize, heightLine[1].y);
+            ctx.lineTo(heightLine[1].x + rightAngleSize, heightLine[1].y - rightAngleSize);
+            ctx.lineTo(heightLine[1].x, heightLine[1].y - rightAngleSize);
+            ctx.closePath();
+            ctx.stroke();
+            
+            // 标注高度数值
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'left';
+            ctx.fillText(`高 = ${height}cm`, heightLine[0].x + 15, (heightLine[0].y + heightLine[1].y) / 2);
+        }
+
         // --- 动画和控制逻辑 ---
         function updateProgress() {
-            [1, 2, 3].forEach(i => {
+            [1, 2, 3, 4].forEach(i => {
                 document.getElementById(`step${i}`).className = 'progress-step';
-                if (i < 3) document.getElementById(`line${i}`).className = 'progress-line';
+                if (i < 4) document.getElementById(`line${i}`).className = 'progress-line';
             });
             if (currentStep >= 1) document.getElementById('step1').classList.add('active');
             if (parallelogramStep === 3) {
@@ -731,6 +993,11 @@
                 document.getElementById('line2').classList.add('completed');
             }
             if (currentStep >= 3) document.getElementById('step3').classList.add('active');
+            if (trapezoidStep === 4) {
+                document.getElementById('step3').classList.add('completed');
+                document.getElementById('line3').classList.add('completed');
+            }
+            if (currentStep >= 4) document.getElementById('step4').classList.add('active');
         }
 
         function toggleSection(sectionId, enabled) {
@@ -805,7 +1072,7 @@
                         triangleAnimating = false;
                         animateTriangleBtn.textContent = '动画完成';
                         currentStep = 3;
-                        toggleSection('summarySection', true);
+                        toggleSection('trapezoidSection', true);
                         updateProgress();
                     }
                 }
@@ -815,11 +1082,52 @@
             requestAnimationFrame(animate);
         }
 
+        function animateTrapezoid() {
+            if (trapezoidAnimating) return;
+            trapezoidAnimating = true;
+            animateTrapezoidBtn.disabled = true;
+            trapezoidStep = 1;
+            animationProgress = 0;
+
+            const animate = () => {
+                if (!trapezoidAnimating) return;
+                if (trapezoidStep === 1) { // 复制阶段，延长显示时间
+                    if (animationProgress === 0) drawTrapezoid();
+                    animationProgress = Math.min(1, animationProgress + 0.015); // 进一步减慢速度
+                    if (animationProgress === 1) {
+                        trapezoidStep = 2;
+                        animationProgress = 0;
+                    }
+                } else if (trapezoidStep === 2) { // 旋转
+                    animationProgress = Math.min(1, animationProgress + animationSpeed);
+                    if (animationProgress === 1) {
+                        trapezoidStep = 3;
+                        animationProgress = 0;
+                    }
+                } else if (trapezoidStep === 3) { // 移动
+                    animationProgress = Math.min(1, animationProgress + animationSpeed);
+                    if (animationProgress === 1) {
+                        trapezoidStep = 4;
+                        trapezoidAnimating = false;
+                        animateTrapezoidBtn.textContent = '动画完成';
+                        currentStep = 4;
+                        toggleSection('summarySection', true);
+                        updateProgress();
+                    }
+                }
+                drawTrapezoid();
+                if (trapezoidAnimating) requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        }
+
         function resetAll() {
             parallelogramAnimating = false;
             triangleAnimating = false;
+            trapezoidAnimating = false;
             parallelogramStep = 0;
             triangleStep = 0;
+            trapezoidStep = 0;
             animationProgress = 0;
             currentStep = 1;
 
@@ -827,12 +1135,16 @@
             animateParallelogramBtn.disabled = false;
             animateTriangleBtn.textContent = '开始拼接动画';
             animateTriangleBtn.disabled = false;
+            animateTrapezoidBtn.textContent = '开始拼接动画';
+            animateTrapezoidBtn.disabled = false;
 
             toggleSection('triangleSection', false);
+            toggleSection('trapezoidSection', false);
             toggleSection('summarySection', false);
 
             drawParallelogram();
             drawTriangle();
+            drawTrapezoid();
             updateProgress();
         }
 
@@ -852,14 +1164,26 @@
             drawTriangle();
         }
 
+        function resetTrapezoid() {
+            trapezoidAnimating = false;
+            trapezoidStep = 0;
+            animateTrapezoidBtn.textContent = '开始拼接动画';
+            animateTrapezoidBtn.disabled = false;
+            drawTrapezoid();
+        }
+
         // --- 事件监听 ---
         baseLengthInput.addEventListener('input', updateDimensions);
         heightInput.addEventListener('input', updateDimensions);
+        topBaseInput.addEventListener('input', updateDimensions);
+        bottomBaseInput.addEventListener('input', updateDimensions);
         resetBtn.addEventListener('click', resetAll);
         animateParallelogramBtn.addEventListener('click', animateParallelogram);
         resetParallelogramBtn.addEventListener('click', resetParallelogram);
         animateTriangleBtn.addEventListener('click', animateTriangle);
         resetTriangleBtn.addEventListener('click', resetTriangle);
+        animateTrapezoidBtn.addEventListener('click', animateTrapezoid);
+        resetTrapezoidBtn.addEventListener('click', resetTrapezoid);
 
         init();
     </script>
