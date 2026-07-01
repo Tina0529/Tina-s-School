@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>馨儿的暑假冒险岛 · 2026</title>
+<link rel="icon" href="img/icon.png">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#7dd3fc; --sky2:#38bdf8; --sea:#22d3ee; --sea2:#0891b2;
+  --sand:#fde68a; --sand2:#fbbf24; --coral:#fb7185; --coral2:#f43f5e;
+  --leaf:#4ade80; --leaf2:#16a34a; --grape:#a78bfa; --sun:#facc15;
+  --ink:#0f3a4d; --ink2:#155e75;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Noto Sans SC',system-ui,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 500px at 50% -8%, #bae6fd 0%, transparent 60%),
+    linear-gradient(180deg,#e0f2fe 0%, #ccfbf1 45%, #fef3c7 100%);
+  min-height:100vh; overflow-x:hidden;
+}
+.font-serif{font-family:'Noto Serif SC',serif}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px 60px}
+
+/* floating clouds */
+.cloud{position:fixed;top:0;left:0;font-size:42px;opacity:.7;pointer-events:none;z-index:0;
+  animation:drift linear infinite}
+@keyframes drift{from{transform:translateX(-15vw)}to{transform:translateX(115vw)}}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;text-align:center;padding:28px 16px 18px;z-index:2}
+.hero h1{font-family:'Noto Serif SC',serif;font-weight:900;margin:6px 0;
+  font-size:clamp(28px,7vw,52px);line-height:1.1;
+  background:linear-gradient(90deg,var(--sea2),var(--sky2),var(--grape));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 0 rgba(255,255,255,.6))}
+.hero .sub{color:var(--ink2);font-weight:500;font-size:clamp(13px,3.4vw,17px)}
+.datePill{display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:999px;
+  padding:7px 16px;margin-top:10px;box-shadow:0 6px 16px rgba(2,132,199,.18);font-weight:700;color:var(--ink2)}
+
+/* mascot */
+.mascot{display:inline-block;position:relative}
+.mascot .fox{font-size:clamp(52px,14vw,84px);display:inline-block;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 8px 8px rgba(0,0,0,.12))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+.bubble{position:relative;display:inline-block;max-width:280px;margin:0 auto 4px;background:#fff;
+  border-radius:16px;padding:10px 16px;font-weight:700;color:var(--ink);box-shadow:0 6px 16px rgba(2,132,199,.15);font-size:14px}
+.bubble:after{content:"";position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
+  border:9px solid transparent;border-top-color:#fff;border-bottom:0}
+
+/* ---------- STAT CHIPS ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 6px;z-index:2;position:relative}
+.chip{background:#fff;border-radius:18px;padding:12px 6px;text-align:center;
+  box-shadow:0 8px 20px rgba(2,132,199,.12);border:2px solid #fff}
+.chip .big{font-size:clamp(20px,6vw,30px);font-weight:900;line-height:1}
+.chip .lbl{font-size:11px;color:#64748b;margin-top:4px;font-weight:600}
+.chip.stars .big{color:var(--sand2)}
+.chip.streak .big{color:var(--coral2)}
+.chip.days .big{color:var(--sea2)}
+.chip.badge .big{color:var(--grape)}
+@media(max-width:520px){.chip .lbl{font-size:10px}}
+
+/* ---------- CARD ---------- */
+.card{background:#fff;border-radius:24px;padding:20px;margin:16px 0;
+  box-shadow:0 14px 34px rgba(2,132,199,.14);border:3px solid #fff;position:relative;z-index:2}
+.card h2{font-family:'Noto Serif SC',serif;margin:0 0 4px;font-size:22px;display:flex;align-items:center;gap:8px}
+.sectionSub{color:#64748b;font-size:13px;margin:0 0 14px}
+
+/* day nav */
+.dayNav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.dayNav button{border:none;background:#e0f2fe;color:var(--ink2);width:38px;height:38px;border-radius:12px;
+  font-size:16px;cursor:pointer;transition:.15s;font-weight:900}
+.dayNav button:hover:not(:disabled){background:var(--sky);color:#fff;transform:scale(1.08)}
+.dayNav button:disabled{opacity:.35;cursor:not-allowed}
+.dayNav .dtitle{font-weight:900;font-size:16px;color:var(--ink)}
+.dayNav .dtitle small{display:block;font-weight:600;color:#64748b;font-size:12px}
+
+/* progress ring + head */
+.todayHead{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.ring{position:relative;width:76px;height:76px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:18px;color:var(--sea2)}
+.todayHead .msg{font-weight:700;color:var(--ink2);font-size:15px}
+.todayHead .msg b{color:var(--coral2)}
+
+/* subject groups */
+.subj{border-radius:16px;padding:12px 14px;margin:10px 0;border-left:6px solid}
+.subj.s-yw{background:#fff1f2;border-color:var(--coral)}
+.subj.s-sx{background:#eff6ff;border-color:var(--sky2)}
+.subj.s-yy{background:#f0fdf4;border-color:var(--leaf2)}
+.subj.s-qt{background:#fff7ed;border-color:#fb923c}
+.subj .shead{font-weight:900;font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.subj .shead .cnt{margin-left:auto;font-size:12px;font-weight:700;color:#64748b}
+.task{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:10px;cursor:pointer;
+  transition:background .12s;user-select:none}
+.task:hover{background:rgba(255,255,255,.7)}
+.task .box{width:24px;height:24px;border-radius:8px;border:2.5px solid #cbd5e1;background:#fff;flex:none;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;transition:.15s}
+.task.done .box{background:linear-gradient(135deg,var(--leaf),var(--leaf2));border-color:var(--leaf2);transform:scale(1)}
+.task .txt{font-weight:600;font-size:14.5px}
+.task.done .txt{color:#94a3b8;text-decoration:line-through}
+.locked{opacity:.55;pointer-events:none}
+
+/* treasure */
+.treasure{text-align:center;margin-top:16px}
+.chestBtn{border:none;cursor:pointer;font-weight:900;font-size:17px;color:#fff;padding:14px 26px;border-radius:999px;
+  background:linear-gradient(135deg,var(--sand2),var(--coral));box-shadow:0 10px 22px rgba(244,63,94,.35);
+  transition:.15s;display:inline-flex;align-items:center;gap:10px}
+.chestBtn:hover:not(:disabled){transform:translateY(-3px) scale(1.03)}
+.chestBtn:disabled{filter:grayscale(.6);opacity:.7;cursor:not-allowed;box-shadow:none}
+.chestBtn.ready{animation:wiggle 1s ease-in-out infinite}
+.chestBtn.opened{background:linear-gradient(135deg,var(--leaf),var(--leaf2));box-shadow:0 10px 22px rgba(22,163,74,.3)}
+@keyframes wiggle{0%,100%{transform:rotate(-2deg) scale(1.02)}50%{transform:rotate(2deg) scale(1.05)}}
+.hint{font-size:12.5px;color:#94a3b8;margin-top:8px}
+
+/* ---------- MAP ---------- */
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:10px}
+.tile{aspect-ratio:1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:900;cursor:pointer;border:2.5px solid transparent;transition:.15s;position:relative;background:#f1f5f9;color:#94a3b8}
+.tile:hover{transform:translateY(-3px)}
+.tile .dn{font-size:15px;line-height:1}
+.tile .ic{font-size:16px;margin-top:2px;height:18px}
+.tile.full{background:linear-gradient(135deg,#fde68a,#fbbf24);color:#7c2d12;border-color:#f59e0b;box-shadow:0 6px 14px rgba(245,158,11,.3)}
+.tile.part{background:linear-gradient(135deg,#bae6fd,#7dd3fc);color:var(--ink2)}
+.tile.today{border-color:var(--coral2);box-shadow:0 0 0 3px rgba(244,63,94,.25);animation:pulse 1.6s infinite}
+.tile.future{opacity:.55}
+.tile.sel{outline:3px dashed var(--sea2);outline-offset:2px}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(244,63,94,.25)}50%{box-shadow:0 0 0 7px rgba(244,63,94,.08)}}
+
+/* ---------- SHOP ---------- */
+.shopGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.reward{border-radius:18px;padding:14px;background:linear-gradient(160deg,#fff,#f8fafc);border:2px solid #f1f5f9;
+  display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+.reward .rico{font-size:30px}
+.reward .rname{font-weight:800;font-size:14.5px;line-height:1.2}
+.reward .cost{font-weight:900;color:var(--sand2);font-size:14px}
+.reward button{margin-top:auto;border:none;border-radius:999px;padding:8px;font-weight:800;cursor:pointer;
+  background:linear-gradient(135deg,var(--sea),var(--sea2));color:#fff;transition:.15s;font-size:13.5px}
+.reward button:hover:not(:disabled){transform:scale(1.04)}
+.reward button:disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
+.ticketWall{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.ticket{background:linear-gradient(135deg,#fef08a,#fbbf24);border-radius:12px;padding:6px 12px;font-weight:800;font-size:13px;
+  color:#7c2d12;display:flex;align-items:center;gap:6px;box-shadow:0 4px 10px rgba(245,158,11,.25)}
+.ticket.used{filter:grayscale(1);opacity:.55}
+.ticket button{border:none;background:rgba(0,0,0,.12);border-radius:8px;color:#7c2d12;font-weight:800;cursor:pointer;padding:2px 8px;font-size:12px}
+
+/* ---------- BADGES ---------- */
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
+.bd{text-align:center;border-radius:18px;padding:14px 8px;background:#f8fafc;border:2px solid #f1f5f9;transition:.2s}
+.bd.on{background:linear-gradient(160deg,#faf5ff,#f3e8ff);border-color:var(--grape);box-shadow:0 8px 18px rgba(167,139,250,.25)}
+.bd .bico{font-size:34px;filter:grayscale(1);opacity:.4}
+.bd.on .bico{filter:none;opacity:1;animation:pop .5s}
+.bd .bname{font-weight:800;font-size:12.5px;margin-top:4px}
+.bd .bdesc{font-size:10.5px;color:#94a3b8;margin-top:2px}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+.stickerWall{display:flex;flex-wrap:wrap;gap:8px}
+.stk{font-size:26px;background:#f8fafc;border-radius:12px;padding:6px 8px;position:relative}
+.stk small{position:absolute;bottom:-4px;right:-4px;background:var(--coral2);color:#fff;border-radius:999px;font-size:10px;padding:1px 5px;font-weight:800}
+
+/* ---------- MODAL ---------- */
+.overlay{position:fixed;inset:0;background:rgba(15,58,77,.55);backdrop-filter:blur(3px);display:none;
+  align-items:center;justify-content:center;z-index:50;padding:20px}
+.overlay.show{display:flex;animation:fade .2s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:linear-gradient(180deg,#fff,#f0f9ff);border-radius:28px;max-width:360px;width:100%;padding:26px 22px;
+  text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.3);animation:rise .35s cubic-bezier(.2,1.3,.4,1)}
+@keyframes rise{from{transform:translateY(40px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.modal .chest{font-size:72px;animation:bob 1.6s ease-in-out infinite}
+.modal h3{font-family:'Noto Serif SC',serif;font-size:24px;margin:8px 0 4px}
+.modal .rewardType{display:inline-block;font-size:12px;font-weight:800;color:#fff;background:var(--grape);border-radius:999px;padding:3px 12px;margin-bottom:8px}
+.modal .rewardBody{font-size:16px;font-weight:600;color:var(--ink);line-height:1.5;margin:8px 0 4px;min-height:48px;display:flex;align-items:center;justify-content:center}
+.modal .bonus{font-weight:900;color:var(--sand2);font-size:18px;margin:10px 0}
+.modal .close{margin-top:14px;border:none;background:linear-gradient(135deg,var(--sea),var(--sea2));color:#fff;
+  font-weight:800;padding:12px 30px;border-radius:999px;cursor:pointer;font-size:15px}
+.modal .close:hover{transform:scale(1.04)}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:60;display:none}
+
+/* footer */
+.foot{text-align:center;margin-top:24px;color:#64748b;font-size:13px;position:relative;z-index:2}
+.foot a{color:var(--sea2);text-decoration:none;font-weight:700}
+.resetBtn{margin-top:10px;background:none;border:1px dashed #cbd5e1;color:#94a3b8;border-radius:999px;padding:6px 14px;
+  cursor:pointer;font-size:12px}
+.resetBtn:hover{color:var(--coral2);border-color:var(--coral)}
+</style>
+</head>
+<body>
+
+<!-- clouds -->
+<div class="cloud" style="animation-duration:60s;top:8%">☁️</div>
+<div class="cloud" style="animation-duration:90s;top:20%;animation-delay:-30s;font-size:32px">⛅</div>
+<div class="cloud" style="animation-duration:75s;top:4%;animation-delay:-50s">🌤️</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="mascot">
+      <div class="bubble" id="bubble">早安，馨儿！今天也要加油鸭～</div><br>
+      <span class="fox" id="fox">🦊</span>
+    </div>
+    <h1>馨儿的暑假冒险岛</h1>
+    <p class="sub">🏝️ 完成每日任务 · 点亮冒险地图 · 开启神秘宝箱</p>
+    <div class="datePill"><i class="fa-solid fa-calendar-day"></i><span id="todayLabel">—</span></div>
+  </header>
+
+  <!-- STATS -->
+  <section class="stats">
+    <div class="chip stars"><div class="big" id="stStars">0</div><div class="lbl">⭐ 可用星星</div></div>
+    <div class="chip streak"><div class="big" id="stStreak">0</div><div class="lbl">🔥 连续打卡</div></div>
+    <div class="chip days"><div class="big" id="stDays">0</div><div class="lbl">📅 完成天数</div></div>
+    <div class="chip badge"><div class="big" id="stBadges">0</div><div class="lbl">🏅 已得徽章</div></div>
+  </section>
+
+  <!-- TODAY QUEST -->
+  <section class="card" id="todayCard">
+    <div class="dayNav">
+      <button id="prevDay">‹</button>
+      <div class="dtitle" id="dayTitle">今日任务<small>—</small></div>
+      <button id="nextDay">›</button>
+    </div>
+
+    <div class="todayHead">
+      <div class="ring">
+        <svg width="76" height="76"><circle cx="38" cy="38" r="32" stroke="#e2e8f0" stroke-width="8" fill="none"/>
+          <circle id="ringFg" cx="38" cy="38" r="32" stroke="url(#g)" stroke-width="8" fill="none"
+            stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201"/>
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>
+        </svg>
+        <div class="pct" id="ringPct">0/0</div>
+      </div>
+      <div class="msg" id="todayMsg">加油完成今天的任务吧！</div>
+    </div>
+
+    <div id="subjects"></div>
+
+    <div class="treasure">
+      <button class="chestBtn" id="chestBtn" disabled><span id="chestIcon">🎁</span><span id="chestText">完成全部任务解锁宝箱</span></button>
+      <div class="hint" id="chestHint">今日全部完成后，宝箱就会亮起来哦～</div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section class="card">
+    <h2>🗺️ 冒险地图</h2>
+    <p class="sectionSub">每完成一天，岛上就多一颗金星✨（点击可查看/补做那一天）</p>
+    <div class="map" id="map"></div>
+  </section>
+
+  <!-- SHOP -->
+  <section class="card">
+    <h2>🛒 奖励小卖部</h2>
+    <p class="sectionSub">用攒下的 ⭐ 星星，兑换爸爸妈妈准备的奖励（家长可在文件里修改奖励和星数）</p>
+    <div class="shopGrid" id="shop"></div>
+    <div id="ticketArea" style="margin-top:16px;display:none">
+      <h2 style="font-size:16px">🎟️ 我的奖励券</h2>
+      <div class="ticketWall" id="tickets"></div>
+    </div>
+  </section>
+
+  <!-- BADGES -->
+  <section class="card">
+    <h2>🏅 成就徽章墙</h2>
+    <p class="sectionSub">坚持就会解锁更多闪亮徽章！</p>
+    <div class="badges" id="badges"></div>
+  </section>
+
+  <!-- STICKERS -->
+  <section class="card" id="stickerCard" style="display:none">
+    <h2>🌈 贴纸收藏册</h2>
+    <p class="sectionSub">从宝箱里开出的可爱贴纸都收藏在这里～</p>
+    <div class="stickerWall" id="stickers"></div>
+  </section>
+
+  <footer class="foot">
+    <p>为 馨儿 打造 · 一个充满惊喜的暑假 🌟</p>
+    <a href="index.html"><i class="fa-solid fa-arrow-left"></i> 返回知识乐园</a>
+    <br><button class="resetBtn" id="resetBtn"><i class="fa-solid fa-rotate-left"></i> 重置全部进度</button>
+  </footer>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="chest" id="mChest">🎁</div>
+    <h3 id="mTitle">恭喜开箱！</h3>
+    <div class="rewardType" id="mType">神秘惊喜</div>
+    <div class="rewardBody" id="mBody">—</div>
+    <div class="bonus" id="mBonus">+5 ⭐</div>
+    <button class="close" id="mClose">收下惊喜 🎉</button>
+  </div>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+/* ============================================================
+   ★ 家长可编辑区：任务、奖励、惊喜内容都在这里，随时修改 ★
+   ============================================================ */
+const CONFIG = {
+  name: "馨儿",
+  startDate: "2026-07-01",   // 暑假开始
+  endDate:   "2026-08-31",   // 暑假结束
+  starPerTask: 1,            // 每完成一项任务得几颗星
+  boxBonusMin: 3, boxBonusMax: 6,  // 开宝箱额外奖励星星范围
+
+  // —— 每日任务（来自暑假计划表）——
+  taskGroups: [
+    { key:"yw", subject:"语文", icon:"📖", tasks:["预习新知","练字","默写能手","实验班/五三/学霸","课外阅读30-60分钟","抄生词"] },
+    { key:"sx", subject:"数学", icon:"🧮", tasks:["预习新知","计算能手","实验班/五三/学霸"] },
+    { key:"yy", subject:"英语", icon:"🔤", tasks:["预习新知","默写能手","实验班/五三/学霸","抄单词"] },
+    { key:"qt", subject:"其他", icon:"🏃", tasks:["跳绳打卡","拉伸运动"] },
+  ],
+
+  // —— 星星奖励小卖部（家长自定义奖励与所需星数）——
+  rewards: [
+    { ico:"📺", name:"看一集喜欢的动画片", cost:15 },
+    { ico:"🍦", name:"挑选一次冰淇淋/甜点", cost:20 },
+    { ico:"🎲", name:"和爸爸妈妈玩一次桌游", cost:25 },
+    { ico:"🌙", name:"周末晚睡30分钟", cost:35 },
+    { ico:"🍽️", name:"决定一次晚餐吃什么", cost:40 },
+    { ico:"📚", name:"买一本喜欢的课外书", cost:70 },
+    { ico:"🎡", name:"去一次游乐场/公园", cost:120 },
+    { ico:"🎁", name:"一份神秘小礼物", cost:150 },
+  ],
+
+  // —— 宝箱里的惊喜内容 ——
+  surprises: {
+    encourage: [
+      "你今天超级棒！坚持就是最厉害的超能力 💪",
+      "馨儿真是学习小达人，为你骄傲！🌟",
+      "又完成了一天，你正在悄悄变得更强大 🚀",
+      "今天的努力，都会变成明天的底气 ✨",
+      "自律的女孩最闪耀，继续加油鸭！🌈",
+      "每一次坚持，都是给未来的自己送礼物 🎀",
+    ],
+    facts: [
+      "🐙 章鱼有三颗心脏，血液是蓝色的哦！",
+      "🍯 蜂蜜永远不会坏，考古学家发现过3000年前还能吃的蜂蜜！",
+      "🦈 鲨鱼比树还要古老，它们比第一棵树出现得更早！",
+      "🌕 月亮正在以每年约3.8厘米的速度慢慢远离地球。",
+      "🐝 蜜蜂扇动翅膀每秒约230次，所以才会“嗡嗡”响。",
+      "🌈 彩虹其实是一个完整的圆，只是地面挡住了下半部分！",
+      "🧠 你的大脑在睡觉时反而更忙，它在整理白天学到的知识。",
+      "🐧 企鹅求婚时会送对方一颗漂亮的小石子💎。",
+    ],
+    jokes: [
+      "❓ 什么东西越洗越脏？——答案：水！💧",
+      "❓ 什么门永远关不上？——答案：球门！⚽",
+      "❓ 一年四季都盛开的花是什么花？——答案：塑料花！🌸",
+      "❓ 什么书买不到？——答案：秘书！📕",
+      "❓ 铅笔姓什么？——答案：萧（削）！✏️",
+      "❓ 什么车寸步难行？——答案：风车！🎡",
+    ],
+    stickers: ["🌟","🦄","🍭","🌸","🐬","🦋","🌻","🍉","🐣","🎠","🌵","🐨","🍓","🪐"],
+  }
+};
+/* ===================== 编辑区结束 ===================== */
+
+const STORE_KEY = "xiner_summer_2026_v1";
+const TOTAL_PER_DAY = CONFIG.taskGroups.reduce((n,g)=>n+g.tasks.length,0);
+const subjClass = {yw:"s-yw",sx:"s-sx",yy:"s-yy",qt:"s-qt"};
+
+/* ---- state ---- */
+let state = load();
+function load(){
+  try{ const s=JSON.parse(localStorage.getItem(STORE_KEY)); if(s&&s.progress) return s; }catch(e){}
+  return { progress:{}, redeemed:[], tickets:[], stickers:{}, boxesOpened:0 };
+}
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+/* ---- date helpers ---- */
+function parse(str){ const [y,m,d]=str.split("-").map(Number); return new Date(y,m-1,d); }
+function key(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function diffDays(a,b){ return Math.round((parse(b)-parse(a))/86400000); }
+const WEEK=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+
+const START=CONFIG.startDate, END=CONFIG.endDate;
+const realToday=key(new Date());
+// 今天在暑假范围内则用真实日期，否则夹到范围内（方便提前/事后查看）
+const today = realToday<START?START : realToday>END?END : realToday;
+let selected = today;
+
+/* ---- task state accessors ---- */
+function dayRec(k){ return state.progress[k] || (state.progress[k]={done:{},boxOpened:false,boxReward:null}); }
+function isDone(k,gk,i){ return !!(state.progress[k]&&state.progress[k].done[gk+"-"+i]); }
+function countDone(k){ const r=state.progress[k]; return r?Object.values(r.done).filter(Boolean).length:0; }
+function dayComplete(k){ return countDone(k)>=TOTAL_PER_DAY; }
+
+/* ---- derived stats ---- */
+function subjectDoneCount(gkey){
+  let n=0;
+  for(const k in state.progress){ const d=state.progress[k].done;
+    for(const id in d){ if(d[id] && id.startsWith(gkey+"-")) n++; } }
+  return n;
+}
+function earnedStars(){
+  let s=0;
+  for(const k in state.progress){
+    s += countDone(k)*CONFIG.starPerTask;
+    const r=state.progress[k]; if(r.boxOpened && r.boxReward) s += (r.boxReward.bonus||0);
+  }
+  return s;
+}
+function spentStars(){ return state.redeemed.reduce((n,r)=>n+r.cost,0); }
+function availStars(){ return earnedStars()-spentStars(); }
+function completedDays(){ let n=0; for(const k in state.progress) if(dayComplete(k)) n++; return n; }
+function currentStreak(){
+  // 从今天往前数连续完成的天数（今天没完成则从昨天算）
+  let streak=0, cur=today;
+  if(!dayComplete(cur)) cur=key(addDays(parse(cur),-1));
+  while(cur>=START && dayComplete(cur)){ streak++; cur=key(addDays(parse(cur),-1)); }
+  return streak;
+}
+
+/* ---- badges ---- */
+const BADGES=[
+  {ico:"🌱",name:"启程",desc:"完成第1天",test:()=>completedDays()>=1},
+  {ico:"🔥",name:"三连击",desc:"连续3天",test:()=>maxStreak()>=3},
+  {ico:"⚡",name:"一周不断",desc:"连续7天",test:()=>maxStreak()>=7},
+  {ico:"💎",name:"半月坚持",desc:"连续15天",test:()=>maxStreak()>=15},
+  {ico:"👑",name:"满月冠军",desc:"连续30天",test:()=>maxStreak()>=30},
+  {ico:"📖",name:"语文小达人",desc:"语文累计50次",test:()=>subjectDoneCount("yw")>=50},
+  {ico:"🧮",name:"数学小达人",desc:"数学累计50次",test:()=>subjectDoneCount("sx")>=50},
+  {ico:"🔤",name:"英语小达人",desc:"英语累计50次",test:()=>subjectDoneCount("yy")>=50},
+  {ico:"🏃",name:"运动健将",desc:"运动累计40次",test:()=>subjectDoneCount("qt")>=40},
+  {ico:"⭐",name:"集星达人",desc:"累计100星",test:()=>earnedStars()>=100},
+  {ico:"🎁",name:"开箱大师",desc:"开20个宝箱",test:()=>state.boxesOpened>=20},
+  {ico:"🏝️",name:"环岛之王",desc:"完成50天",test:()=>completedDays()>=50},
+];
+function maxStreak(){
+  // 遍历所有已完成的天，求最长连续
+  const keys=Object.keys(state.progress).filter(dayComplete).sort();
+  let best=0,run=0,prev=null;
+  for(const k of keys){
+    if(prev && diffDays(prev,k)===1) run++; else run=1;
+    best=Math.max(best,run); prev=k;
+  }
+  return best;
+}
+
+/* ============ RENDER ============ */
+function render(){
+  // date pill
+  const td=parse(today);
+  document.getElementById("todayLabel").textContent =
+    `${td.getMonth()+1}月${td.getDate()}日 ${WEEK[td.getDay()]}`;
+
+  // stats
+  document.getElementById("stStars").textContent = availStars();
+  document.getElementById("stStreak").textContent = currentStreak();
+  document.getElementById("stDays").textContent = completedDays();
+  document.getElementById("stBadges").textContent = BADGES.filter(b=>b.test()).length;
+
+  renderDay();
+  renderMap();
+  renderShop();
+  renderBadges();
+  renderStickers();
+  save();
+}
+
+function renderDay(){
+  const sd=parse(selected);
+  const dayNo=diffDays(START,selected)+1;
+  document.getElementById("dayTitle").innerHTML =
+    (selected===today?"今日任务":"任务回顾") +
+    `<small>第 ${dayNo} 天 · ${sd.getMonth()+1}月${sd.getDate()}日 ${WEEK[sd.getDay()]}</small>`;
+
+  // nav buttons
+  document.getElementById("prevDay").disabled = selected<=START;
+  document.getElementById("nextDay").disabled = selected>=today;
+
+  const editable = selected<=today; // 不能勾选未来
+  const done=countDone(selected);
+
+  // ring
+  const frac=TOTAL_PER_DAY?done/TOTAL_PER_DAY:0;
+  document.getElementById("ringFg").style.strokeDashoffset = (201*(1-frac)).toFixed(1);
+  document.getElementById("ringPct").textContent = `${done}/${TOTAL_PER_DAY}`;
+
+  const msg=document.getElementById("todayMsg");
+  if(done===0) msg.innerHTML = "新的一天，开始冒险吧！🌅";
+  else if(done<TOTAL_PER_DAY) msg.innerHTML = `已完成 <b>${done}</b> 项，还差 <b>${TOTAL_PER_DAY-done}</b> 项就能开宝箱啦！`;
+  else msg.innerHTML = "🎉 太厉害了！今天全部完成！";
+
+  // subjects
+  const wrap=document.getElementById("subjects"); wrap.innerHTML="";
+  CONFIG.taskGroups.forEach(g=>{
+    const dc=g.tasks.filter((_,i)=>isDone(selected,g.key,i)).length;
+    const box=document.createElement("div");
+    box.className="subj "+subjClass[g.key]+(editable?"":" locked");
+    box.innerHTML=`<div class="shead">${g.icon} ${g.subject}<span class="cnt">${dc}/${g.tasks.length}</span></div>`;
+    g.tasks.forEach((t,i)=>{
+      const done=isDone(selected,g.key,i);
+      const row=document.createElement("div");
+      row.className="task"+(done?" done":"");
+      row.innerHTML=`<span class="box">${done?'<i class="fa-solid fa-check"></i>':''}</span><span class="txt">${t}</span>`;
+      if(editable) row.onclick=()=>toggle(g.key,i);
+      box.appendChild(row);
+    });
+    wrap.appendChild(box);
+  });
+
+  // treasure button
+  const rec=state.progress[selected];
+  const complete=dayComplete(selected);
+  const opened=rec&&rec.boxOpened;
+  const btn=document.getElementById("chestBtn");
+  const hint=document.getElementById("chestHint");
+  btn.className="chestBtn";
+  if(opened){
+    btn.classList.add("opened"); btn.disabled=false;
+    document.getElementById("chestIcon").textContent="✅";
+    document.getElementById("chestText").textContent="宝箱已开启 · 再看一次惊喜";
+    hint.textContent="点击可再次查看今天开出的惊喜～";
+    btn.onclick=()=>showReward(rec.boxReward,false);
+  }else if(complete){
+    btn.classList.add("ready"); btn.disabled=false;
+    document.getElementById("chestIcon").textContent="🎁";
+    document.getElementById("chestText").textContent="开启今日宝箱！";
+    hint.textContent="全部任务完成，快来开箱领惊喜！";
+    btn.onclick=openBox;
+  }else{
+    btn.disabled=true;
+    document.getElementById("chestIcon").textContent="🔒";
+    document.getElementById("chestText").textContent="完成全部任务解锁宝箱";
+    hint.textContent=`还差 ${TOTAL_PER_DAY-done} 项，加油！`;
+    btn.onclick=null;
+  }
+}
+
+function toggle(gk,i){
+  const rec=dayRec(selected);
+  const id=gk+"-"+i;
+  const was=dayComplete(selected);
+  rec.done[id]=!rec.done[id];
+  if(!rec.done[id]) delete rec.done[id];
+  // 若取消勾选导致当天不再完整，但宝箱已开，则保留已开记录（星星按记录算）
+  render();
+  const nowComplete=dayComplete(selected);
+  if(nowComplete && !was){ // 刚刚集齐
+    tinySound("ding");
+    bump();
+  } else if(rec.done[id]) tinySound("tick");
+}
+
+function renderMap(){
+  const map=document.getElementById("map"); map.innerHTML="";
+  const total=diffDays(START,END)+1;
+  for(let i=0;i<total;i++){
+    const k=key(addDays(parse(START),i));
+    const done=countDone(k), full=done>=TOTAL_PER_DAY, part=done>0&&!full;
+    const isToday=k===today, future=k>today;
+    const t=document.createElement("div");
+    t.className="tile"+(full?" full":part?" part":"")+(isToday?" today":"")+(future?" future":"")+(k===selected?" sel":"");
+    let ic = full?"⭐" : isToday?"🦊" : part?"·" : future?"":"";
+    t.innerHTML=`<span class="dn">${i+1}</span><span class="ic">${ic}</span>`;
+    if(!future) t.onclick=()=>{ selected=k; render(); document.getElementById("todayCard").scrollIntoView({behavior:"smooth",block:"start"}); };
+    map.appendChild(t);
+  }
+}
+
+function renderShop(){
+  const shop=document.getElementById("shop"); shop.innerHTML="";
+  const avail=availStars();
+  CONFIG.rewards.forEach((r,idx)=>{
+    const el=document.createElement("div"); el.className="reward";
+    el.innerHTML=`<div class="rico">${r.ico}</div><div class="rname">${r.name}</div>
+      <div class="cost">⭐ ${r.cost}</div>
+      <button ${avail<r.cost?"disabled":""}>${avail<r.cost?`还差 ${r.cost-avail}`:"兑换"}</button>`;
+    el.querySelector("button").onclick=()=>redeem(idx);
+    shop.appendChild(el);
+  });
+  // tickets earned
+  const area=document.getElementById("ticketArea"), tw=document.getElementById("tickets");
+  const list=(state.tickets||[]);
+  if(list.length){ area.style.display="block"; tw.innerHTML="";
+    list.forEach((tk,i)=>{
+      const el=document.createElement("div"); el.className="ticket"+(tk.used?" used":"");
+      el.innerHTML=`🎟️ ${tk.name} ${tk.used?"（已用）":`<button>使用</button>`}`;
+      if(!tk.used){ const b=el.querySelector("button"); if(b) b.onclick=()=>{ tk.used=true; render(); confetti(20); }; }
+      tw.appendChild(el);
+    });
+  } else area.style.display="none";
+}
+
+function redeem(idx){
+  const r=CONFIG.rewards[idx];
+  if(availStars()<r.cost) return;
+  if(!confirm(`用 ${r.cost} 颗星星兑换「${r.name}」吗？`)) return;
+  state.redeemed.push({name:r.name,cost:r.cost,date:today});
+  tinySound("ding"); confetti(60);
+  render();
+  setTimeout(()=>alert(`🎉 兑换成功！\n请把这张「${r.name}」奖励券交给爸爸妈妈兑现吧～`),100);
+}
+
+function renderBadges(){
+  const el=document.getElementById("badges"); el.innerHTML="";
+  BADGES.forEach(b=>{
+    const on=b.test();
+    const d=document.createElement("div"); d.className="bd"+(on?" on":"");
+    d.innerHTML=`<div class="bico">${b.ico}</div><div class="bname">${on?b.name:"？？？"}</div><div class="bdesc">${b.desc}</div>`;
+    el.appendChild(d);
+  });
+}
+
+function renderStickers(){
+  const card=document.getElementById("stickerCard"), wall=document.getElementById("stickers");
+  const keys=Object.keys(state.stickers||{});
+  if(!keys.length){ card.style.display="none"; return; }
+  card.style.display="block"; wall.innerHTML="";
+  keys.forEach(s=>{
+    const el=document.createElement("div"); el.className="stk";
+    el.innerHTML=`${s}${state.stickers[s]>1?`<small>×${state.stickers[s]}</small>`:""}`;
+    wall.appendChild(el);
+  });
+}
+
+/* ============ TREASURE BOX ============ */
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function openBox(){
+  const rec=dayRec(selected);
+  if(rec.boxOpened) return;
+  const bonus=CONFIG.boxBonusMin+Math.floor(Math.random()*(CONFIG.boxBonusMax-CONFIG.boxBonusMin+1));
+  // 加权随机决定惊喜类型
+  const roll=Math.random();
+  let reward;
+  if(roll<0.12){ // 幸运奖励券
+    const r=pick(CONFIG.rewards.filter(x=>x.cost<=40)) || CONFIG.rewards[0];
+    reward={type:"幸运奖励券",typeColor:"#f43f5e",body:`免费获得「${r.name}」奖励券一张！🎟️`,bonus,ticket:r.name,icon:"🎟️"};
+  }else if(roll<0.40){ // 贴纸
+    const s=pick(CONFIG.surprises.stickers);
+    reward={type:"闪亮贴纸",typeColor:"#a78bfa",body:`收集到一张贴纸 ${s} ，已放进收藏册！`,bonus,sticker:s,icon:"🌈"};
+  }else if(roll<0.62){
+    reward={type:"冷知识卡",typeColor:"#0891b2",body:pick(CONFIG.surprises.facts),bonus,icon:"💡"};
+  }else if(roll<0.82){
+    reward={type:"开心一笑",typeColor:"#f59e0b",body:pick(CONFIG.surprises.jokes),bonus,icon:"😄"};
+  }else{
+    reward={type:"专属鼓励",typeColor:"#16a34a",body:pick(CONFIG.surprises.encourage),bonus,icon:"💖"};
+  }
+  rec.boxOpened=true; rec.boxReward=reward;
+  state.boxesOpened=(state.boxesOpened||0)+1;
+  if(reward.sticker) state.stickers[reward.sticker]=(state.stickers[reward.sticker]||0)+1;
+  if(reward.ticket) (state.tickets=state.tickets||[]).push({name:reward.ticket,used:false});
+  save();
+  showReward(reward,true);
+  render();
+}
+
+function showReward(reward,celebrate){
+  const ov=document.getElementById("overlay");
+  document.getElementById("mChest").textContent = reward.icon||"🎁";
+  document.getElementById("mType").textContent = reward.type;
+  document.getElementById("mType").style.background = reward.typeColor||"#a78bfa";
+  document.getElementById("mBody").textContent = reward.body;
+  document.getElementById("mBonus").textContent = `+${reward.bonus} ⭐ 额外奖励`;
+  ov.classList.add("show");
+  if(celebrate){ confetti(120); tinySound("fanfare"); }
+}
+document.getElementById("mClose").onclick=()=>document.getElementById("overlay").classList.remove("show");
+document.getElementById("overlay").onclick=e=>{ if(e.target.id==="overlay") e.currentTarget.classList.remove("show"); };
+
+/* ============ NAV ============ */
+document.getElementById("prevDay").onclick=()=>{ if(selected>START){ selected=key(addDays(parse(selected),-1)); render(); } };
+document.getElementById("nextDay").onclick=()=>{ if(selected<today){ selected=key(addDays(parse(selected),1)); render(); } };
+document.getElementById("resetBtn").onclick=()=>{
+  if(confirm("确定要清空全部进度重新开始吗？此操作无法撤销。")){
+    localStorage.removeItem(STORE_KEY); state=load(); selected=today; render();
+  }
+};
+
+/* ============ mascot bubble rotation ============ */
+const bubbles=[
+  "早安，馨儿！今天也要加油鸭～","小狐狸陪你一起冒险！🦊","完成任务就能开宝箱哦🎁",
+  "坚持一下，你超棒的！💪","连续打卡火苗别熄灭呀🔥","攒星星换奖励，冲呀！⭐","学到的知识都是你的宝藏💎"];
+let bi=0;
+setInterval(()=>{ bi=(bi+1)%bubbles.length; const b=document.getElementById("bubble"); b.style.opacity=0;
+  setTimeout(()=>{ b.textContent=bubbles[bi]; b.style.opacity=1; },250); },4000);
+document.getElementById("fox").onclick=()=>{ document.getElementById("fox").style.animation="none";
+  void document.getElementById("fox").offsetWidth; document.getElementById("fox").style.animation="bob 2.4s ease-in-out infinite"; confetti(30); tinySound("tick"); };
+
+/* ============ mini celebration helpers ============ */
+function bump(){ confetti(80); }
+function tinySound(kind){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    const ctx=tinySound._c||(tinySound._c=new AC());
+    const notes= kind==="fanfare"?[523,659,784,1047]: kind==="ding"?[784,1047]:[880];
+    notes.forEach((f,i)=>{ const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type="sine"; o.frequency.value=f; o.connect(g); g.connect(ctx.destination);
+      const t=ctx.currentTime+i*0.09; g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.15,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
+      o.start(t); o.stop(t+0.24); });
+  }catch(e){}
+}
+
+/* ============ confetti ============ */
+const cvs=document.getElementById("confetti"), cx=cvs.getContext("2d");
+let parts=[], raf=null;
+function sizeCvs(){ cvs.width=innerWidth; cvs.height=innerHeight; }
+addEventListener("resize",sizeCvs); sizeCvs();
+const COLORS=["#f43f5e","#fbbf24","#22d3ee","#38bdf8","#a78bfa","#4ade80","#fb7185"];
+function confetti(n){
+  cvs.style.display="block";
+  for(let i=0;i<n;i++) parts.push({
+    x:innerWidth/2+(Math.random()-0.5)*160, y:innerHeight*0.35,
+    vx:(Math.random()-0.5)*9, vy:Math.random()*-11-4,
+    g:0.28+Math.random()*0.12, s:6+Math.random()*7,
+    c:COLORS[Math.floor(Math.random()*COLORS.length)], r:Math.random()*6, vr:(Math.random()-0.5)*0.4,
+    life:90+Math.random()*40 });
+  if(!raf) raf=requestAnimationFrame(tick);
+}
+function tick(){
+  cx.clearRect(0,0,cvs.width,cvs.height);
+  parts.forEach(p=>{ p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; p.life--;
+    cx.save(); cx.translate(p.x,p.y); cx.rotate(p.r); cx.fillStyle=p.c;
+    cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6); cx.restore(); });
+  parts=parts.filter(p=>p.life>0 && p.y<cvs.height+40);
+  if(parts.length) raf=requestAnimationFrame(tick);
+  else{ raf=null; cx.clearRect(0,0,cvs.width,cvs.height); cvs.style.display="none"; }
+}
+
+/* ============ go ============ */
+render();
+</script>
+</body>
+</html>
