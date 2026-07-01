@@ -172,33 +172,24 @@ body{
   border-radius:14px;padding:10px 14px;margin-bottom:12px;font-weight:700;color:var(--ink2);font-size:14px}
 .journeyInfo .n{color:var(--sea2);font-weight:900}
 .journeyInfo .nx{color:var(--coral2);font-weight:900}
-.journey{position:relative;height:540px;overflow-y:auto;border-radius:18px;
-  background:
-    radial-gradient(circle at 20% 15%, rgba(125,211,252,.25), transparent 40%),
-    radial-gradient(circle at 85% 70%, rgba(74,222,128,.20), transparent 45%),
-    linear-gradient(180deg,#eafaf4,#e6f2ff);
-  box-shadow:inset 0 2px 10px rgba(2,132,199,.08)}
-.journey::-webkit-scrollbar{width:8px}
-.journey::-webkit-scrollbar-thumb{background:#bae6fd;border-radius:8px}
-.journeyLayer{position:relative;width:100%}
-.journeyLayer svg{position:absolute;inset:0;pointer-events:none}
-.jnode{position:absolute;width:22px;height:22px;border-radius:50%;transform:translate(-50%,-50%);
-  border:3px solid #fff;box-shadow:0 3px 7px rgba(2,132,199,.2);z-index:2}
-.jnode.done{background:linear-gradient(135deg,#fde68a,#fbbf24)}
-.jnode.future{background:#dbeafe;opacity:.7}
-.jchest{position:absolute;transform:translate(-50%,-50%);z-index:3;font-size:34px;cursor:default;
-  filter:drop-shadow(0 5px 6px rgba(0,0,0,.18));transition:transform .2s}
-.jchest.locked{filter:grayscale(.35) drop-shadow(0 4px 5px rgba(0,0,0,.12));opacity:.9}
-.jchest.open{animation:chestPop 2s ease-in-out infinite}
-@keyframes chestPop{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-52%) scale(1.12)}}
-.jlabel{position:absolute;z-index:3;background:#fff;border-radius:12px;padding:5px 10px;font-size:12px;font-weight:700;
-  color:var(--ink);box-shadow:0 4px 10px rgba(2,132,199,.15);max-width:150px;line-height:1.25;pointer-events:none}
-.jlabel.got{background:linear-gradient(135deg,#fef9c3,#fde68a);color:#7c2d12}
-.jlabel .step{display:block;font-size:10px;color:#94a3b8;font-weight:600}
-.jlabel.got .step{color:#b45309}
-.jtoken{position:absolute;transform:translate(-50%,-70%);z-index:5;width:52px;height:52px;
-  filter:drop-shadow(0 6px 6px rgba(0,0,0,.22));transition:left .5s ease, top .5s ease}
-.jflag{position:absolute;transform:translate(-50%,-50%);z-index:3;font-size:30px}
+/* 整张海岛地图作为固定背景，一屏显示、不滚动 */
+.mapWrap{position:relative;width:100%;border-radius:18px;overflow:hidden;line-height:0;
+  box-shadow:inset 0 0 0 3px #fff, 0 8px 22px rgba(2,132,199,.18)}
+.mapImg{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
+.mchest{position:absolute;transform:translate(-50%,-50%);z-index:3;cursor:pointer;
+  font-size:clamp(20px,4.2vw,30px);line-height:1;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));transition:transform .2s}
+.mchest.locked{filter:grayscale(.35) drop-shadow(0 2px 3px rgba(0,0,0,.3));opacity:.95}
+.mchest.open{animation:chestPop 1.8s ease-in-out infinite}
+.mchest:hover{transform:translate(-50%,-50%) scale(1.15)}
+@keyframes chestPop{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-58%) scale(1.14)}}
+.mtoken{position:absolute;transform:translate(-50%,-80%);z-index:5;width:clamp(34px,8.5vw,54px);height:auto;
+  filter:drop-shadow(0 5px 5px rgba(0,0,0,.4));transition:left .6s ease, top .6s ease;pointer-events:none}
+.mpop{position:absolute;transform:translate(-50%,-125%);z-index:6;background:#fff;border-radius:10px;padding:5px 11px;
+  font-size:12.5px;font-weight:800;color:var(--ink);box-shadow:0 5px 12px rgba(0,0,0,.25);white-space:nowrap;pointer-events:none}
+.mpop.got{background:linear-gradient(135deg,#fef9c3,#fde68a);color:#7c2d12}
+.mpop .s{color:#94a3b8;font-weight:700;font-size:10.5px;margin-left:5px}
+.mpop:after{content:"";position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:#fff;border-bottom:0}
+.mpop.got:after{border-top-color:#fde68a}
 
 /* earned rewards list */
 .rewardList{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
@@ -351,13 +342,11 @@ body{
     <h2>🗺️ 冒险地图</h2>
     <p class="sectionSub">每完成一天就前进一步，走到宝箱站就解锁一份奖励！🎁</p>
     <div class="journeyInfo" id="journeyInfo">—</div>
-    <div class="journey" id="journey"><div class="journeyLayer" id="journeyLayer">
-      <svg id="journeySvg"></svg>
-      <div class="jtoken" id="jtoken">
-        <img src="img/cat_mascot.png" alt="馨儿" style="width:100%;height:100%;object-fit:contain"
-             onerror="this.style.display='none';this.parentNode.textContent='🐱';this.parentNode.style.fontSize='34px';this.parentNode.style.textAlign='center'">
-      </div>
-    </div></div>
+    <div class="mapWrap" id="mapWrap">
+      <img class="mapImg" src="img/adventure_map.jpg" alt="馨儿的暑假冒险岛地图">
+      <img class="mtoken" id="mtoken" src="img/cat_mascot.png" alt="馨儿"
+           onerror="this.replaceWith(Object.assign(document.createElement('div'),{id:'mtoken',className:'mtoken',textContent:'🐱',style:'font-size:30px;width:auto'}))">
+    </div>
   </section>
 
   <!-- MILESTONE REWARDS -->
@@ -677,57 +666,60 @@ function toggle(gk,i){
   render();
 }
 
-function renderJourney(){
-  const wrap=document.getElementById("journey");
-  const layer=document.getElementById("journeyLayer");
-  const svg=document.getElementById("journeySvg");
-  const token=document.getElementById("jtoken");
-  const N=SUMMER_LEN, w=wrap.clientWidth||340;
-  const STEP=60, TOP=48, cx=w/2, AMP=Math.min(w*0.30,120);
-  const H=N*STEP+TOP+40;
-  layer.style.height=H+"px";
-  svg.setAttribute("width",w); svg.setAttribute("height",H); svg.setAttribute("viewBox",`0 0 ${w} ${H}`);
-  // 蜿蜒路径上的节点坐标
-  const pts=[]; for(let i=1;i<=N;i++) pts.push({x:cx+AMP*Math.sin(i*0.62), y:TOP+i*STEP});
-  const startY=TOP-STEP*0.6;
-  let d=`M ${cx} ${startY} L ${pts[0].x} ${pts[0].y} `;
-  for(let i=1;i<pts.length;i++){ const a=pts[i-1],b=pts[i],mx=(a.x+b.x)/2,my=(a.y+b.y)/2; d+=`Q ${a.x} ${a.y} ${mx} ${my} `; }
-  d+=`L ${pts[pts.length-1].x} ${pts[pts.length-1].y}`;
-  svg.innerHTML=`<path d="${d}" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>`+
-    `<path d="${d}" fill="none" stroke="#bfe3ff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 15"/>`;
-  layer.querySelectorAll('.jnode,.jchest,.jlabel,.jflag').forEach(e=>e.remove());
-  const cur=steps(), mile=milestones();
-  // 起点旗
-  const start=document.createElement('div'); start.className='jflag'; start.textContent='🚩';
-  start.style.left=cx+'px'; start.style.top=startY+'px'; layer.appendChild(start);
-  for(let i=1;i<=N;i++){
-    const p=pts[i-1], rIdx=mile[i];
-    if(rIdx!=null){
-      const unlocked=i<=cur;
-      const c=document.createElement('div'); c.className='jchest '+(unlocked?'open':'locked');
-      c.style.left=p.x+'px'; c.style.top=p.y+'px'; c.textContent=unlocked?'🎉':'🎁';
-      layer.appendChild(c);
-      const lab=document.createElement('div'); lab.className='jlabel'+(unlocked?' got':'');
-      lab.style.top=p.y+'px';
-      if(p.x<cx){ lab.style.left=(p.x+26)+'px'; lab.style.transform='translateY(-50%)'; }
-      else { lab.style.left=(p.x-26)+'px'; lab.style.transform='translate(-100%,-50%)'; }
-      lab.innerHTML=`${CONFIG.rewards[rIdx].ico} ${CONFIG.rewards[rIdx].name}<span class="step">${unlocked?'✅ 已解锁':'第 '+i+' 步'}</span>`;
-      layer.appendChild(lab);
-    } else {
-      const n=document.createElement('div'); n.className='jnode '+(i<=cur?'done':'future');
-      n.style.left=p.x+'px'; n.style.top=p.y+'px'; layer.appendChild(n);
-    }
+/* ---- 海岛地图路径（%坐标，由地图石路自动识别，起点码头→终点宝藏） ---- */
+const PATH_PTS = [[0.2943,0.8278],[0.2848,0.7665],[0.3049,0.7909],[0.3146,0.7466],[0.3413,0.7007],[0.3809,0.6773],[0.4237,0.6735],[0.4685,0.6835],[0.5105,0.7016],[0.5530,0.7228],[0.5984,0.7386],[0.6431,0.7413],[0.6863,0.7262],[0.7195,0.6939],[0.7367,0.6482],[0.7320,0.5981],[0.7042,0.5591],[0.6614,0.5382],[0.5981,0.5355],[0.5465,0.5476],[0.5009,0.5620],[0.4530,0.5743],[0.4065,0.5840],[0.3587,0.5841],[0.3092,0.5656],[0.2729,0.5233],[0.2595,0.4631],[0.2739,0.4076],[0.3103,0.3616],[0.3557,0.3420],[0.4000,0.3385],[0.4492,0.3009],[0.4975,0.2807],[0.5499,0.2781],[0.5980,0.2929],[0.6566,0.2996],[0.7099,0.2768],[0.7395,0.2355],[0.7488,0.1448],[0.7160,0.2075]];
+const MAP_AR = 1264/848;   // 地图宽高比，用于按真实距离均匀取点
+let _cum=null;
+function cumLen(){
+  if(_cum) return _cum; _cum=[0];
+  for(let i=1;i<PATH_PTS.length;i++){
+    const dx=(PATH_PTS[i][0]-PATH_PTS[i-1][0])*MAP_AR, dy=PATH_PTS[i][1]-PATH_PTS[i-1][1];
+    _cum.push(_cum[i-1]+Math.hypot(dx,dy));
   }
-  // 猫咪令牌走到当前步
-  const tp = cur<=0 ? {x:cx,y:startY} : pts[Math.min(cur,N)-1];
-  token.style.left=tp.x+'px'; token.style.top=tp.y+'px';
-  wrap.scrollTop=Math.max(0, tp.y - wrap.clientHeight/2);
-  // 进度提示
+  return _cum;
+}
+function polyPos(frac){   // 沿路径按比例(0..1)取点，返回百分比坐标
+  frac=Math.max(0,Math.min(1,frac));
+  const c=cumLen(), total=c[c.length-1], target=frac*total;
+  let i=1; while(i<c.length && c[i]<target) i++;
+  if(i>=c.length){ const p=PATH_PTS[PATH_PTS.length-1]; return {x:p[0]*100,y:p[1]*100}; }
+  const seg=c[i]-c[i-1], t=seg?(target-c[i-1])/seg:0, a=PATH_PTS[i-1], b=PATH_PTS[i];
+  return {x:(a[0]+(b[0]-a[0])*t)*100, y:(a[1]+(b[1]-a[1])*t)*100};
+}
+
+function renderJourney(){
+  const wrap=document.getElementById("mapWrap");
+  const token=document.getElementById("mtoken");
+  const cur=steps(), maxS=SUMMER_LEN;
+  wrap.querySelectorAll('.mchest,.mpop').forEach(e=>e.remove());
+  // 奖励宝箱：按里程碑步数分布在路径上
+  CONFIG.rewards.forEach((r,idx)=>{
+    const st=rewardStep(idx), pos=polyPos(st/maxS), unlocked=cur>=st;
+    const c=document.createElement('div'); c.className='mchest '+(unlocked?'open':'locked');
+    c.style.left=pos.x+'%'; c.style.top=pos.y+'%'; c.textContent=unlocked?r.ico:'🎁';
+    c.title=r.name; c.onclick=()=>showChestPop(idx,false);
+    wrap.appendChild(c);
+  });
+  // 猫咪令牌走到当前进度处
+  const tp=polyPos(Math.min(cur,maxS)/maxS);
+  if(token){ token.style.left=tp.x+'%'; token.style.top=tp.y+'%'; }
+  // 进度提示 + 给下一个宝箱一个常驻标签
   const info=document.getElementById("journeyInfo");
   const next=CONFIG.rewards.map((r,idx)=>({idx,step:rewardStep(idx)})).find(o=>o.step>cur);
-  if(cur>=N) info.innerHTML=`🏁 恭喜！你走完了全程 <span class="n">${N}</span> 步，真了不起！`;
+  if(cur>=maxS) info.innerHTML=`🏁 恭喜！你走到了终点宝藏，太了不起了！`;
   else if(next) info.innerHTML=`已前进 <span class="n">${cur}</span> 步 · 再走 <span class="nx">${next.step-cur}</span> 步就到 ${CONFIG.rewards[next.idx].ico} ${CONFIG.rewards[next.idx].name}`;
   else info.innerHTML=`已前进 <span class="n">${cur}</span> 步`;
+  if(next) showChestPop(next.idx,true);
+}
+function showChestPop(idx,keep){
+  const wrap=document.getElementById("mapWrap");
+  wrap.querySelectorAll('.mpop').forEach(e=>e.remove());
+  const st=rewardStep(idx), pos=polyPos(st/SUMMER_LEN), unlocked=steps()>=st;
+  const pop=document.createElement('div'); pop.className='mpop'+(unlocked?' got':'');
+  pop.style.left=pos.x+'%'; pop.style.top=pos.y+'%';
+  pop.innerHTML=`${CONFIG.rewards[idx].ico} ${CONFIG.rewards[idx].name}<span class="s">${unlocked?'✅已解锁':'第'+st+'步'}</span>`;
+  wrap.appendChild(pop);
+  if(!keep){ clearTimeout(showChestPop._t); showChestPop._t=setTimeout(()=>{ if(pop.parentNode) pop.remove(); },2600); }
 }
 
 function renderRewards(){
