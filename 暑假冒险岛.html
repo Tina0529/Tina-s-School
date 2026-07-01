@@ -209,8 +209,55 @@ body{
     <div class="mascot">
       <div class="bubble" id="bubble">早上好，馨儿！新的一天，一起加油～</div><br>
       <img src="img/cat_mascot.png" alt="小猫咪" class="cat" id="cat"
-           onerror="this.style.display='none';document.getElementById('catEmoji').style.display='inline-block';">
-      <span class="fox" id="catEmoji" style="display:none">🐱</span>
+           onerror="this.style.display='none';document.getElementById('catSvg').style.display='inline-block';">
+      <!-- 备用矢量猫咪：真实照片未就绪时显示 -->
+      <svg id="catSvg" class="cat" style="display:none" viewBox="0 0 220 244" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="小猫咪">
+        <defs>
+          <radialGradient id="furG" cx="42%" cy="34%" r="72%">
+            <stop offset="0" stop-color="#ffd7a1"/><stop offset="1" stop-color="#f2a959"/>
+          </radialGradient>
+          <linearGradient id="bellyG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff6e9"/><stop offset="1" stop-color="#ffe7c9"/>
+          </linearGradient>
+        </defs>
+        <!-- 尾巴 -->
+        <path d="M168 202 C214 198 214 150 182 148 C165 147 165 172 178 172 C170 166 190 158 190 176 C190 196 172 200 160 198 Z" fill="url(#furG)" stroke="#e0954c" stroke-width="2"/>
+        <!-- 身体 -->
+        <ellipse cx="110" cy="188" rx="64" ry="52" fill="url(#furG)"/>
+        <ellipse cx="110" cy="200" rx="34" ry="36" fill="url(#bellyG)"/>
+        <!-- 前爪 -->
+        <ellipse cx="86" cy="228" rx="18" ry="13" fill="url(#furG)" stroke="#e0954c" stroke-width="1.5"/>
+        <ellipse cx="134" cy="228" rx="18" ry="13" fill="url(#furG)" stroke="#e0954c" stroke-width="1.5"/>
+        <path d="M80 228h12M104 228h12" stroke="#e0954c" stroke-width="1.6" stroke-linecap="round"/>
+        <!-- 耳朵 -->
+        <path d="M64 62 L52 14 L106 50 Z" fill="url(#furG)" stroke="#e0954c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M156 62 L168 14 L114 50 Z" fill="url(#furG)" stroke="#e0954c" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M68 54 L61 26 L92 48 Z" fill="#ffc2c9"/>
+        <path d="M152 54 L159 26 L128 48 Z" fill="#ffc2c9"/>
+        <!-- 头 -->
+        <circle cx="110" cy="98" r="60" fill="url(#furG)"/>
+        <!-- 虎斑纹 -->
+        <g stroke="#e39a4f" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.85">
+          <path d="M110 48 v22"/><path d="M92 52 q6 12 2 22"/><path d="M128 52 q-6 12 -2 22"/>
+          <path d="M58 96 q14 -4 22 2"/><path d="M162 96 q-14 -4 -22 2"/>
+        </g>
+        <!-- 腮红 -->
+        <ellipse cx="74" cy="118" rx="12" ry="7" fill="#ff9aa8" opacity="0.5"/>
+        <ellipse cx="146" cy="118" rx="12" ry="7" fill="#ff9aa8" opacity="0.5"/>
+        <!-- 眼睛 -->
+        <ellipse cx="86" cy="100" rx="12" ry="15" fill="#4a3a2e"/>
+        <ellipse cx="134" cy="100" rx="12" ry="15" fill="#4a3a2e"/>
+        <circle cx="82" cy="94" r="4.5" fill="#fff"/><circle cx="130" cy="94" r="4.5" fill="#fff"/>
+        <circle cx="90" cy="104" r="2" fill="#fff" opacity="0.8"/><circle cx="138" cy="104" r="2" fill="#fff" opacity="0.8"/>
+        <!-- 鼻子 + 嘴 -->
+        <path d="M110 124 l-7 -7 q7 -5 14 0 z" fill="#ff8a9b"/>
+        <path d="M110 124 q-7 11 -15 6 M110 124 q7 11 15 6" stroke="#c77b4a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <!-- 胡须 -->
+        <g stroke="#c9a06a" stroke-width="2" stroke-linecap="round" opacity="0.85">
+          <path d="M74 116 L30 108 M73 124 L27 124 M74 132 L31 140"/>
+          <path d="M146 116 L190 108 M147 124 L193 124 M146 132 L189 140"/>
+        </g>
+      </svg>
     </div>
     <h1>馨儿的暑假冒险岛</h1>
     <p class="sub">🏝️ 完成每日任务 · 点亮冒险地图 · 开启神秘宝箱</p>
@@ -696,7 +743,7 @@ setInterval(()=>{ bi=(bi+1)%bubbles.length; const b=document.getElementById("bub
   setTimeout(()=>{ b.textContent=bubbles[bi]; b.style.opacity=1; },250); },4000);
 function petMascot(el){ el.style.animation="none"; void el.offsetWidth;
   el.style.animation=(el.id==="cat"?"bob 2.6s":"bob 2.4s")+" ease-in-out infinite"; confetti(30); tinySound("tick"); }
-["cat","catEmoji"].forEach(id=>{ const el=document.getElementById(id); if(el) el.onclick=()=>petMascot(el); });
+["cat","catSvg"].forEach(id=>{ const el=document.getElementById(id); if(el) el.onclick=()=>petMascot(el); });
 
 /* ============ mini celebration helpers ============ */
 function bump(){ confetti(80); }
