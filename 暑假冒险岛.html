@@ -48,6 +48,8 @@ body{
 /* mascot */
 .mascot{display:inline-block;position:relative}
 .mascot .fox{font-size:clamp(52px,14vw,84px);display:inline-block;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 8px 8px rgba(0,0,0,.12))}
+.mascot .cat{width:clamp(104px,26vw,168px);height:auto;display:inline-block;cursor:pointer;
+  animation:bob 2.6s ease-in-out infinite;filter:drop-shadow(0 12px 12px rgba(0,0,0,.18))}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
 .bubble{position:relative;display:inline-block;max-width:280px;margin:0 auto 4px;background:#fff;
   border-radius:16px;padding:10px 16px;font-weight:700;color:var(--ink);box-shadow:0 6px 16px rgba(2,132,199,.15);font-size:14px}
@@ -166,11 +168,12 @@ body{
 .stk small{position:absolute;bottom:-4px;right:-4px;background:var(--coral2);color:#fff;border-radius:999px;font-size:10px;padding:1px 5px;font-weight:800}
 
 /* ---------- MODAL ---------- */
-.overlay{position:fixed;inset:0;background:rgba(15,58,77,.55);backdrop-filter:blur(3px);display:none;
-  align-items:center;justify-content:center;z-index:50;padding:20px}
-.overlay.show{display:flex;animation:fade .2s}
+.overlay{position:fixed;inset:0;background:radial-gradient(120% 90% at 50% 15%, rgba(20,26,60,.72), rgba(6,8,24,.9));
+  backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.overlay.show{display:flex;animation:fade .25s}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.modal{background:linear-gradient(180deg,#fff,#f0f9ff);border-radius:28px;max-width:360px;width:100%;padding:26px 22px;
+#fireworks{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.modal{position:relative;z-index:2;background:linear-gradient(180deg,#fff,#f0f9ff);border-radius:28px;max-width:360px;width:100%;padding:26px 22px;
   text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.3);animation:rise .35s cubic-bezier(.2,1.3,.4,1)}
 @keyframes rise{from{transform:translateY(40px) scale(.9);opacity:0}to{transform:none;opacity:1}}
 .modal .chest{font-size:72px;animation:bob 1.6s ease-in-out infinite}
@@ -204,8 +207,10 @@ body{
   <!-- HERO -->
   <header class="hero">
     <div class="mascot">
-      <div class="bubble" id="bubble">早安，馨儿！今天也要加油鸭～</div><br>
-      <span class="fox" id="fox">🦊</span>
+      <div class="bubble" id="bubble">早上好，馨儿！新的一天，一起加油～</div><br>
+      <img src="img/cat_mascot.png" alt="小猫咪" class="cat" id="cat"
+           onerror="this.style.display='none';document.getElementById('catEmoji').style.display='inline-block';">
+      <span class="fox" id="catEmoji" style="display:none">🐱</span>
     </div>
     <h1>馨儿的暑假冒险岛</h1>
     <p class="sub">🏝️ 完成每日任务 · 点亮冒险地图 · 开启神秘宝箱</p>
@@ -290,6 +295,7 @@ body{
 
 <!-- MODAL -->
 <div class="overlay" id="overlay">
+  <canvas id="fireworks"></canvas>
   <div class="modal">
     <div class="chest" id="mChest">🎁</div>
     <h3 id="mTitle">恭喜开箱！</h3>
@@ -322,25 +328,26 @@ const CONFIG = {
 
   // —— 星星奖励小卖部（家长自定义奖励与所需星数）——
   rewards: [
-    { ico:"📺", name:"看一集喜欢的动画片", cost:15 },
-    { ico:"🍦", name:"挑选一次冰淇淋/甜点", cost:20 },
-    { ico:"🎲", name:"和爸爸妈妈玩一次桌游", cost:25 },
-    { ico:"🌙", name:"周末晚睡30分钟", cost:35 },
-    { ico:"🍽️", name:"决定一次晚餐吃什么", cost:40 },
-    { ico:"📚", name:"买一本喜欢的课外书", cost:70 },
-    { ico:"🎡", name:"去一次游乐场/公园", cost:120 },
-    { ico:"🎁", name:"一份神秘小礼物", cost:150 },
+    { ico:"📱", name:"额外30分钟屏幕时间", cost:15 },
+    { ico:"🧋", name:"挑选一份甜点/奶茶", cost:20 },
+    { ico:"🎮", name:"周末游戏/追剧1小时", cost:25 },
+    { ico:"🌙", name:"周末晚睡40分钟", cost:35 },
+    { ico:"🍽️", name:"决定一次全家晚餐吃什么", cost:45 },
+    { ico:"👭", name:"和好朋友出去玩一次", cost:60 },
+    { ico:"📚", name:"买一本喜欢的书/文具", cost:75 },
+    { ico:"🎡", name:"周末去一个想去的地方", cost:120 },
+    { ico:"💰", name:"一笔小小零花钱奖励", cost:150 },
   ],
 
   // —— 宝箱里的惊喜内容 ——
   surprises: {
     encourage: [
-      "你今天超级棒！坚持就是最厉害的超能力 💪",
-      "馨儿真是学习小达人，为你骄傲！🌟",
-      "又完成了一天，你正在悄悄变得更强大 🚀",
-      "今天的努力，都会变成明天的底气 ✨",
-      "自律的女孩最闪耀，继续加油鸭！🌈",
-      "每一次坚持，都是给未来的自己送礼物 🎀",
+      "你今天很棒！坚持本身就是了不起的能力 💪",
+      "六年级是关键的一年，你正在为自己打好基础 🌟",
+      "一点点的积累，会在开学时变成你的底气 ✨",
+      "自律的人，运气都不会太差，继续加油！🍀",
+      "进步不必很快，只要每天都在向前 🚶‍♀️",
+      "今天的努力，未来的你一定会感谢 🎀",
     ],
     facts: [
       "🐙 章鱼有三颗心脏，血液是蓝色的哦！",
@@ -360,7 +367,7 @@ const CONFIG = {
       "❓ 铅笔姓什么？——答案：萧（削）！✏️",
       "❓ 什么车寸步难行？——答案：风车！🎡",
     ],
-    stickers: ["🌟","🦄","🍭","🌸","🐬","🦋","🌻","🍉","🐣","🎠","🌵","🐨","🍓","🪐"],
+    stickers: ["🐱","🐾","🌟","🦋","🌸","🐬","🌈","🍀","🪐","🌻","🍉","🐨","🎀","✨"],
   }
 };
 /* ===================== 编辑区结束 ===================== */
@@ -563,7 +570,7 @@ function renderMap(){
     const isToday=k===today, future=k>today;
     const t=document.createElement("div");
     t.className="tile"+(full?" full":part?" part":"")+(isToday?" today":"")+(future?" future":"")+(k===selected?" sel":"");
-    let ic = full?"⭐" : isToday?"🦊" : part?"·" : future?"":"";
+    let ic = full?"⭐" : isToday?"🐱" : part?"·" : future?"":"";
     t.innerHTML=`<span class="dn">${i+1}</span><span class="ic">${ic}</span>`;
     if(!future) t.onclick=()=>{ selected=k; render(); document.getElementById("todayCard").scrollIntoView({behavior:"smooth",block:"start"}); };
     map.appendChild(t);
@@ -665,10 +672,11 @@ function showReward(reward,celebrate){
   document.getElementById("mBody").textContent = reward.body;
   document.getElementById("mBonus").textContent = `+${reward.bonus} ⭐ 额外奖励`;
   ov.classList.add("show");
-  if(celebrate){ confetti(120); tinySound("fanfare"); }
+  if(celebrate){ launchFireworks(3200); tinySound("fanfare"); }
 }
-document.getElementById("mClose").onclick=()=>document.getElementById("overlay").classList.remove("show");
-document.getElementById("overlay").onclick=e=>{ if(e.target.id==="overlay") e.currentTarget.classList.remove("show"); };
+function closeModal(){ document.getElementById("overlay").classList.remove("show"); stopFireworks(); }
+document.getElementById("mClose").onclick=closeModal;
+document.getElementById("overlay").onclick=e=>{ if(e.target.id==="overlay") closeModal(); };
 
 /* ============ NAV ============ */
 document.getElementById("prevDay").onclick=()=>{ if(selected>START){ selected=key(addDays(parse(selected),-1)); render(); } };
@@ -681,13 +689,14 @@ document.getElementById("resetBtn").onclick=()=>{
 
 /* ============ mascot bubble rotation ============ */
 const bubbles=[
-  "早安，馨儿！今天也要加油鸭～","小狐狸陪你一起冒险！🦊","完成任务就能开宝箱哦🎁",
-  "坚持一下，你超棒的！💪","连续打卡火苗别熄灭呀🔥","攒星星换奖励，冲呀！⭐","学到的知识都是你的宝藏💎"];
+  "早上好，馨儿！新的一天，一起加油～","六年级啦，你已经是小大人了 💪","喵～今天的任务，我陪你一起完成！🐾",
+  "先完成，再完美，我们一步步来","坚持打卡，别让火苗熄灭呀🔥","攒够星星，去兑换你想要的奖励吧⭐","暑假结束时，你会感谢现在努力的自己✨"];
 let bi=0;
 setInterval(()=>{ bi=(bi+1)%bubbles.length; const b=document.getElementById("bubble"); b.style.opacity=0;
   setTimeout(()=>{ b.textContent=bubbles[bi]; b.style.opacity=1; },250); },4000);
-document.getElementById("fox").onclick=()=>{ document.getElementById("fox").style.animation="none";
-  void document.getElementById("fox").offsetWidth; document.getElementById("fox").style.animation="bob 2.4s ease-in-out infinite"; confetti(30); tinySound("tick"); };
+function petMascot(el){ el.style.animation="none"; void el.offsetWidth;
+  el.style.animation=(el.id==="cat"?"bob 2.6s":"bob 2.4s")+" ease-in-out infinite"; confetti(30); tinySound("tick"); }
+["cat","catEmoji"].forEach(id=>{ const el=document.getElementById(id); if(el) el.onclick=()=>petMascot(el); });
 
 /* ============ mini celebration helpers ============ */
 function bump(){ confetti(80); }
@@ -729,6 +738,66 @@ function tick(){
   if(parts.length) raf=requestAnimationFrame(tick);
   else{ raf=null; cx.clearRect(0,0,cvs.width,cvs.height); cvs.style.display="none"; }
 }
+
+/* ============ realistic fireworks (夜空烟花) ============ */
+const fw=document.getElementById("fireworks"), fctx=fw.getContext("2d");
+let fwParts=[], fwShells=[], fwRAF=null, fwEnd=0;
+const FW_PAL=[["#ff5f6d","#ffc371","#fff1b8"],["#36d1dc","#5b86e5","#c2f0ff"],
+  ["#f6d365","#fda085","#fff3c4"],["#c471f5","#fa71cd","#ffd6f5"],
+  ["#43e97b","#38f9d7","#e6fff4"],["#fa709a","#fee140","#fff6d5"],["#ffffff","#ffe9a8","#ffd24d"]];
+function fwSize(){ fw.width=fw.clientWidth||innerWidth; fw.height=fw.clientHeight||innerHeight; }
+// 发射一枚礼花弹：从底部升空到高处目标点（固定帧数、缓出减速，模拟真实上升），到顶即炸开
+function spawnRocket(){
+  const tx=fw.width*(0.14+Math.random()*0.72), ty=fw.height*(0.12+Math.random()*0.36);
+  fwShells.push({ sx:fw.width*(0.32+Math.random()*0.36), sy:fw.height, tx, ty, t:0,
+    dur:16+Math.floor(Math.random()*10), pal:FW_PAL[Math.floor(Math.random()*FW_PAL.length)] });
+}
+function explode(x,y,pal){
+  // 中心闪光
+  fctx.save(); fctx.globalCompositeOperation="lighter";
+  const fg=fctx.createRadialGradient(x,y,0,x,y,80);
+  fg.addColorStop(0,"rgba(255,255,255,.95)"); fg.addColorStop(.3,"rgba(255,255,255,.4)"); fg.addColorStop(1,"transparent");
+  fctx.fillStyle=fg; fctx.beginPath(); fctx.arc(x,y,80,0,7); fctx.fill(); fctx.restore();
+  const n=80+Math.floor(Math.random()*70), base=3.2+Math.random()*3.4, dbl=Math.random()<0.45;
+  for(let i=0;i<n;i++){
+    const ang=(i/n)*Math.PI*2+Math.random()*0.14;
+    const v=base*(0.5+Math.random()*0.6)*(dbl&&i%2?0.52:1);
+    fwParts.push({ x,y,vx:Math.cos(ang)*v,vy:Math.sin(ang)*v,
+      r:1.3+Math.random()*1.7, color:pal[Math.floor(Math.random()*pal.length)],
+      life:56+Math.random()*46, max:102, flick:Math.random()*6.28 });
+  }
+}
+function fwLoop(){
+  // 半透明深色叠加：既产生运动拖尾，又形成夜空
+  fctx.globalCompositeOperation="source-over";
+  fctx.fillStyle="rgba(8,10,26,0.22)";
+  fctx.fillRect(0,0,fw.width,fw.height);
+  fctx.globalCompositeOperation="lighter";
+  const now=Date.now();
+  if(now<fwEnd && (!fwLoop.last || now-fwLoop.last>150+Math.random()*230)){
+    fwLoop.last=now; spawnRocket(); if(Math.random()<0.35) spawnRocket();
+  }
+  // 上升中的礼花弹（线性插值x，缓出插值y，末端减速像真实礼花）
+  fwShells=fwShells.filter(s=>{ s.t++; const k=Math.min(1,s.t/s.dur);
+    const x=s.sx+(s.tx-s.sx)*k, y=s.sy+(s.ty-s.sy)*(1-(1-k)*(1-k));
+    fctx.shadowBlur=10; fctx.shadowColor=s.pal[0]; fctx.fillStyle=s.pal[2]||"#fff";
+    fctx.beginPath(); fctx.arc(x,y,2.5,0,7); fctx.fill(); fctx.shadowBlur=0;
+    if(s.t>=s.dur){ explode(x,y,s.pal); return false; } return true; });
+  // 爆炸粒子：重力 + 空气阻力 + 闪烁 + 辉光
+  fwParts=fwParts.filter(p=>{ p.vx*=0.985; p.vy=p.vy*0.985+0.052; p.x+=p.vx; p.y+=p.vy; p.life--; p.flick+=0.45;
+    const a=Math.max(0,p.life/p.max)*(0.72+0.28*Math.sin(p.flick));
+    fctx.globalAlpha=a; fctx.shadowBlur=10; fctx.shadowColor=p.color; fctx.fillStyle=p.color;
+    fctx.beginPath(); fctx.arc(p.x,p.y,p.r,0,7); fctx.fill();
+    return p.life>0 && p.y<fw.height+30; });
+  fctx.globalAlpha=1; fctx.shadowBlur=0;
+  if(now<fwEnd || fwParts.length || fwShells.length){ fwRAF=requestAnimationFrame(fwLoop); }
+  else stopFireworks();
+}
+function launchFireworks(ms){ fwSize(); fwEnd=Date.now()+(ms||2600); fwLoop.last=0;
+  if(!fwRAF) fwRAF=requestAnimationFrame(fwLoop); }
+function stopFireworks(){ if(fwRAF) cancelAnimationFrame(fwRAF); fwRAF=null;
+  fwParts=[]; fwShells=[]; if(fw.width) fctx.clearRect(0,0,fw.width,fw.height); }
+addEventListener("resize",()=>{ if(fwRAF) fwSize(); });
 
 /* ============ go ============ */
 render();
