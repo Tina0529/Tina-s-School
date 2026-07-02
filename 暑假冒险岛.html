@@ -122,37 +122,6 @@ body{
 @keyframes wiggle{0%,100%{transform:rotate(-2deg) scale(1.02)}50%{transform:rotate(2deg) scale(1.05)}}
 .hint{font-size:12.5px;color:#94a3b8;margin-top:8px}
 
-/* ---------- MAP ---------- */
-.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:10px}
-.tile{aspect-ratio:1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-weight:900;cursor:pointer;border:2.5px solid transparent;transition:.15s;position:relative;background:#f1f5f9;color:#94a3b8}
-.tile:hover{transform:translateY(-3px)}
-.tile .dn{font-size:15px;line-height:1}
-.tile .ic{font-size:16px;margin-top:2px;height:18px}
-.tile.full{background:linear-gradient(135deg,#fde68a,#fbbf24);color:#7c2d12;border-color:#f59e0b;box-shadow:0 6px 14px rgba(245,158,11,.3)}
-.tile.part{background:linear-gradient(135deg,#bae6fd,#7dd3fc);color:var(--ink2)}
-.tile.today{border-color:var(--coral2);box-shadow:0 0 0 3px rgba(244,63,94,.25);animation:pulse 1.6s infinite}
-.tile.future{opacity:.55}
-.tile.sel{outline:3px dashed var(--sea2);outline-offset:2px}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(244,63,94,.25)}50%{box-shadow:0 0 0 7px rgba(244,63,94,.08)}}
-
-/* ---------- SHOP ---------- */
-.shopGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.reward{border-radius:18px;padding:14px;background:linear-gradient(160deg,#fff,#f8fafc);border:2px solid #f1f5f9;
-  display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
-.reward .rico{font-size:30px}
-.reward .rname{font-weight:800;font-size:14.5px;line-height:1.2}
-.reward .cost{font-weight:900;color:var(--sand2);font-size:14px}
-.reward button{margin-top:auto;border:none;border-radius:999px;padding:8px;font-weight:800;cursor:pointer;
-  background:linear-gradient(135deg,var(--sea),var(--sea2));color:#fff;transition:.15s;font-size:13.5px}
-.reward button:hover:not(:disabled){transform:scale(1.04)}
-.reward button:disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
-.ticketWall{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-.ticket{background:linear-gradient(135deg,#fef08a,#fbbf24);border-radius:12px;padding:6px 12px;font-weight:800;font-size:13px;
-  color:#7c2d12;display:flex;align-items:center;gap:6px;box-shadow:0 4px 10px rgba(245,158,11,.25)}
-.ticket.used{filter:grayscale(1);opacity:.55}
-.ticket button{border:none;background:rgba(0,0,0,.12);border-radius:8px;color:#7c2d12;font-weight:800;cursor:pointer;padding:2px 8px;font-size:12px}
-
 /* ---------- BADGES ---------- */
 .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
 .bd{text-align:center;border-radius:18px;padding:14px 8px;background:#f8fafc;border:2px solid #f1f5f9;transition:.2s}
@@ -477,10 +446,17 @@ function diffDays(a,b){ return Math.round((parse(b)-parse(a))/86400000); }
 const WEEK=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
 
 const START=CONFIG.startDate, END=CONFIG.endDate;
-const realToday=key(new Date());
 // 今天在暑假范围内则用真实日期，否则夹到范围内（方便提前/事后查看）
-const today = realToday<START?START : realToday>END?END : realToday;
+function clampToday(){ const rt=key(new Date()); return rt<START?START : rt>END?END : rt; }
+let today = clampToday();
 let selected = today;
+// 页面长期开着（如iPad过夜）也能跨天：回到前台或每分钟检查一次日期
+function checkDayRollover(){
+  const t=clampToday();
+  if(t!==today){ const wasOnToday=(selected===today); today=t; if(wasOnToday) selected=today; render(); }
+}
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) checkDayRollover(); });
+setInterval(checkDayRollover, 60000);
 
 /* ---- task state accessors ---- */
 function dayRec(k){ return state.progress[k] || (state.progress[k]={done:{},boxOpened:false,boxReward:null}); }
@@ -716,7 +692,8 @@ function showChestPop(idx,keep){
   wrap.querySelectorAll('.mpop').forEach(e=>e.remove());
   const st=rewardStep(idx), pos=polyPos(st/SUMMER_LEN), unlocked=steps()>=st;
   const pop=document.createElement('div'); pop.className='mpop'+(unlocked?' got':'');
-  pop.style.left=pos.x+'%'; pop.style.top=pos.y+'%';
+  // 夹住横向位置，避免靠近地图左右边缘时气泡溢出
+  pop.style.left=Math.min(Math.max(pos.x,18),82)+'%'; pop.style.top=pos.y+'%';
   pop.innerHTML=`${CONFIG.rewards[idx].ico} ${CONFIG.rewards[idx].name}<span class="s">${unlocked?'✅已解锁':'第'+st+'步'}</span>`;
   wrap.appendChild(pop);
   if(!keep){ clearTimeout(showChestPop._t); showChestPop._t=setTimeout(()=>{ if(pop.parentNode) pop.remove(); },2600); }
@@ -738,7 +715,7 @@ function renderRewards(){
 }
 
 function celebrateReward(r){
-  showReward({ type:"抵达奖励站 🎁", typeColor:"#f59e0b", icon:r.ico, bonus:0,
+  showReward({ title:"🎉 抵达奖励站！", type:"里程碑奖励", typeColor:"#f59e0b", icon:r.ico, bonus:0,
     body:`你走到了「${r.name}」！\n把这份奖励告诉爸爸妈妈兑现吧～` }, true);
 }
 
@@ -797,6 +774,7 @@ function openBox(){
 
 function showReward(reward,celebrate){
   const ov=document.getElementById("overlay");
+  document.getElementById("mTitle").textContent = reward.title||"恭喜开箱！";
   document.getElementById("mChest").textContent = reward.icon||"🎁";
   document.getElementById("mType").textContent = reward.type;
   document.getElementById("mType").style.background = reward.typeColor||"#a78bfa";
