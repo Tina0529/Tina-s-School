@@ -122,37 +122,6 @@ body{
 @keyframes wiggle{0%,100%{transform:rotate(-2deg) scale(1.02)}50%{transform:rotate(2deg) scale(1.05)}}
 .hint{font-size:12.5px;color:#94a3b8;margin-top:8px}
 
-/* ---------- MAP ---------- */
-.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:10px}
-.tile{aspect-ratio:1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-weight:900;cursor:pointer;border:2.5px solid transparent;transition:.15s;position:relative;background:#f1f5f9;color:#94a3b8}
-.tile:hover{transform:translateY(-3px)}
-.tile .dn{font-size:15px;line-height:1}
-.tile .ic{font-size:16px;margin-top:2px;height:18px}
-.tile.full{background:linear-gradient(135deg,#fde68a,#fbbf24);color:#7c2d12;border-color:#f59e0b;box-shadow:0 6px 14px rgba(245,158,11,.3)}
-.tile.part{background:linear-gradient(135deg,#bae6fd,#7dd3fc);color:var(--ink2)}
-.tile.today{border-color:var(--coral2);box-shadow:0 0 0 3px rgba(244,63,94,.25);animation:pulse 1.6s infinite}
-.tile.future{opacity:.55}
-.tile.sel{outline:3px dashed var(--sea2);outline-offset:2px}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(244,63,94,.25)}50%{box-shadow:0 0 0 7px rgba(244,63,94,.08)}}
-
-/* ---------- SHOP ---------- */
-.shopGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.reward{border-radius:18px;padding:14px;background:linear-gradient(160deg,#fff,#f8fafc);border:2px solid #f1f5f9;
-  display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
-.reward .rico{font-size:30px}
-.reward .rname{font-weight:800;font-size:14.5px;line-height:1.2}
-.reward .cost{font-weight:900;color:var(--sand2);font-size:14px}
-.reward button{margin-top:auto;border:none;border-radius:999px;padding:8px;font-weight:800;cursor:pointer;
-  background:linear-gradient(135deg,var(--sea),var(--sea2));color:#fff;transition:.15s;font-size:13.5px}
-.reward button:hover:not(:disabled){transform:scale(1.04)}
-.reward button:disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
-.ticketWall{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-.ticket{background:linear-gradient(135deg,#fef08a,#fbbf24);border-radius:12px;padding:6px 12px;font-weight:800;font-size:13px;
-  color:#7c2d12;display:flex;align-items:center;gap:6px;box-shadow:0 4px 10px rgba(245,158,11,.25)}
-.ticket.used{filter:grayscale(1);opacity:.55}
-.ticket button{border:none;background:rgba(0,0,0,.12);border-radius:8px;color:#7c2d12;font-weight:800;cursor:pointer;padding:2px 8px;font-size:12px}
-
 /* ---------- BADGES ---------- */
 .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
 .bd{text-align:center;border-radius:18px;padding:14px 8px;background:#f8fafc;border:2px solid #f1f5f9;transition:.2s}
@@ -166,6 +135,42 @@ body{
 .stickerWall{display:flex;flex-wrap:wrap;gap:8px}
 .stk{font-size:26px;background:#f8fafc;border-radius:12px;padding:6px 8px;position:relative}
 .stk small{position:absolute;bottom:-4px;right:-4px;background:var(--coral2);color:#fff;border-radius:999px;font-size:10px;padding:1px 5px;font-weight:800}
+
+/* ---------- JOURNEY (弯弯曲曲冒险地图) ---------- */
+.journeyInfo{display:flex;align-items:center;gap:10px;background:linear-gradient(120deg,#ecfeff,#eff6ff);
+  border-radius:14px;padding:10px 14px;margin-bottom:12px;font-weight:700;color:var(--ink2);font-size:14px}
+.journeyInfo .n{color:var(--sea2);font-weight:900}
+.journeyInfo .nx{color:var(--coral2);font-weight:900}
+/* 整张海岛地图作为固定背景，一屏显示、不滚动 */
+.mapWrap{position:relative;width:100%;border-radius:18px;overflow:hidden;line-height:0;
+  box-shadow:inset 0 0 0 3px #fff, 0 8px 22px rgba(2,132,199,.18)}
+.mapImg{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
+.mchest{position:absolute;transform:translate(-50%,-50%);z-index:3;cursor:pointer;
+  font-size:clamp(20px,4.2vw,30px);line-height:1;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));transition:transform .2s}
+.mchest.locked{filter:grayscale(.35) drop-shadow(0 2px 3px rgba(0,0,0,.3));opacity:.95}
+.mchest.open{animation:chestPop 1.8s ease-in-out infinite}
+.mchest:hover{transform:translate(-50%,-50%) scale(1.15)}
+@keyframes chestPop{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-58%) scale(1.14)}}
+.mtoken{position:absolute;transform:translate(-50%,-80%);z-index:5;width:clamp(34px,8.5vw,54px);height:auto;
+  filter:drop-shadow(0 5px 5px rgba(0,0,0,.4));transition:left .6s ease, top .6s ease;pointer-events:none}
+.mpop{position:absolute;transform:translate(-50%,-125%);z-index:6;background:#fff;border-radius:10px;padding:5px 11px;
+  font-size:12.5px;font-weight:800;color:var(--ink);box-shadow:0 5px 12px rgba(0,0,0,.25);white-space:nowrap;pointer-events:none}
+.mpop.got{background:linear-gradient(135deg,#fef9c3,#fde68a);color:#7c2d12}
+.mpop .s{color:#94a3b8;font-weight:700;font-size:10.5px;margin-left:5px}
+.mpop:after{content:"";position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:#fff;border-bottom:0}
+.mpop.got:after{border-top-color:#fde68a}
+
+/* earned rewards list */
+.rewardList{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.rw{border-radius:16px;padding:12px;border:2px solid #f1f5f9;background:#f8fafc;display:flex;flex-direction:column;gap:6px;position:relative}
+.rw.got{background:linear-gradient(160deg,#f0fdf4,#dcfce7);border-color:var(--leaf)}
+.rw .rico{font-size:26px}
+.rw .rnm{font-weight:800;font-size:13.5px;line-height:1.25}
+.rw .rst{font-size:11.5px;color:#94a3b8;font-weight:600;margin-top:auto}
+.rw.got .rst{color:var(--leaf2)}
+.rw .rbtn{border:none;border-radius:999px;padding:6px;font-weight:800;cursor:pointer;font-size:12.5px;
+  background:linear-gradient(135deg,var(--sand2),var(--coral));color:#fff}
+.rw .rbtn.done{background:#e2e8f0;color:#94a3b8;cursor:default}
 
 /* ---------- MODAL ---------- */
 .overlay{position:fixed;inset:0;background:radial-gradient(120% 90% at 50% 15%, rgba(20,26,60,.72), rgba(6,8,24,.9));
@@ -266,7 +271,7 @@ body{
 
   <!-- STATS -->
   <section class="stats">
-    <div class="chip stars"><div class="big" id="stStars">0</div><div class="lbl">⭐ 可用星星</div></div>
+    <div class="chip stars"><div class="big" id="stStars">0</div><div class="lbl">⭐ 累计星星</div></div>
     <div class="chip streak"><div class="big" id="stStreak">0</div><div class="lbl">🔥 连续打卡</div></div>
     <div class="chip days"><div class="big" id="stDays">0</div><div class="lbl">📅 完成天数</div></div>
     <div class="chip badge"><div class="big" id="stBadges">0</div><div class="lbl">🏅 已得徽章</div></div>
@@ -301,22 +306,23 @@ body{
     </div>
   </section>
 
-  <!-- MAP -->
+  <!-- JOURNEY MAP -->
   <section class="card">
     <h2>🗺️ 冒险地图</h2>
-    <p class="sectionSub">每完成一天，岛上就多一颗金星✨（点击可查看/补做那一天）</p>
-    <div class="map" id="map"></div>
+    <p class="sectionSub">每完成一天就前进一步，走到宝箱站就解锁一份奖励！🎁</p>
+    <div class="journeyInfo" id="journeyInfo">—</div>
+    <div class="mapWrap" id="mapWrap">
+      <img class="mapImg" src="img/adventure_map.jpg" alt="馨儿的暑假冒险岛地图">
+      <img class="mtoken" id="mtoken" src="img/cat_mascot.png" alt="馨儿"
+           onerror="this.replaceWith(Object.assign(document.createElement('div'),{id:'mtoken',className:'mtoken',textContent:'🐱',style:'font-size:30px;width:auto'}))">
+    </div>
   </section>
 
-  <!-- SHOP -->
+  <!-- MILESTONE REWARDS -->
   <section class="card">
-    <h2>🛒 奖励小卖部</h2>
-    <p class="sectionSub">用攒下的 ⭐ 星星，兑换爸爸妈妈准备的奖励（家长可在文件里修改奖励和星数）</p>
-    <div class="shopGrid" id="shop"></div>
-    <div id="ticketArea" style="margin-top:16px;display:none">
-      <h2 style="font-size:16px">🎟️ 我的奖励券</h2>
-      <div class="ticketWall" id="tickets"></div>
-    </div>
+    <h2>🎁 奖励里程碑</h2>
+    <p class="sectionSub">沿途每个宝箱站的奖励都在这里，走到就解锁（家长可在文件里修改奖励内容）</p>
+    <div class="rewardList" id="rewardList"></div>
   </section>
 
   <!-- BADGES -->
@@ -367,23 +373,24 @@ const CONFIG = {
 
   // —— 每日任务（来自暑假计划表）——
   taskGroups: [
-    { key:"yw", subject:"语文", icon:"📖", tasks:["预习新知","练字","默写能手","实验班/五三/学霸","课外阅读30-60分钟","抄生词"] },
-    { key:"sx", subject:"数学", icon:"🧮", tasks:["预习新知","计算能手","实验班/五三/学霸"] },
-    { key:"yy", subject:"英语", icon:"🔤", tasks:["预习新知","默写能手","实验班/五三/学霸","抄单词"] },
+    { key:"yw", subject:"语文", icon:"📖", tasks:["预习新知","练字","默写能手","实验班","课外阅读30-60分钟","抄生词"] },
+    { key:"sx", subject:"数学", icon:"🧮", tasks:["预习新知","计算能手","实验班"] },
+    { key:"yy", subject:"英语", icon:"🔤", tasks:["预习新知","默写能手","实验班","每日打卡"] },
     { key:"qt", subject:"其他", icon:"🏃", tasks:["跳绳打卡","拉伸运动"] },
   ],
 
   // —— 星星奖励小卖部（家长自定义奖励与所需星数）——
   rewards: [
-    { ico:"📱", name:"额外30分钟屏幕时间", cost:15 },
-    { ico:"🧋", name:"挑选一份甜点/奶茶", cost:20 },
-    { ico:"🎮", name:"周末游戏/追剧1小时", cost:25 },
-    { ico:"🌙", name:"周末晚睡40分钟", cost:35 },
+    { ico:"📱", name:"额外10分钟屏幕时间", cost:15 },
+    { ico:"🎲", name:"和爸妈玩一次桌游/棋类", cost:20 },
+    { ico:"🚴", name:"一次户外运动（骑行/游泳/打球）", cost:25 },
+    { ico:"🏞️", name:"周末一次近郊出游/野餐", cost:35 },
     { ico:"🍽️", name:"决定一次全家晚餐吃什么", cost:45 },
     { ico:"👭", name:"和好朋友出去玩一次", cost:60 },
     { ico:"📚", name:"买一本喜欢的书/文具", cost:75 },
     { ico:"🎡", name:"周末去一个想去的地方", cost:120 },
     { ico:"💰", name:"一笔小小零花钱奖励", cost:150 },
+    { ico:"🥐", name:"奖励一份酒店自助早餐", cost:200 },
   ],
 
   // —— 宝箱里的惊喜内容 ——
@@ -427,7 +434,7 @@ const subjClass = {yw:"s-yw",sx:"s-sx",yy:"s-yy",qt:"s-qt"};
 let state = load();
 function load(){
   try{ const s=JSON.parse(localStorage.getItem(STORE_KEY)); if(s&&s.progress) return s; }catch(e){}
-  return { progress:{}, redeemed:[], tickets:[], stickers:{}, boxesOpened:0 };
+  return { progress:{}, stickers:{}, boxesOpened:0, bonusSteps:0, earnedRewards:[] };
 }
 function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 
@@ -439,10 +446,17 @@ function diffDays(a,b){ return Math.round((parse(b)-parse(a))/86400000); }
 const WEEK=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
 
 const START=CONFIG.startDate, END=CONFIG.endDate;
-const realToday=key(new Date());
 // 今天在暑假范围内则用真实日期，否则夹到范围内（方便提前/事后查看）
-const today = realToday<START?START : realToday>END?END : realToday;
+function clampToday(){ const rt=key(new Date()); return rt<START?START : rt>END?END : rt; }
+let today = clampToday();
 let selected = today;
+// 页面长期开着（如iPad过夜）也能跨天：回到前台或每分钟检查一次日期
+function checkDayRollover(){
+  const t=clampToday();
+  if(t!==today){ const wasOnToday=(selected===today); today=t; if(wasOnToday) selected=today; render(); }
+}
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) checkDayRollover(); });
+setInterval(checkDayRollover, 60000);
 
 /* ---- task state accessors ---- */
 function dayRec(k){ return state.progress[k] || (state.progress[k]={done:{},boxOpened:false,boxReward:null}); }
@@ -465,9 +479,31 @@ function earnedStars(){
   }
   return s;
 }
-function spentStars(){ return state.redeemed.reduce((n,r)=>n+r.cost,0); }
-function availStars(){ return earnedStars()-spentStars(); }
 function completedDays(){ let n=0; for(const k in state.progress) if(dayComplete(k)) n++; return n; }
+
+/* ---- 冒险地图：里程碑奖励 ---- */
+const SUMMER_LEN = diffDays(START,END)+1;   // 暑假总天数 = 地图总步数
+// 把奖励分布到地图上：第几步解锁第几个奖励（略微前密后疏，早点尝到甜头）
+function rewardStep(idx){
+  const N=CONFIG.rewards.length;
+  let step=Math.max(1, Math.round(SUMMER_LEN*Math.pow((idx+1)/N,1.3)));
+  if(idx>0){ const prev=rewardStep(idx-1); if(step<=prev) step=prev+1; }
+  return Math.min(step, SUMMER_LEN);
+}
+function milestones(){ const m={}; CONFIG.rewards.forEach((_,i)=>{ m[rewardStep(i)]=i; }); return m; }
+function steps(){ return completedDays() + (state.bonusSteps||0); }   // 完成的天数 + 幸运加速
+// 到达里程碑就解锁奖励（可选庆祝），已解锁不再收回
+function reconcile(celebrate){
+  const cur=steps(); state.earnedRewards=state.earnedRewards||[]; let newly=null;
+  CONFIG.rewards.forEach((r,idx)=>{
+    if(cur>=rewardStep(idx) && !state.earnedRewards.some(e=>e.idx===idx)){
+      state.earnedRewards.push({idx,name:r.name,ico:r.ico,step:rewardStep(idx),date:today,redeemed:false});
+      newly=r;
+    }
+  });
+  save();
+  if(celebrate && newly) celebrateReward(newly);
+}
 function currentStreak(){
   // 从今天往前数连续完成的天数（今天没完成则从昨天算）
   let streak=0, cur=today;
@@ -510,14 +546,14 @@ function render(){
     `${td.getMonth()+1}月${td.getDate()}日 ${WEEK[td.getDay()]}`;
 
   // stats
-  document.getElementById("stStars").textContent = availStars();
+  document.getElementById("stStars").textContent = earnedStars();
   document.getElementById("stStreak").textContent = currentStreak();
   document.getElementById("stDays").textContent = completedDays();
   document.getElementById("stBadges").textContent = BADGES.filter(b=>b.test()).length;
 
   renderDay();
-  renderMap();
-  renderShop();
+  renderJourney();
+  renderRewards();
   renderBadges();
   renderStickers();
   save();
@@ -599,63 +635,88 @@ function toggle(gk,i){
   const was=dayComplete(selected);
   rec.done[id]=!rec.done[id];
   if(!rec.done[id]) delete rec.done[id];
-  // 若取消勾选导致当天不再完整，但宝箱已开，则保留已开记录（星星按记录算）
-  render();
   const nowComplete=dayComplete(selected);
-  if(nowComplete && !was){ // 刚刚集齐
-    tinySound("ding");
-    bump();
+  if(nowComplete && !was){ // 刚刚集齐：前进一步，可能抵达奖励站
+    tinySound("ding"); bump(); reconcile(true);
   } else if(rec.done[id]) tinySound("tick");
-}
-
-function renderMap(){
-  const map=document.getElementById("map"); map.innerHTML="";
-  const total=diffDays(START,END)+1;
-  for(let i=0;i<total;i++){
-    const k=key(addDays(parse(START),i));
-    const done=countDone(k), full=done>=TOTAL_PER_DAY, part=done>0&&!full;
-    const isToday=k===today, future=k>today;
-    const t=document.createElement("div");
-    t.className="tile"+(full?" full":part?" part":"")+(isToday?" today":"")+(future?" future":"")+(k===selected?" sel":"");
-    let ic = full?"⭐" : isToday?"🐱" : part?"·" : future?"":"";
-    t.innerHTML=`<span class="dn">${i+1}</span><span class="ic">${ic}</span>`;
-    if(!future) t.onclick=()=>{ selected=k; render(); document.getElementById("todayCard").scrollIntoView({behavior:"smooth",block:"start"}); };
-    map.appendChild(t);
-  }
-}
-
-function renderShop(){
-  const shop=document.getElementById("shop"); shop.innerHTML="";
-  const avail=availStars();
-  CONFIG.rewards.forEach((r,idx)=>{
-    const el=document.createElement("div"); el.className="reward";
-    el.innerHTML=`<div class="rico">${r.ico}</div><div class="rname">${r.name}</div>
-      <div class="cost">⭐ ${r.cost}</div>
-      <button ${avail<r.cost?"disabled":""}>${avail<r.cost?`还差 ${r.cost-avail}`:"兑换"}</button>`;
-    el.querySelector("button").onclick=()=>redeem(idx);
-    shop.appendChild(el);
-  });
-  // tickets earned
-  const area=document.getElementById("ticketArea"), tw=document.getElementById("tickets");
-  const list=(state.tickets||[]);
-  if(list.length){ area.style.display="block"; tw.innerHTML="";
-    list.forEach((tk,i)=>{
-      const el=document.createElement("div"); el.className="ticket"+(tk.used?" used":"");
-      el.innerHTML=`🎟️ ${tk.name} ${tk.used?"（已用）":`<button>使用</button>`}`;
-      if(!tk.used){ const b=el.querySelector("button"); if(b) b.onclick=()=>{ tk.used=true; render(); confetti(20); }; }
-      tw.appendChild(el);
-    });
-  } else area.style.display="none";
-}
-
-function redeem(idx){
-  const r=CONFIG.rewards[idx];
-  if(availStars()<r.cost) return;
-  if(!confirm(`用 ${r.cost} 颗星星兑换「${r.name}」吗？`)) return;
-  state.redeemed.push({name:r.name,cost:r.cost,date:today});
-  tinySound("ding"); confetti(60);
   render();
-  setTimeout(()=>alert(`🎉 兑换成功！\n请把这张「${r.name}」奖励券交给爸爸妈妈兑现吧～`),100);
+}
+
+/* ---- 海岛地图路径（%坐标，由地图石路自动识别，起点码头→终点宝藏） ---- */
+const PATH_PTS = [[0.2943,0.8278],[0.2848,0.7665],[0.3049,0.7909],[0.3146,0.7466],[0.3413,0.7007],[0.3809,0.6773],[0.4237,0.6735],[0.4685,0.6835],[0.5105,0.7016],[0.5530,0.7228],[0.5984,0.7386],[0.6431,0.7413],[0.6863,0.7262],[0.7195,0.6939],[0.7367,0.6482],[0.7320,0.5981],[0.7042,0.5591],[0.6614,0.5382],[0.5981,0.5355],[0.5465,0.5476],[0.5009,0.5620],[0.4530,0.5743],[0.4065,0.5840],[0.3587,0.5841],[0.3092,0.5656],[0.2729,0.5233],[0.2595,0.4631],[0.2739,0.4076],[0.3103,0.3616],[0.3557,0.3420],[0.4000,0.3385],[0.4492,0.3009],[0.4975,0.2807],[0.5499,0.2781],[0.5980,0.2929],[0.6566,0.2996],[0.7099,0.2768],[0.7395,0.2355],[0.7488,0.1448],[0.7160,0.2075]];
+const MAP_AR = 1264/848;   // 地图宽高比，用于按真实距离均匀取点
+let _cum=null;
+function cumLen(){
+  if(_cum) return _cum; _cum=[0];
+  for(let i=1;i<PATH_PTS.length;i++){
+    const dx=(PATH_PTS[i][0]-PATH_PTS[i-1][0])*MAP_AR, dy=PATH_PTS[i][1]-PATH_PTS[i-1][1];
+    _cum.push(_cum[i-1]+Math.hypot(dx,dy));
+  }
+  return _cum;
+}
+function polyPos(frac){   // 沿路径按比例(0..1)取点，返回百分比坐标
+  frac=Math.max(0,Math.min(1,frac));
+  const c=cumLen(), total=c[c.length-1], target=frac*total;
+  let i=1; while(i<c.length && c[i]<target) i++;
+  if(i>=c.length){ const p=PATH_PTS[PATH_PTS.length-1]; return {x:p[0]*100,y:p[1]*100}; }
+  const seg=c[i]-c[i-1], t=seg?(target-c[i-1])/seg:0, a=PATH_PTS[i-1], b=PATH_PTS[i];
+  return {x:(a[0]+(b[0]-a[0])*t)*100, y:(a[1]+(b[1]-a[1])*t)*100};
+}
+
+function renderJourney(){
+  const wrap=document.getElementById("mapWrap");
+  const token=document.getElementById("mtoken");
+  const cur=steps(), maxS=SUMMER_LEN;
+  wrap.querySelectorAll('.mchest,.mpop').forEach(e=>e.remove());
+  // 奖励宝箱：按里程碑步数分布在路径上
+  CONFIG.rewards.forEach((r,idx)=>{
+    const st=rewardStep(idx), pos=polyPos(st/maxS), unlocked=cur>=st;
+    const c=document.createElement('div'); c.className='mchest '+(unlocked?'open':'locked');
+    c.style.left=pos.x+'%'; c.style.top=pos.y+'%'; c.textContent=unlocked?r.ico:'🎁';
+    c.title=r.name; c.onclick=()=>showChestPop(idx,false);
+    wrap.appendChild(c);
+  });
+  // 猫咪令牌走到当前进度处
+  const tp=polyPos(Math.min(cur,maxS)/maxS);
+  if(token){ token.style.left=tp.x+'%'; token.style.top=tp.y+'%'; }
+  // 进度提示 + 给下一个宝箱一个常驻标签
+  const info=document.getElementById("journeyInfo");
+  const next=CONFIG.rewards.map((r,idx)=>({idx,step:rewardStep(idx)})).find(o=>o.step>cur);
+  if(cur>=maxS) info.innerHTML=`🏁 恭喜！你走到了终点宝藏，太了不起了！`;
+  else if(next) info.innerHTML=`已前进 <span class="n">${cur}</span> 步 · 再走 <span class="nx">${next.step-cur}</span> 步就到 ${CONFIG.rewards[next.idx].ico} ${CONFIG.rewards[next.idx].name}`;
+  else info.innerHTML=`已前进 <span class="n">${cur}</span> 步`;
+  if(next) showChestPop(next.idx,true);
+}
+function showChestPop(idx,keep){
+  const wrap=document.getElementById("mapWrap");
+  wrap.querySelectorAll('.mpop').forEach(e=>e.remove());
+  const st=rewardStep(idx), pos=polyPos(st/SUMMER_LEN), unlocked=steps()>=st;
+  const pop=document.createElement('div'); pop.className='mpop'+(unlocked?' got':'');
+  // 夹住横向位置，避免靠近地图左右边缘时气泡溢出
+  pop.style.left=Math.min(Math.max(pos.x,18),82)+'%'; pop.style.top=pos.y+'%';
+  pop.innerHTML=`${CONFIG.rewards[idx].ico} ${CONFIG.rewards[idx].name}<span class="s">${unlocked?'✅已解锁':'第'+st+'步'}</span>`;
+  wrap.appendChild(pop);
+  if(!keep){ clearTimeout(showChestPop._t); showChestPop._t=setTimeout(()=>{ if(pop.parentNode) pop.remove(); },2600); }
+}
+
+function renderRewards(){
+  const list=document.getElementById("rewardList"); list.innerHTML="";
+  CONFIG.rewards.forEach((r,idx)=>{
+    const step=rewardStep(idx);
+    const earned=(state.earnedRewards||[]).find(e=>e.idx===idx);
+    const el=document.createElement("div"); el.className="rw"+(earned?" got":"");
+    let btn="";
+    if(earned) btn = earned.redeemed ? `<button class="rbtn done">已兑现 ✅</button>` : `<button class="rbtn">标记已兑现</button>`;
+    el.innerHTML=`<div class="rico">${r.ico}</div><div class="rnm">${r.name}</div>
+      <div class="rst">${earned?"🎉 已解锁（第"+step+"步）":"第 "+step+" 步解锁"}</div>${btn}`;
+    if(earned && !earned.redeemed){ const b=el.querySelector(".rbtn"); if(b) b.onclick=()=>{ earned.redeemed=true; save(); renderRewards(); }; }
+    list.appendChild(el);
+  });
+}
+
+function celebrateReward(r){
+  showReward({ title:"🎉 抵达奖励站！", type:"里程碑奖励", typeColor:"#f59e0b", icon:r.ico, bonus:0,
+    body:`你走到了「${r.name}」！\n把这份奖励告诉爸爸妈妈兑现吧～` }, true);
 }
 
 function renderBadges(){
@@ -689,9 +750,8 @@ function openBox(){
   // 加权随机决定惊喜类型
   const roll=Math.random();
   let reward;
-  if(roll<0.12){ // 幸运奖励券
-    const r=pick(CONFIG.rewards.filter(x=>x.cost<=40)) || CONFIG.rewards[0];
-    reward={type:"幸运奖励券",typeColor:"#f43f5e",body:`免费获得「${r.name}」奖励券一张！🎟️`,bonus,ticket:r.name,icon:"🎟️"};
+  if(roll<0.12){ // 幸运加速：地图上额外前进一步
+    reward={type:"幸运加速",typeColor:"#f43f5e",body:"太幸运啦！在冒险地图上额外前进 1 步！🚀",bonus,step:1,icon:"🚀"};
   }else if(roll<0.40){ // 贴纸
     const s=pick(CONFIG.surprises.stickers);
     reward={type:"闪亮贴纸",typeColor:"#a78bfa",body:`收集到一张贴纸 ${s} ，已放进收藏册！`,bonus,sticker:s,icon:"🌈"};
@@ -705,7 +765,8 @@ function openBox(){
   rec.boxOpened=true; rec.boxReward=reward;
   state.boxesOpened=(state.boxesOpened||0)+1;
   if(reward.sticker) state.stickers[reward.sticker]=(state.stickers[reward.sticker]||0)+1;
-  if(reward.ticket) (state.tickets=state.tickets||[]).push({name:reward.ticket,used:false});
+  if(reward.step) state.bonusSteps=(state.bonusSteps||0)+reward.step;
+  reconcile(false);   // 幸运加速可能直接抵达奖励站，静默解锁（宝箱本身已在庆祝）
   save();
   showReward(reward,true);
   render();
@@ -713,11 +774,14 @@ function openBox(){
 
 function showReward(reward,celebrate){
   const ov=document.getElementById("overlay");
+  document.getElementById("mTitle").textContent = reward.title||"恭喜开箱！";
   document.getElementById("mChest").textContent = reward.icon||"🎁";
   document.getElementById("mType").textContent = reward.type;
   document.getElementById("mType").style.background = reward.typeColor||"#a78bfa";
-  document.getElementById("mBody").textContent = reward.body;
-  document.getElementById("mBonus").textContent = `+${reward.bonus} ⭐ 额外奖励`;
+  document.getElementById("mBody").innerHTML = String(reward.body).replace(/\n/g,"<br>");
+  const bEl=document.getElementById("mBonus");
+  if(reward.bonus){ bEl.style.display=""; bEl.textContent = `+${reward.bonus} ⭐ 额外奖励`; }
+  else bEl.style.display="none";
   ov.classList.add("show");
   if(celebrate){ launchFireworks(3200); tinySound("fanfare"); }
 }
@@ -737,7 +801,7 @@ document.getElementById("resetBtn").onclick=()=>{
 /* ============ mascot bubble rotation ============ */
 const bubbles=[
   "早上好，馨儿！新的一天，一起加油～","六年级啦，你已经是小大人了 💪","喵～今天的任务，我陪你一起完成！🐾",
-  "先完成，再完美，我们一步步来","坚持打卡，别让火苗熄灭呀🔥","攒够星星，去兑换你想要的奖励吧⭐","暑假结束时，你会感谢现在努力的自己✨"];
+  "先完成，再完美，我们一步步来","坚持打卡，别让火苗熄灭呀🔥","每天前进一步，走到宝箱站就有奖励🎁","暑假结束时，你会感谢现在努力的自己✨"];
 let bi=0;
 setInterval(()=>{ bi=(bi+1)%bubbles.length; const b=document.getElementById("bubble"); b.style.opacity=0;
   setTimeout(()=>{ b.textContent=bubbles[bi]; b.style.opacity=1; },250); },4000);
@@ -847,7 +911,9 @@ function stopFireworks(){ if(fwRAF) cancelAnimationFrame(fwRAF); fwRAF=null;
 addEventListener("resize",()=>{ if(fwRAF) fwSize(); });
 
 /* ============ go ============ */
+reconcile(false);   // 首次加载：按已有进度补齐已解锁的奖励，不弹庆祝
 render();
+addEventListener("resize", ()=>renderJourney());
 </script>
 </body>
 </html>
