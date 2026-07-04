@@ -161,10 +161,11 @@ body{
   background:radial-gradient(circle at 35% 30%,#fff7d6,#fbbf24);border:1.5px solid #f59e0b;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .mdot.new{animation:dotPop .6s cubic-bezier(.2,1.6,.4,1)}
 @keyframes dotPop{0%{transform:translate(-50%,-50%) scale(0)}100%{transform:translate(-50%,-50%) scale(1)}}
-.mpop{position:absolute;transform:translate(-50%,-125%);z-index:6;background:#fff;border-radius:10px;padding:5px 11px;
-  font-size:12.5px;font-weight:800;color:var(--ink);box-shadow:0 5px 12px rgba(0,0,0,.25);white-space:nowrap;pointer-events:none}
+.mpop{position:absolute;transform:translate(-50%,-118%);z-index:6;background:#fff;border-radius:10px;padding:5px 10px;
+  font-size:12.5px;font-weight:800;color:var(--ink);box-shadow:0 5px 12px rgba(0,0,0,.25);pointer-events:none;
+  max-width:min(150px,42vw);width:max-content;text-align:center;line-height:1.3}
 .mpop.got{background:linear-gradient(135deg,#fef9c3,#fde68a);color:#7c2d12}
-.mpop .s{color:#94a3b8;font-weight:700;font-size:10.5px;margin-left:5px}
+.mpop .s{display:block;color:#94a3b8;font-weight:700;font-size:10.5px;margin-top:1px}
 .mpop:after{content:"";position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:#fff;border-bottom:0}
 .mpop.got:after{border-top-color:#fde68a}
 
