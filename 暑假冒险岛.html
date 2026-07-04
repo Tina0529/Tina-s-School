@@ -719,7 +719,10 @@ function showChestPop(idx,keep){
   pop.style.left=Math.min(Math.max(pos.x,18),82)+'%'; pop.style.top=pos.y+'%';
   pop.innerHTML=`${CONFIG.rewards[idx].ico} ${CONFIG.rewards[idx].name}<span class="s">${unlocked?'✅已解锁':'第'+st+'步'}</span>`;
   wrap.appendChild(pop);
-  if(!keep){ clearTimeout(showChestPop._t); showChestPop._t=setTimeout(()=>{ if(pop.parentNode) pop.remove(); },2600); }
+  // 气泡都会自动收起，不长期遮挡地图：下一站提示停留稍久，点开的提示稍短
+  clearTimeout(showChestPop._t);
+  showChestPop._t=setTimeout(()=>{ if(pop.parentNode){ pop.style.transition="opacity .4s"; pop.style.opacity="0";
+    setTimeout(()=>pop.remove(),420); } }, keep?5000:2600);
 }
 
 function renderRewards(){
