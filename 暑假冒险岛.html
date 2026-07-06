@@ -44,6 +44,18 @@ body{
 .hero .sub{color:var(--ink2);font-weight:500;font-size:clamp(13px,3.4vw,17px)}
 .datePill{display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:999px;
   padding:7px 16px;margin-top:10px;box-shadow:0 6px 16px rgba(2,132,199,.18);font-weight:700;color:var(--ink2)}
+.levelPill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 16px;margin:10px 0 0 8px;
+  background:linear-gradient(135deg,#fef3c7,#fde68a);box-shadow:0 6px 16px rgba(245,158,11,.25);
+  font-weight:800;color:#92400e;font-size:14px}
+.levelPill small{font-weight:600;color:#b45309;font-size:11px}
+.makeupArea{text-align:center;margin-top:14px;padding:12px;border-radius:14px;
+  background:linear-gradient(135deg,#fdf4ff,#fae8ff);border:2px dashed #d8b4fe}
+.makeupBtn{border:none;cursor:pointer;font-weight:800;font-size:14.5px;color:#fff;padding:10px 20px;border-radius:999px;
+  background:linear-gradient(135deg,#c084fc,#a855f7);box-shadow:0 8px 18px rgba(168,85,247,.35);transition:.15s}
+.makeupBtn:hover:not(:disabled){transform:translateY(-2px) scale(1.03)}
+.makeupBtn:disabled{filter:grayscale(.55);opacity:.75;cursor:not-allowed;box-shadow:none}
+.madeupTag{display:inline-block;background:linear-gradient(135deg,#e9d5ff,#d8b4fe);color:#6b21a8;
+  border-radius:999px;padding:4px 12px;font-weight:800;font-size:12.5px;margin-top:8px}
 
 /* mascot */
 .mascot{display:inline-block;position:relative}
@@ -275,12 +287,13 @@ body{
     </div>
     <h1>馨儿的暑假冒险岛</h1>
     <p class="sub">🏝️ 完成每日任务 · 点亮冒险地图 · 开启神秘宝箱</p>
-    <div class="datePill"><i class="fa-solid fa-calendar-day"></i><span id="todayLabel">—</span></div>
+    <div class="datePill"><i class="fa-solid fa-calendar-day"></i><span id="todayLabel">—</span></div><!--
+    --><div class="levelPill" id="levelPill">🐣 新手探险家</div>
   </header>
 
   <!-- STATS -->
   <section class="stats">
-    <div class="chip stars"><div class="big" id="stStars">0</div><div class="lbl">⭐ 累计星星</div></div>
+    <div class="chip stars"><div class="big" id="stStars">0</div><div class="lbl">⭐ 可用星星</div></div>
     <div class="chip streak"><div class="big" id="stStreak">0</div><div class="lbl">🔥 连续打卡</div></div>
     <div class="chip days"><div class="big" id="stDays">0</div><div class="lbl">📅 完成天数</div></div>
     <div class="chip badge"><div class="big" id="stBadges">0</div><div class="lbl">🏅 已得徽章</div></div>
@@ -312,6 +325,13 @@ body{
     <div class="treasure">
       <button class="chestBtn" id="chestBtn" disabled><span id="chestIcon">🎁</span><span id="chestText">完成全部任务解锁宝箱</span></button>
       <div class="hint" id="chestHint">今日全部完成后，宝箱就会亮起来哦～</div>
+    </div>
+
+    <!-- 补签卡：查看过去未完成的日子时出现 -->
+    <div class="makeupArea" id="makeupArea" style="display:none">
+      <div style="font-weight:800;color:#7c3aed;margin-bottom:8px">🎫 这一天漏打卡了？</div>
+      <button class="makeupBtn" id="makeupBtn"></button>
+      <div class="hint" id="makeupHint"></div>
     </div>
   </section>
 
@@ -379,6 +399,15 @@ const CONFIG = {
   endDate:   "2026-08-31",   // 暑假结束
   starPerTask: 1,            // 每完成一项任务得几颗星
   boxBonusMin: 3, boxBonusMax: 6,  // 开宝箱额外奖励星星范围
+  makeupCost: 30,            // 补签一天需要花费的星星数
+  // 探险家等级：按累计获得的星星升级（花掉的不扣）
+  levels: [
+    { ico:"🐣", name:"新手探险家", need:0 },
+    { ico:"🥉", name:"青铜探险家", need:100 },
+    { ico:"🥈", name:"白银探险家", need:300 },
+    { ico:"🥇", name:"黄金探险家", need:600 },
+    { ico:"💎", name:"钻石探险家", need:1000 },
+  ],
 
   // —— 每日任务（来自暑假计划表）——
   taskGroups: [
@@ -443,7 +472,7 @@ const subjClass = {yw:"s-yw",sx:"s-sx",yy:"s-yy",qt:"s-qt"};
 let state = load();
 function load(){
   try{ const s=JSON.parse(localStorage.getItem(STORE_KEY)); if(s&&s.progress) return s; }catch(e){}
-  return { progress:{}, stickers:{}, boxesOpened:0, bonusSteps:0, earnedRewards:[] };
+  return { progress:{}, stickers:{}, boxesOpened:0, bonusSteps:0, earnedRewards:[], makeups:{}, lastLevel:0 };
 }
 function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 
@@ -471,7 +500,8 @@ setInterval(checkDayRollover, 60000);
 function dayRec(k){ return state.progress[k] || (state.progress[k]={done:{},boxOpened:false,boxReward:null}); }
 function isDone(k,gk,i){ return !!(state.progress[k]&&state.progress[k].done[gk+"-"+i]); }
 function countDone(k){ const r=state.progress[k]; return r?Object.values(r.done).filter(Boolean).length:0; }
-function dayComplete(k){ return countDone(k)>=TOTAL_PER_DAY; }
+function isMadeUp(k){ return !!(state.makeups && state.makeups[k]); }
+function dayComplete(k){ return countDone(k)>=TOTAL_PER_DAY || isMadeUp(k); }
 
 /* ---- derived stats ---- */
 function subjectDoneCount(gkey){
@@ -488,7 +518,18 @@ function earnedStars(){
   }
   return s;
 }
-function completedDays(){ let n=0; for(const k in state.progress) if(dayComplete(k)) n++; return n; }
+function spentStars(){ return Object.values(state.makeups||{}).reduce((n,c)=>n+(c||0),0); }
+function availStars(){ return earnedStars()-spentStars(); }
+function completedDays(){
+  const days=new Set([...Object.keys(state.progress),...Object.keys(state.makeups||{})]);
+  let n=0; days.forEach(k=>{ if(dayComplete(k)) n++; }); return n;
+}
+/* ---- 探险家等级：按累计星星（花掉的不影响荣誉）---- */
+function levelIndex(){
+  const s=earnedStars(); let li=0;
+  CONFIG.levels.forEach((l,i)=>{ if(s>=l.need) li=i; });
+  return li;
+}
 
 /* ---- 冒险地图：里程碑奖励 ---- */
 const SUMMER_LEN = diffDays(START,END)+1;   // 暑假总天数 = 地图总步数
@@ -537,8 +578,8 @@ const BADGES=[
   {ico:"🏝️",name:"环岛之王",desc:"完成50天",test:()=>completedDays()>=50},
 ];
 function maxStreak(){
-  // 遍历所有已完成的天，求最长连续
-  const keys=Object.keys(state.progress).filter(dayComplete).sort();
+  // 遍历所有已完成的天（含补签日），求最长连续
+  const keys=[...new Set([...Object.keys(state.progress),...Object.keys(state.makeups||{})])].filter(dayComplete).sort();
   let best=0,run=0,prev=null;
   for(const k of keys){
     if(prev && diffDays(prev,k)===1) run++; else run=1;
@@ -555,7 +596,8 @@ function render(){
     `${td.getMonth()+1}月${td.getDate()}日 ${WEEK[td.getDay()]}`;
 
   // stats
-  document.getElementById("stStars").textContent = earnedStars();
+  document.getElementById("stStars").textContent = availStars();
+  renderLevel();
   document.getElementById("stStreak").textContent = currentStreak();
   document.getElementById("stDays").textContent = completedDays();
   document.getElementById("stBadges").textContent = BADGES.filter(b=>b.test()).length;
@@ -588,7 +630,8 @@ function renderDay(){
   document.getElementById("ringPct").textContent = `${done}/${TOTAL_PER_DAY}`;
 
   const msg=document.getElementById("todayMsg");
-  if(done===0) msg.innerHTML = "新的一天，开始冒险吧！🌅";
+  if(isMadeUp(selected)) msg.innerHTML = `<span class="madeupTag">🎫 这一天已用补签卡补签</span>`;
+  else if(done===0) msg.innerHTML = "新的一天，开始冒险吧！🌅";
   else if(done<TOTAL_PER_DAY) msg.innerHTML = `已完成 <b>${done}</b> 项，还差 <b>${TOTAL_PER_DAY-done}</b> 项就能开宝箱啦！`;
   else msg.innerHTML = "🎉 太厉害了！今天全部完成！";
 
@@ -636,6 +679,47 @@ function renderDay(){
     hint.textContent=`还差 ${TOTAL_PER_DAY-done} 项，加油！`;
     btn.onclick=null;
   }
+
+  // 补签卡：只在"过去的、未完成的日子"出现
+  const mArea=document.getElementById("makeupArea");
+  const showMakeup = selected<today && !dayComplete(selected);
+  mArea.style.display = showMakeup ? "" : "none";
+  if(showMakeup){
+    const avail=availStars(), cost=CONFIG.makeupCost, mBtn=document.getElementById("makeupBtn");
+    if(avail>=cost){
+      mBtn.disabled=false;
+      mBtn.textContent=`🎫 用补签卡补签这一天（花 ${cost} ⭐）`;
+      document.getElementById("makeupHint").textContent="补签后这一天算作完成：连击火苗接上、地图前进一步！";
+      mBtn.onclick=makeupDay;
+    }else{
+      mBtn.disabled=true;
+      mBtn.textContent=`🎫 补签卡需要 ${cost} ⭐`;
+      document.getElementById("makeupHint").textContent=`还差 ${cost-avail} 颗星星，继续完成任务攒星吧～`;
+      mBtn.onclick=null;
+    }
+  }
+}
+
+function makeupDay(){
+  const cost=CONFIG.makeupCost;
+  if(availStars()<cost || selected>=today || dayComplete(selected)) return;
+  if(!confirm(`用 ${cost} 颗星星补签 ${selected} 这一天吗？`)) return;
+  (state.makeups=state.makeups||{})[selected]=cost;
+  tinySound("ding"); bump();
+  reconcile(true);   // 补上的一步可能正好抵达奖励站
+  render();
+}
+
+/* ---- 探险家等级渲染与升级庆祝 ---- */
+function renderLevel(){
+  const li=levelIndex(), lv=CONFIG.levels[li], next=CONFIG.levels[li+1];
+  const pill=document.getElementById("levelPill");
+  pill.innerHTML = `${lv.ico} ${lv.name}` + (next?` <small>· 距${next.name}还差${next.need-earnedStars()}⭐</small>`:` <small>· 已是最高等级！</small>`);
+  if(li > (state.lastLevel||0)){
+    state.lastLevel=li; save();
+    showReward({ title:"🎉 探险家升级！", type:"等级晋升", typeColor:"#f59e0b", icon:lv.ico, bonus:0,
+      body:`恭喜！累计${earnedStars()}颗星星，\n你晋升为「${lv.name}」！` }, true);
+  } else if(li < (state.lastLevel||0)){ state.lastLevel=li; save(); }
 }
 
 function toggle(gk,i){
@@ -827,7 +911,8 @@ document.getElementById("resetBtn").onclick=()=>{
 /* ============ mascot bubble rotation ============ */
 const bubbles=[
   "早上好，馨儿！新的一天，一起加油～","六年级啦，你已经是小大人了 💪","喵～今天的任务，我陪你一起完成！🐾",
-  "先完成，再完美，我们一步步来","坚持打卡，别让火苗熄灭呀🔥","每天前进一步，走到宝箱站就有奖励🎁","暑假结束时，你会感谢现在努力的自己✨"];
+  "先完成，再完美，我们一步步来","坚持打卡，别让火苗熄灭呀🔥","每天前进一步，走到宝箱站就有奖励🎁",
+  "攒星星能补签漏掉的日子，还能升级探险家称号⭐","暑假结束时，你会感谢现在努力的自己✨"];
 let bi=0;
 setInterval(()=>{ bi=(bi+1)%bubbles.length; const b=document.getElementById("bubble"); b.style.opacity=0;
   setTimeout(()=>{ b.textContent=bubbles[bi]; b.style.opacity=1; },250); },4000);
