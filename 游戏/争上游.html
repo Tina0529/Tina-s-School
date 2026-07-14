@@ -62,10 +62,13 @@
   /* 中央出牌区 */
   .play-areas { position: absolute; inset: 0; pointer-events: none; }
   .play-slot { position: absolute; display: flex; justify-content: center; align-items: center;
-    min-height: 78px; transform: translate(-50%,-50%); }
+    min-height: 92px; transform: translate(-50%,-50%); }
   .play-slot.p0 { top: 30%; left: 26%; }
   .play-slot.p1 { top: 30%; left: 74%; }
   .play-slot.p2 { top: 66%; left: 50%; }
+  /* 出牌区用正常大小的牌，多张时轻微重叠更紧凑 */
+  .play-slot .card { margin-left: -20px; box-shadow: -2px 3px 7px rgba(0,0,0,.4); }
+  .play-slot .card:first-child { margin-left: 0; }
   .pass-tip { color: #ffe9b0; font-size: 20px; font-weight: 800; background: rgba(0,0,0,.35);
     padding: 6px 16px; border-radius: 20px; transform: rotate(-6deg); text-shadow: var(--shadow); }
 
@@ -999,7 +1002,7 @@
       if (!last) return;
       if (last === 'pass') { const t = document.createElement('div'); t.className = 'pass-tip'; t.textContent = '不出'; slot.appendChild(t); return; }
       // 只有当该玩家是当前桌面牌型拥有者，或最近一手时展示；这里展示每人最近出的牌
-      last.forEach(c => slot.appendChild(cardFace(c, true)));
+      last.forEach(c => slot.appendChild(cardFace(c))); // 正常大小，比之前的 mini 更清晰
     }
 
     // ---------- 选牌 ----------
