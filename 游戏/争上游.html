@@ -1004,9 +1004,10 @@
       S.hands[p] = S.hands[p].filter(c => !ids.has(c.id));
       S.lastPlayed = [null, null, null]; // 清掉别人"不出"标记，只显示当前这手
       S.lastPlayed[p] = cards.slice();
-      if (combo.type === 'rocket') { sndBomb(); toast('💥 王炸！', 900); say('wangzha'); }
-      else if (combo.type === 'bomb') { sndBomb(); toast('💥 炸弹！', 900); say('zhadan'); }
-      else { sndPlay(); if (wasFollow) say('guanshang'); }
+      const me = p === HUMAN; // 只有真人自己出牌才播音效/语音，电脑静音
+      if (combo.type === 'rocket') { toast('💥 王炸！', 900); if (me) { sndBomb(); say('wangzha'); } }
+      else if (combo.type === 'bomb') { toast('💥 炸弹！', 900); if (me) { sndBomb(); say('zhadan'); } }
+      else if (me) { sndPlay(); if (wasFollow) say('guanshang'); }
 
       if (S.hands[p].length === 0) {
         // 出完：记录名次，清桌面（获胜手不可压）
@@ -1024,8 +1025,10 @@
     }
 
     function applyPass(p) {
-      sndPass();
-      say(canFollowLast(S.hands[p], S.lastMove) ? 'buyao' : 'yaobuqi'); // 有牌不出=不要，接不起=要不起
+      if (p === HUMAN) { // 只有真人自己不出才播音效/语音，电脑静音
+        sndPass();
+        say(canFollowLast(S.hands[p], S.lastMove) ? 'buyao' : 'yaobuqi'); // 有牌不出=不要，接不起=要不起
+      }
       S.lastPlayed[p] = 'pass';
       S.passStreak++;
       S.current = nextActive(p);
