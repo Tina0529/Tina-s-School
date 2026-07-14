@@ -833,8 +833,8 @@
     function loadBack() {
       const data = localStorage.getItem('zsy_card_back');
       if (data) {
-        document.documentElement.style.setProperty('--card-back', `url(${data})`);
-        $('backPreview').style.backgroundImage = `url(${data})`;
+        document.documentElement.style.setProperty('--card-back', `url("${data}")`);
+        $('backPreview').style.backgroundImage = `url("${data}")`;
         $('backPreview').classList.remove('default');
         return true;
       }
@@ -1151,16 +1151,32 @@
     };
     $('backFile').onchange = e => {
       const file = e.target.files[0]; if (!file) return;
-      if (file.size > 2.5 * 1024 * 1024) { toast('图片太大，请选 2.5MB 以内'); return; }
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const data = ev.target.result;
-        try { localStorage.setItem('zsy_card_back', data); } catch (err) { toast('保存失败，图片可能太大'); return; }
-        document.documentElement.style.setProperty('--card-back', `url(${data})`);
-        $('backPreview').style.backgroundImage = `url(${data})`; $('backPreview').classList.remove('default');
+      if (!/^image\//.test(file.type || '')) { toast('请选择图片文件'); return; }
+      const objUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(objUrl);
+        // 按扑克牌竖直比例(62:88)居中裁剪并缩放到小尺寸，避免占用过大存储、保证清晰填满
+        const TW = 280, TH = 397;
+        const canvas = document.createElement('canvas');
+        canvas.width = TW; canvas.height = TH;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.max(TW / img.width, TH / img.height); // cover
+        const dw = img.width * scale, dh = img.height * scale;
+        ctx.drawImage(img, (TW - dw) / 2, (TH - dh) / 2, dw, dh);
+        let data;
+        try { data = canvas.toDataURL('image/jpeg', 0.85); }
+        catch (err) { toast('图片处理失败，请换一张'); return; }
+        try { localStorage.setItem('zsy_card_back', data); }
+        catch (err) { toast('保存失败，请换一张更小的图'); return; }
+        document.documentElement.style.setProperty('--card-back', `url("${data}")`);
+        $('backPreview').style.backgroundImage = `url("${data}")`;
+        $('backPreview').classList.remove('default');
         hasCustomBack = true; render(); toast('牌背已更新');
+        $('backFile').value = ''; // 允许再次选同一文件
       };
-      reader.readAsDataURL(file);
+      img.onerror = () => { URL.revokeObjectURL(objUrl); toast('图片读取失败，请换一张'); };
+      img.src = objUrl;
     };
 
     // ---------- 启动 ----------
