@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>争上游 · 三人欢乐版</title>
+<style>
+  :root {
+    --felt-1: #1a7a4c; --felt-2: #0d5236; --gold: #ffd257; --red: #d93737;
+    --wood: #6b4423; --panel: rgba(0,0,0,.32); --shadow: 0 6px 18px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; font-family: "PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    color: #fff; overflow: hidden; user-select: none; }
+  body { background: linear-gradient(160deg,#2b1a10,#4a2f1a 40%,#3a2413); display: flex; flex-direction: column; }
+
+  /* 顶栏 */
+  .topbar { display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+    background: linear-gradient(#7a4d28,#5a3820); box-shadow: 0 3px 10px rgba(0,0,0,.4); z-index: 5; }
+  .logo { font-size: 20px; font-weight: 800; color: var(--gold); letter-spacing: 2px;
+    text-shadow: 0 2px 0 #7a4d10, 0 0 10px rgba(255,210,87,.5); }
+  .logo small { font-size: 12px; color: #ffe9b0; letter-spacing: 0; margin-left: 6px; font-weight: 500; }
+  .top-spacer { flex: 1; }
+  .btn { border: none; border-radius: 10px; padding: 8px 14px; font-size: 14px; font-weight: 700;
+    cursor: pointer; color: #4a2f10; background: linear-gradient(#ffe08a,#f5b731);
+    box-shadow: 0 3px 0 #b57e14, var(--shadow); transition: transform .08s, box-shadow .08s; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #b57e14; }
+  .btn.ghost { background: rgba(255,255,255,.14); color: #fff; box-shadow: none; border: 1px solid rgba(255,255,255,.25); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.4); }
+
+  /* 牌桌 */
+  .table { flex: 1; position: relative; margin: 10px; border-radius: 26px;
+    background: radial-gradient(ellipse at 50% 42%, var(--felt-1), var(--felt-2) 78%);
+    border: 8px solid #3c2413; box-shadow: inset 0 0 60px rgba(0,0,0,.55), var(--shadow); overflow: hidden; }
+  .table::after { content: "争上游"; position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 90px; font-weight: 900; color: rgba(255,255,255,.05); letter-spacing: 20px; pointer-events: none; }
+
+  /* 玩家席位 */
+  .seat { position: absolute; display: flex; align-items: center; gap: 10px; z-index: 2; }
+  .seat.left  { top: 16px; left: 18px; }
+  .seat.right { top: 16px; right: 18px; flex-direction: row-reverse; }
+  .avatar { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 30px; background: linear-gradient(#ffe9c0,#f2c078); border: 3px solid var(--gold);
+    box-shadow: var(--shadow); position: relative; }
+  .avatar.turn { animation: pulse 1s infinite; border-color: #fff; }
+  @keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(255,255,255,.6);} 50%{ box-shadow:0 0 0 8px rgba(255,255,255,0);} }
+  .pinfo { background: var(--panel); border-radius: 10px; padding: 5px 10px; min-width: 74px; text-align: center; }
+  .pname { font-size: 13px; font-weight: 700; }
+  .pcount { font-size: 12px; color: var(--gold); }
+  .pcount b { font-size: 16px; }
+  .badge { position: absolute; top: -8px; right: -8px; background: var(--red); color: #fff;
+    font-size: 11px; padding: 2px 6px; border-radius: 8px; font-weight: 700; box-shadow: var(--shadow); }
+  .think { position: absolute; background: #fff; color: #333; font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 12px; box-shadow: var(--shadow); white-space: nowrap; opacity: 0; transition: opacity .2s; }
+  .think::after { content: ""; position: absolute; bottom: -5px; left: 20px; border: 6px solid transparent; border-top-color: #fff; }
+  .think.show { opacity: 1; }
+  .seat.left .think { top: 62px; left: 8px; }
+  .seat.right .think { top: 62px; right: 8px; }
+
+  /* 中央出牌区 */
+  .play-areas { position: absolute; inset: 0; pointer-events: none; }
+  .play-slot { position: absolute; display: flex; justify-content: center; align-items: center;
+    min-height: 78px; transform: translate(-50%,-50%); }
+  .play-slot.p0 { top: 30%; left: 26%; }
+  .play-slot.p1 { top: 30%; left: 74%; }
+  .play-slot.p2 { top: 66%; left: 50%; }
+  .pass-tip { color: #ffe9b0; font-size: 20px; font-weight: 800; background: rgba(0,0,0,.35);
+    padding: 6px 16px; border-radius: 20px; transform: rotate(-6deg); text-shadow: var(--shadow); }
+
+  /* 手牌区 */
+  .hand-zone { padding: 4px 10px 12px; background: linear-gradient(#3a2413,#2b1a10); }
+  .hand { display: flex; justify-content: center; align-items: flex-end; min-height: 120px; padding-top: 22px; }
+  .hand .card { margin-left: -34px; transition: transform .12s; cursor: pointer; }
+  .hand .card:first-child { margin-left: 0; }
+  .hand .card.sel { transform: translateY(-22px); }
+  .hand .card:hover { transform: translateY(-10px); }
+  .hand .card.sel:hover { transform: translateY(-26px); }
+
+  .controls { display: flex; justify-content: center; gap: 12px; padding: 4px 0 8px; flex-wrap: wrap; }
+  .controls .btn { min-width: 92px; padding: 11px 16px; font-size: 16px; }
+  .btn.play { background: linear-gradient(#7be08a,#37b34a); color: #08330f; box-shadow: 0 3px 0 #1f7a2c, var(--shadow); }
+  .btn.pass { background: linear-gradient(#ff9c8a,#e35a3f); color: #4a1208; box-shadow: 0 3px 0 #a83521, var(--shadow); }
+
+  /* 扑克牌 */
+  .card { width: 62px; height: 88px; border-radius: 8px; position: relative; flex: none;
+    background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.4); border: 1px solid #ddd; }
+  .card .corner { position: absolute; left: 4px; top: 2px; display: flex; flex-direction: column;
+    align-items: center; line-height: 1; font-weight: 800; }
+  .card .corner.br { left: auto; top: auto; right: 4px; bottom: 2px; transform: rotate(180deg); }
+  .card .rk { font-size: 16px; }
+  .card .st { font-size: 13px; }
+  .card .center { position: absolute; inset: 0; display: grid; place-items: center; font-size: 30px; }
+  .card.red { color: var(--red); }
+  .card.black { color: #1a1a1a; }
+  .card.joker .jk-face { position: absolute; inset: 0; display: grid; place-items: center; font-size: 32px;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+  .card.joker .jk-corner { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1.02; }
+  .card.joker .jk-corner.tl { left: 3px; top: 3px; }
+  .card.joker .jk-corner.br { right: 3px; bottom: 3px; transform: rotate(180deg); }
+  .card.joker .jk-txt { font-size: 11px; font-weight: 800; }
+  .card.joker .jk-suit { font-size: 9px; margin-top: 1px; }
+  .card.joker.red { background: linear-gradient(160deg,#fff,#fff3f3); border-color: #f0c0c0; }
+  .card.joker.black { background: linear-gradient(160deg,#fff,#f3f5f8); border-color: #c8ccd4; }
+  .card.mini.joker .jk-face { font-size: 24px; }
+  .card.mini.joker .jk-txt { font-size: 9px; }
+  .card.mini { width: 48px; height: 68px; }
+  .card.mini .rk { font-size: 13px; } .card.mini .center { font-size: 22px; }
+
+  /* 牌背 */
+  .card.back { background-image: var(--card-back); background-size: cover; background-position: center; }
+  .card.back.default { background:
+      repeating-linear-gradient(45deg,#b23a3a 0 8px,#932f2f 8px 16px),
+      linear-gradient(#b23a3a,#8a2a2a); border: 2px solid #fff; }
+  .card.back.default::before { content: "★"; position: absolute; inset: 0; display: grid; place-items: center;
+    color: rgba(255,255,255,.85); font-size: 26px; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+  .oppcards { display: flex; }
+  .oppcards .card { margin-left: -40px; }
+  .oppcards .card:first-child { margin-left: 0; }
+
+  /* 弹窗 */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 20; }
+  .overlay.show { display: grid; }
+  .modal { background: linear-gradient(#fff7e6,#ffe6b8); color: #4a2f10; border-radius: 20px;
+    padding: 24px 28px; min-width: 300px; max-width: 92vw; box-shadow: var(--shadow); border: 4px solid var(--gold); }
+  .modal h2 { margin: 0 0 14px; text-align: center; color: var(--red); }
+  .rank-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; margin: 8px 0;
+    border-radius: 12px; background: rgba(255,255,255,.6); font-size: 17px; font-weight: 700; }
+  .rank-row .medal { font-size: 26px; }
+  .rank-row.win { background: linear-gradient(#fff3bf,#ffe083); box-shadow: 0 0 0 2px var(--gold) inset; }
+  .modal .btn { display: block; margin: 16px auto 2px; }
+  .settings-row { margin: 12px 0; }
+  .settings-row label { font-weight: 700; display: block; margin-bottom: 6px; }
+  .file-btn { display: inline-block; }
+  .preview-back { width: 62px; height: 88px; border-radius: 8px; vertical-align: middle; margin-left: 10px;
+    border: 1px solid #ccc; background-size: cover; background-position: center; }
+  .hint { font-size: 12px; color: #7a5a2a; margin-top: 6px; }
+
+  .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.8);
+    color: #fff; padding: 10px 20px; border-radius: 20px; font-weight: 700; z-index: 30; opacity: 0;
+    transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 560px) {
+    .card { width: 50px; height: 72px; } .card .rk { font-size: 14px; } .card .center { font-size: 24px; }
+    .hand .card { margin-left: -28px; } .logo { font-size: 16px; } .logo small { display: none; }
+    .table::after { font-size: 54px; }
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">♠ 争上游 <small>三人欢乐版</small></div>
+    <div class="top-spacer"></div>
+    <button class="btn ghost" id="levelBtn">🧠 智力：普通</button>
+    <button class="btn ghost" id="musicBtn">🎵 音乐</button>
+    <button class="btn ghost" id="soundBtn">🔊 音效</button>
+    <button class="btn ghost" id="settingsBtn">⚙ 牌背</button>
+    <button class="btn" id="restartBtn">重新开局</button>
+  </div>
+
+  <div class="table" id="table">
+    <div class="seat left" id="seat0">
+      <div class="avatar" id="ava0">🤖</div>
+      <div class="pinfo"><div class="pname" id="name0">电脑·阿尔法</div>
+        <div class="pcount">剩 <b id="cnt0">0</b> 张</div></div>
+      <div class="think" id="think0">思考中…</div>
+    </div>
+    <div class="seat right" id="seat1">
+      <div class="avatar" id="ava1">👾</div>
+      <div class="pinfo"><div class="pname" id="name1">电脑·贝塔</div>
+        <div class="pcount">剩 <b id="cnt1">0</b> 张</div></div>
+      <div class="think" id="think1">思考中…</div>
+    </div>
+
+    <div class="play-areas">
+      <div class="play-slot p0" id="slot0"></div>
+      <div class="play-slot p1" id="slot1"></div>
+      <div class="play-slot p2" id="slot2"></div>
+    </div>
+  </div>
+
+  <div class="hand-zone">
+    <div class="hand" id="hand"></div>
+    <div class="controls">
+      <button class="btn pass" id="passBtn">不出</button>
+      <button class="btn ghost" id="hintBtn">提示</button>
+      <button class="btn play" id="playBtn">出牌</button>
+    </div>
+  </div>
+
+  <!-- 结算 -->
+  <div class="overlay" id="resultOverlay">
+    <div class="modal">
+      <h2 id="resultTitle">本局结束</h2>
+      <div id="rankList"></div>
+      <button class="btn" id="againBtn">再来一局</button>
+    </div>
+  </div>
+
+  <!-- 设置 -->
+  <div class="overlay" id="settingsOverlay">
+    <div class="modal">
+      <h2>自定义牌背</h2>
+      <div class="settings-row">
+        <label>上传一张图片作为电脑玩家的牌背：</label>
+        <label class="btn file-btn">选择图片
+          <input type="file" id="backFile" accept="image/*" style="display:none" />
+        </label>
+        <span class="preview-back card back default" id="backPreview"></span>
+        <div class="hint">图片会保存在本地浏览器，下次打开自动生效。</div>
+      </div>
+      <button class="btn ghost" id="resetBackBtn">恢复默认牌背</button>
+      <button class="btn" id="closeSettingsBtn">完成</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+/* 争上游 核心引擎 —— 牌型识别 / 大小比较 / AI 走法生成与决策
+ * 纯逻辑，无 DOM。可在浏览器 <script> 加载，也可在 node 里 require 做单元测试。
+ * 牌力：3..10 -> 3..10, J=11,Q=12,K=13,A=14,2=15, 小王=16, 大王=17
+ * 花色索引 suit: 0=♠ 1=♥ 2=♣ 3=♦ ；王的 suit 用 'x'
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.ZSY = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  const SUITS = ['♠', '♥', '♣', '♦'];
+  const RED_SUITS = [1, 3]; // ♥ ♦ 红色
+
+  // ---------- 牌与牌堆 ----------
+  function buildDeck() {
+    const deck = [];
+    let id = 0;
+    for (let v = 3; v <= 15; v++) {
+      for (let s = 0; s < 4; s++) deck.push({ id: id++, v, s });
+    }
+    deck.push({ id: id++, v: 16, s: 'x' }); // 小王
+    deck.push({ id: id++, v: 17, s: 'x' }); // 大王
+    return deck;
+  }
+
+  // Fisher-Yates 洗牌（可传入随机函数以便测试）
+  function shuffle(arr, rng) {
+    rng = rng || Math.random;
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // 发牌：三人各 18 张
+  function deal(rng) {
+    const deck = shuffle(buildDeck(), rng);
+    return [deck.slice(0, 18), deck.slice(18, 36), deck.slice(36, 54)];
+  }
+
+  // 找持有 ♦3 的玩家索引，作为首家
+  function findStarter(hands) {
+    for (let p = 0; p < hands.length; p++) {
+      if (hands[p].some(c => c.v === 3 && c.s === 3)) return p;
+    }
+    return 0;
+  }
+
+  const sortByValue = cards => cards.slice().sort((a, b) => a.v - b.v || (a.s === 'x' ? 9 : a.s) - (b.s === 'x' ? 9 : b.s));
+
+  // 统计每个点数出现次数
+  function countMap(cards) {
+    const m = new Map();
+    for (const c of cards) m.set(c.v, (m.get(c.v) || 0) + 1);
+    return m;
+  }
+
+  // ---------- 牌型识别 ----------
+  // 返回 { type, rank, len, cards } 或 null（非法）
+  // type: single pair triple triple1 triple2 straight pairStraight plane planeSolo planePair bomb rocket
+  function identify(cards) {
+    if (!cards || cards.length === 0) return null;
+    const n = cards.length;
+    const values = cards.map(c => c.v);
+    const cnt = countMap(cards);
+    const groups = [...cnt.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0]); // [value,count]
+
+    // 王炸
+    if (n === 2 && cnt.has(16) && cnt.has(17)) return mk('rocket', 100, n, cards);
+
+    // 炸弹
+    if (n === 4 && groups[0][1] === 4) return mk('bomb', groups[0][0], n, cards);
+
+    // 单张
+    if (n === 1) return mk('single', values[0], n, cards);
+
+    // 对子
+    if (n === 2 && groups[0][1] === 2) return mk('pair', groups[0][0], n, cards);
+
+    // 三张
+    if (n === 3 && groups[0][1] === 3) return mk('triple', groups[0][0], n, cards);
+
+    // 三带一
+    if (n === 4 && groups[0][1] === 3) return mk('triple1', groups[0][0], n, cards);
+
+    // 三带二（带一对）
+    if (n === 5 && groups[0][1] === 3 && groups[1] && groups[1][1] === 2)
+      return mk('triple2', groups[0][0], n, cards);
+
+    // 顺子（≥5，全单，连续，最高到 A(14)，不含 2/王）
+    if (n >= 5 && groups.every(g => g[1] === 1)) {
+      const s = straightRank(values);
+      if (s !== null) return mk('straight', s, n, cards);
+    }
+
+    // 连对（≥3 对，连续，最高到 A）
+    if (n >= 6 && n % 2 === 0 && groups.every(g => g[1] === 2)) {
+      const vs = groups.map(g => g[0]);
+      const s = consecutiveRank(vs);
+      if (s !== null) return mk('pairStraight', s, n, cards);
+    }
+
+    // 飞机（连续三张，可不带 / 带同数单 / 带同数对）
+    const plane = identifyPlane(cards, groups);
+    if (plane) return plane;
+
+    return null;
+  }
+
+  function mk(type, rank, len, cards) { return { type, rank, len, cards }; }
+
+  // 校验连续单序列，返回最小值（作为 rank），否则 null。要求全 <=14。
+  function straightRank(values) {
+    const s = values.slice().sort((a, b) => a - b);
+    if (s[s.length - 1] > 14) return null; // 不含 2 / 王
+    for (let i = 1; i < s.length; i++) if (s[i] !== s[i - 1] + 1) return null;
+    return s[0];
+  }
+
+  // 校验一组点数是否连续（<=14），返回最小值
+  function consecutiveRank(vals) {
+    const s = vals.slice().sort((a, b) => a - b);
+    if (s[s.length - 1] > 14) return null;
+    for (let i = 1; i < s.length; i++) if (s[i] !== s[i - 1] + 1) return null;
+    return s[0];
+  }
+
+  // 飞机识别
+  function identifyPlane(cards, groups) {
+    const n = cards.length;
+    // 找 count>=3 的点数
+    const tripleVals = [...countMap(cards).entries()]
+      .filter(([v, c]) => c >= 3 && v <= 14) // 三顺主体不含 2/王
+      .map(([v]) => v)
+      .sort((a, b) => a - b);
+    if (tripleVals.length < 2) return null;
+
+    // 找最长的连续段，尝试各种长度 k
+    for (let k = tripleVals.length; k >= 2; k--) {
+      for (let i = 0; i + k <= tripleVals.length; i++) {
+        const window = tripleVals.slice(i, i + k);
+        if (!isConsecutive(window)) continue;
+        const rank = window[0];
+        const bodyCount = 3 * k;
+        const remaining = n - bodyCount;
+        if (remaining === 0 && n === bodyCount) return mk('plane', rank, n, cards);
+        // 带单：翼数 == k（且刚好用掉剩余的 k 张，主体三张每个恰好取3张）
+        if (remaining === k && canFormWings(cards, window, 1, k))
+          return mk('planeSolo', rank, n, cards);
+        // 带对：翼为 k 个对
+        if (remaining === 2 * k && canFormWings(cards, window, 2, k))
+          return mk('planePair', rank, n, cards);
+      }
+    }
+    return null;
+  }
+
+  function isConsecutive(vals) {
+    for (let i = 1; i < vals.length; i++) if (vals[i] !== vals[i - 1] + 1) return false;
+    return true;
+  }
+
+  // 校验去掉三顺主体后，剩余牌恰好能组成 k 个 wingSize（1=单,2=对）
+  function canFormWings(cards, bodyVals, wingSize, k) {
+    const cnt = countMap(cards);
+    const bodySet = new Set(bodyVals);
+    // 主体各消耗 3 张
+    const rest = new Map();
+    for (const [v, c] of cnt.entries()) {
+      let left = c;
+      if (bodySet.has(v)) left -= 3;
+      if (left > 0) rest.set(v, left);
+    }
+    if (wingSize === 1) {
+      // 剩余总张数应为 k，且每种点数剩余不超过... 单翼可为任意（含来自主体点数多余的）
+      let total = 0;
+      for (const c of rest.values()) total += c;
+      return total === k;
+    } else {
+      // 对翼：剩余必须全部成对，且共 k 对
+      let pairs = 0;
+      for (const c of rest.values()) {
+        if (c % 2 !== 0) return false;
+        pairs += c / 2;
+      }
+      return pairs === k;
+    }
+  }
+
+  // ---------- 大小比较 ----------
+  // a 能否压过 b（b 为桌面待压牌型）。a、b 均为 identify 结果。
+  function canBeat(a, b) {
+    if (!a) return false;
+    if (!b) return true; // 自由出牌
+    if (a.type === 'rocket') return true;
+    if (b.type === 'rocket') return false;
+    if (a.type === 'bomb') {
+      if (b.type === 'bomb') return a.rank > b.rank;
+      return true; // 炸弹压普通牌型
+    }
+    if (b.type === 'bomb') return false;
+    // 普通牌型：同型同长比 rank
+    return a.type === b.type && a.len === b.len && a.rank > b.rank;
+  }
+
+  // ---------- AI 走法生成 ----------
+  // 生成"自由出牌"时的候选走法（不追求穷尽，覆盖常见牌型）
+  function genLeadMoves(hand) {
+    const moves = [];
+    const cnt = countMap(hand);
+    const byVal = groupByVal(hand);
+    const vals = [...cnt.keys()].sort((a, b) => a - b);
+
+    // 单 / 对 / 三 / 炸弹
+    for (const v of vals) {
+      const cards = byVal[v];
+      moves.push(idMove([cards[0]]));
+      if (cards.length >= 2) moves.push(idMove(cards.slice(0, 2)));
+      if (cards.length >= 3) moves.push(idMove(cards.slice(0, 3)));
+      if (cards.length >= 4) moves.push(idMove(cards.slice(0, 4)));
+    }
+    // 王炸
+    if (cnt.has(16) && cnt.has(17)) moves.push(idMove([byVal[16][0], byVal[17][0]]));
+
+    // 三带一 / 三带二
+    for (const v of vals) {
+      if ((byVal[v] || []).length >= 3) {
+        const body = byVal[v].slice(0, 3);
+        // 带一：找一张最小的其它牌
+        const solo = pickExtras(hand, v, 1, 1);
+        if (solo) moves.push(idMove(body.concat(solo)));
+        const pair = pickExtras(hand, v, 2, 1);
+        if (pair) moves.push(idMove(body.concat(pair)));
+      }
+    }
+
+    // 顺子（长度 5..n）
+    genStraights(hand).forEach(m => moves.push(m));
+    // 连对
+    genPairStraights(hand).forEach(m => moves.push(m));
+    // 飞机（纯 + 带单/带对，简化）
+    genPlanes(hand).forEach(m => moves.push(m));
+
+    return moves.filter(Boolean);
+  }
+
+  // 生成能压过 last 的走法
+  function genBeatMoves(hand, last) {
+    const moves = [];
+    if (!last) return genLeadMoves(hand);
+    const byVal = groupByVal(hand);
+    const vals = Object.keys(byVal).map(Number).sort((a, b) => a - b);
+
+    if (['single', 'pair', 'triple'].includes(last.type)) {
+      const need = last.len;
+      for (const v of vals) {
+        if (v > last.rank && byVal[v].length >= need) moves.push(idMove(byVal[v].slice(0, need)));
+      }
+    } else if (last.type === 'triple1' || last.type === 'triple2') {
+      const extra = last.type === 'triple1' ? 1 : 2; // 带单/带对
+      for (const v of vals) {
+        if (v > last.rank && byVal[v].length >= 3) {
+          const body = byVal[v].slice(0, 3);
+          const ex = pickExtras(hand, v, extra, 1);
+          if (ex) moves.push(idMove(body.concat(ex)));
+        }
+      }
+    } else if (last.type === 'straight') {
+      genStraights(hand).forEach(m => { if (m.len === last.len && m.rank > last.rank) moves.push(m); });
+    } else if (last.type === 'pairStraight') {
+      genPairStraights(hand).forEach(m => { if (m.len === last.len && m.rank > last.rank) moves.push(m); });
+    } else if (last.type === 'plane' || last.type === 'planeSolo' || last.type === 'planePair') {
+      genPlanes(hand).forEach(m => { if (m.type === last.type && m.len === last.len && m.rank > last.rank) moves.push(m); });
+    }
+
+    // 炸弹与王炸永远可作为压制手段
+    for (const v of vals) if (byVal[v].length >= 4) {
+      const bomb = idMove(byVal[v].slice(0, 4));
+      if (canBeat(bomb, last)) moves.push(bomb);
+    }
+    if (byVal[16] && byVal[17]) moves.push(idMove([byVal[16][0], byVal[17][0]]));
+
+    return moves.filter(Boolean);
+  }
+
+  // ---------- 生成辅助 ----------
+  function groupByVal(hand) {
+    const g = {};
+    for (const c of hand) (g[c.v] = g[c.v] || []).push(c);
+    for (const k in g) g[k].sort((a, b) => (a.s === 'x' ? 9 : a.s) - (b.s === 'x' ? 9 : b.s));
+    return g;
+  }
+
+  function idMove(cards) {
+    const info = identify(cards);
+    return info; // 已含 cards
+  }
+
+  // 从手牌里挑 count 张（不属于 excludeVal 的点数），优先小牌，用于三带的翼
+  function pickExtras(hand, excludeVal, size, groupsNeeded) {
+    // size=1 挑单，size=2 挑对；groupsNeeded 个
+    const byVal = groupByVal(hand);
+    const vals = Object.keys(byVal).map(Number).filter(v => v !== excludeVal)
+      .sort((a, b) => a - b);
+    const picked = [];
+    let need = groupsNeeded;
+    for (const v of vals) {
+      if (need === 0) break;
+      if (byVal[v].length >= size) {
+        picked.push(...byVal[v].slice(0, size));
+        need--;
+      }
+    }
+    return need === 0 ? picked : null;
+  }
+
+  function genStraights(hand) {
+    const res = [];
+    const present = {};
+    for (const c of hand) if (c.v <= 14) present[c.v] = present[c.v] || c; // 顺子每点取一张
+    const vals = Object.keys(present).map(Number).sort((a, b) => a - b);
+    // 找所有连续段，段内枚举长度>=5 的窗口
+    let i = 0;
+    while (i < vals.length) {
+      let j = i;
+      while (j + 1 < vals.length && vals[j + 1] === vals[j] + 1) j++;
+      const run = vals.slice(i, j + 1);
+      for (let len = 5; len <= run.length; len++) {
+        for (let s = 0; s + len <= run.length; s++) {
+          const seg = run.slice(s, s + len).map(v => present[v]);
+          res.push(idMove(seg));
+        }
+      }
+      i = j + 1;
+    }
+    return res.filter(Boolean);
+  }
+
+  function genPairStraights(hand) {
+    const res = [];
+    const byVal = groupByVal(hand);
+    const pairVals = Object.keys(byVal).map(Number).filter(v => v <= 14 && byVal[v].length >= 2).sort((a, b) => a - b);
+    let i = 0;
+    while (i < pairVals.length) {
+      let j = i;
+      while (j + 1 < pairVals.length && pairVals[j + 1] === pairVals[j] + 1) j++;
+      const run = pairVals.slice(i, j + 1);
+      for (let len = 3; len <= run.length; len++) {
+        for (let s = 0; s + len <= run.length; s++) {
+          const seg = [];
+          run.slice(s, s + len).forEach(v => seg.push(...byVal[v].slice(0, 2)));
+          res.push(idMove(seg));
+        }
+      }
+      i = j + 1;
+    }
+    return res.filter(Boolean);
+  }
+
+  function genPlanes(hand) {
+    const res = [];
+    const byVal = groupByVal(hand);
+    const tripleVals = Object.keys(byVal).map(Number).filter(v => v <= 14 && byVal[v].length >= 3).sort((a, b) => a - b);
+    let i = 0;
+    while (i < tripleVals.length) {
+      let j = i;
+      while (j + 1 < tripleVals.length && tripleVals[j + 1] === tripleVals[j] + 1) j++;
+      const run = tripleVals.slice(i, j + 1);
+      for (let k = 2; k <= run.length; k++) {
+        for (let s = 0; s + k <= run.length; s++) {
+          const body = [];
+          run.slice(s, s + k).forEach(v => body.push(...byVal[v].slice(0, 3)));
+          // 纯飞机
+          res.push(idMove(body.slice()));
+          // 带单翼：挑 k 张单
+          const soloCards = pickWingCards(hand, run.slice(s, s + k), 1, k);
+          if (soloCards) res.push(idMove(body.concat(soloCards)));
+          const pairCards = pickWingCards(hand, run.slice(s, s + k), 2, k);
+          if (pairCards) res.push(idMove(body.concat(pairCards)));
+        }
+      }
+      i = j + 1;
+    }
+    return res.filter(Boolean);
+  }
+
+  // 为飞机挑翼：从不在 bodyVals 的点数里挑 k 组 size 张
+  function pickWingCards(hand, bodyVals, size, k) {
+    const bodySet = new Set(bodyVals);
+    const byVal = groupByVal(hand);
+    const vals = Object.keys(byVal).map(Number).filter(v => !bodySet.has(v))
+      .sort((a, b) => a - b);
+    const picked = [];
+    let need = k;
+    for (const v of vals) {
+      if (need === 0) break;
+      if (byVal[v].length >= size) { picked.push(...byVal[v].slice(0, size)); need--; }
+    }
+    return need === 0 ? picked : null;
+  }
+
+  // ========== 手牌分解：把整手牌拆成最少的出牌“手数” ==========
+  // 返回连续段里最长的一段（vals 为升序去重数组）
+  function longestRunFrom(vals) {
+    let best = [], cur = [];
+    for (let i = 0; i < vals.length; i++) {
+      if (i > 0 && vals[i] === vals[i - 1] + 1) cur.push(vals[i]);
+      else cur = [vals[i]];
+      if (cur.length > best.length) best = cur.slice();
+    }
+    return best;
+  }
+
+  // 贪心分解。straightFirst 决定“顺子/连对”与“三条”的抽取先后，跑两种取更优。
+  function greedyDecompose(hand, straightFirst) {
+    const combos = [];
+    let rest = hand.slice();
+    const cmap = () => { const m = {}; for (const c of rest) m[c.v] = (m[c.v] || 0) + 1; return m; };
+    const take = cards => { const ids = new Set(cards.map(c => c.id)); rest = rest.filter(c => !ids.has(c.id)); };
+    const pick = (v, n) => rest.filter(c => c.v === v).slice(0, n);
+    let m;
+
+    // 王炸（作为控牌，最后才动）
+    m = cmap();
+    if (m[16] && m[17]) { const cc = pick(16, 1).concat(pick(17, 1)); combos.push(mk('rocket', 100, 2, cc)); take(cc); }
+    // 炸弹
+    m = cmap();
+    for (const v of Object.keys(m).map(Number)) if (m[v] === 4) { const cc = pick(v, 4); combos.push(mk('bomb', v, 4, cc)); take(cc); }
+    // 飞机（纯三顺，反复取最长）
+    for (;;) {
+      m = cmap();
+      const tv = Object.keys(m).map(Number).filter(v => v <= 14 && m[v] >= 3).sort((a, b) => a - b);
+      const run = longestRunFrom(tv);
+      if (run.length >= 2) { const cc = []; run.forEach(v => cc.push(...pick(v, 3))); combos.push(mk('plane', run[0], cc.length, cc)); take(cc); }
+      else break;
+    }
+
+    const extractStraights = () => { for (;;) {
+      m = cmap();
+      const vs = Object.keys(m).map(Number).filter(v => v <= 14).sort((a, b) => a - b);
+      const run = longestRunFrom(vs);
+      if (run.length >= 5) { const cc = run.map(v => pick(v, 1)[0]); combos.push(mk('straight', run[0], run.length, cc)); take(cc); }
+      else break;
+    } };
+    const extractPairStraights = () => { for (;;) {
+      m = cmap();
+      const vs = Object.keys(m).map(Number).filter(v => v <= 14 && m[v] >= 2).sort((a, b) => a - b);
+      const run = longestRunFrom(vs);
+      if (run.length >= 3) { const cc = []; run.forEach(v => cc.push(...pick(v, 2))); combos.push(mk('pairStraight', run[0], cc.length, cc)); take(cc); }
+      else break;
+    } };
+    const extractTriples = () => { m = cmap(); for (const v of Object.keys(m).map(Number)) if (m[v] >= 3) { const cc = pick(v, 3); combos.push(mk('triple', v, 3, cc)); take(cc); } };
+    const extractPairs = () => { m = cmap(); for (const v of Object.keys(m).map(Number)) if (m[v] >= 2) { const cc = pick(v, 2); combos.push(mk('pair', v, 2, cc)); take(cc); } };
+
+    if (straightFirst) { extractStraights(); extractPairStraights(); extractTriples(); extractPairs(); }
+    else { extractTriples(); extractPairStraights(); extractStraights(); extractPairs(); }
+
+    for (const c of rest) combos.push(mk('single', c.v, 1, [c])); // 剩余单张
+    return combos;
+  }
+
+  // 取两种贪心方案里手数更少的
+  function decompose(hand) {
+    const a = greedyDecompose(hand, true), b = greedyDecompose(hand, false);
+    return a.length <= b.length ? a : b;
+  }
+  const handTricks = hand => decompose(hand).length;
+
+  // ---------- AI 决策 ----------
+  // 返回要出的牌数组，或 null 表示过牌。level: 'easy' | 'normal' | 'hard'
+  function aiDecide(hand, last, isLead, opponentsMinCount, level) {
+    level = level || 'normal';
+    if (!hand || hand.length === 0) return null;
+    const oppMin = opponentsMinCount == null ? 18 : opponentsMinCount;
+    if (level === 'easy') return aiDecideEasy(hand, last, isLead, oppMin);
+    const combos = decompose(hand);
+    if (isLead || !last) return chooseLead(hand, combos, level, oppMin);
+    return chooseFollow(hand, combos, last, level, oppMin);
+  }
+
+  // 领出：按分解结果出一整组，先清成型大组与小牌，保留 2/王/炸弹控场
+  function chooseLead(hand, combos, level, oppMin) {
+    if (combos.length === 1) return combos[0].cards; // 一手走完
+    const score = c => {
+      let s = c.rank;
+      if (c.type === 'straight' || c.type === 'pairStraight' || c.type === 'plane') s -= 20; // 优先清顺子/连对/飞机
+      if (c.type === 'triple') s -= 3;
+      if (c.type === 'bomb') s += 1000;   // 炸弹保留
+      if (c.type === 'rocket') s += 2000; // 王炸保留
+      if ((c.type === 'single' || c.type === 'pair') && c.rank >= 15) s += 200; // 2/王 尽量留到最后
+      return s;
+    };
+    const sorted = combos.slice().sort((a, b) => score(a) - score(b));
+    const best = sorted[0];
+    // 困难档：出三条时顺手带一张最小单牌，凑成三带一少一手
+    if (level === 'hard' && best.type === 'triple') {
+      const singles = combos.filter(c => c.type === 'single' && c.rank < 15).sort((a, b) => a.rank - b.rank);
+      if (singles.length) return best.cards.concat(singles[0].cards);
+    }
+    // 困难档：领出小对子时若还有更小的散对，也先走对，避免留单
+    return best.cards;
+  }
+
+  // 跟牌：在能压过的走法里，选“出完后剩余手数最少”的，避免拆散好牌型；按难度决定何时动炸弹/是否过牌
+  function chooseFollow(hand, combos, last, level, oppMin) {
+    const cands = genBeatMoves(hand, last).filter(m => canBeat(m, last));
+    if (!cands.length) return null;
+    const baseTricks = combos.length;
+    const scored = cands.map(m => {
+      const ids = new Set(m.cards.map(c => c.id));
+      const remain = hand.filter(c => !ids.has(c.id));
+      return { m, tricks: 1 + handTricks(remain), isBomb: (m.type === 'bomb' || m.type === 'rocket') };
+    });
+    const nonBomb = scored.filter(s => !s.isBomb);
+    const bombs = scored.filter(s => s.isBomb);
+    const pickBest = arr => arr.slice().sort((a, b) => a.tricks - b.tricks || a.m.rank - b.m.rank)[0];
+
+    const desperate = oppMin <= 2;      // 对手即将出完，必须拦
+    const nearWin = hand.length <= 5;   // 自己也快出完，放手打
+
+    if (nonBomb.length) {
+      const best = pickBest(nonBomb);
+      // 若这一压反而让自己多出一手（拆坏了牌型），且局势不紧张、被压的牌不大 → 过牌，等更好时机
+      if (best.tricks > baseTricks && !desperate && !nearWin && last.rank < 14) return null;
+      return best.m.cards;
+    }
+    // 只能用炸弹/王炸压
+    if (bombs.length) {
+      if (desperate || nearWin) return pickBest(bombs).m.cards;      // 关键时刻该炸就炸
+      if (level === 'hard' && oppMin <= 4) return pickBest(bombs).m.cards;
+      return null; // 普通/简单：保留炸弹
+    }
+    return null;
+  }
+
+  // 简单档：老逻辑——只看单步最小价值，容易一张张出小牌（新手电脑）
+  function aiDecideEasy(hand, last, isLead, oppMin) {
+    const handCount = hand.length;
+    if (isLead || !last) {
+      const moves = genLeadMoves(hand);
+      if (moves.length === 0) return hand.slice(0, 1);
+      moves.sort((a, b) => leadScore(a) - leadScore(b));
+      return moves[0].cards;
+    }
+    const moves = genBeatMoves(hand, last).filter(m => canBeat(m, last));
+    if (moves.length === 0) return null;
+    const nonBomb = moves.filter(m => m.type !== 'bomb' && m.type !== 'rocket');
+    let pool = nonBomb.length ? nonBomb : moves;
+    if (!nonBomb.length && oppMin > 5 && handCount > 4) return null;
+    pool.sort((a, b) => beatScore(a) - beatScore(b));
+    return pool[0].cards;
+  }
+
+  function leadScore(m) {
+    let s = m.rank;
+    if (m.type === 'straight' || m.type === 'pairStraight' || m.type.startsWith('plane')) s -= m.len * 1.2;
+    if (m.type === 'bomb') s += 100;
+    if (m.type === 'rocket') s += 200;
+    if (m.rank >= 15) s += 8;
+    return s;
+  }
+  function beatScore(m) {
+    let s = m.rank;
+    if (m.type === 'bomb') s += 80;
+    if (m.type === 'rocket') s += 160;
+    return s;
+  }
+
+  return {
+    SUITS, RED_SUITS,
+    buildDeck, shuffle, deal, findStarter, sortByValue, countMap,
+    identify, canBeat,
+    genLeadMoves, genBeatMoves, decompose, aiDecide,
+  };
+});
+
+</script>
+  <script>
+  (function () {
+    const $ = id => document.getElementById(id);
+    const RANK_TXT = { 11: 'J', 12: 'Q', 13: 'K', 14: 'A', 15: '2', 16: '小王', 17: '大王' };
+    const rankText = v => RANK_TXT[v] || String(v);
+    const HUMAN = 2; // 真人固定底部席位
+
+    // ---------- 状态 ----------
+    let S = null;
+    let soundOn = localStorage.getItem('zsy_sound') !== 'off';
+    let musicOn = localStorage.getItem('zsy_music') === 'on';
+
+    // ---------- AI 难度 ----------
+    const LEVELS = [
+      { k: 'easy', label: '😀 新手' },
+      { k: 'normal', label: '🧠 普通' },
+      { k: 'hard', label: '😈 高手' },
+    ];
+    let aiLevel = localStorage.getItem('zsy_level') || 'normal';
+    function applyLevelBtn() {
+      const lv = LEVELS.find(l => l.k === aiLevel) || LEVELS[1];
+      $('levelBtn').textContent = '智力：' + lv.label;
+    }
+    function cycleLevel() {
+      const idx = LEVELS.findIndex(l => l.k === aiLevel);
+      aiLevel = LEVELS[(idx + 1) % LEVELS.length].k;
+      localStorage.setItem('zsy_level', aiLevel);
+      applyLevelBtn();
+      const lv = LEVELS.find(l => l.k === aiLevel);
+      toast('电脑难度：' + lv.label + '（立即生效）', 1400);
+    }
+
+    // ---------- 牌背 ----------
+    function loadBack() {
+      const data = localStorage.getItem('zsy_card_back');
+      if (data) {
+        document.documentElement.style.setProperty('--card-back', `url(${data})`);
+        $('backPreview').style.backgroundImage = `url(${data})`;
+        $('backPreview').classList.remove('default');
+        return true;
+      }
+      $('backPreview').classList.add('default');
+      return false;
+    }
+    let hasCustomBack = false;
+
+    // ---------- 音效 / 语音 / 背景音乐（全部 Web Audio + 语音合成，无外部文件） ----------
+    let actx = null;
+    function ensureCtx() {
+      if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+      if (actx && actx.state === 'suspended') actx.resume();
+      return actx;
+    }
+    // 底层发声，不管开关
+    function tone(freq, dur, type, vol, when) {
+      const c = ensureCtx(); if (!c) return;
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type || 'triangle'; o.frequency.value = freq;
+      const t = c.currentTime + (when || 0);
+      g.gain.setValueAtTime(vol || 0.06, t);
+      o.connect(g); g.connect(c.destination);
+      o.start(t); g.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.12));
+      o.stop(t + (dur || 0.12));
+    }
+    const beep = (f, d, ty, v) => { if (soundOn) tone(f, d, ty, v); };
+    const sndPlay = () => beep(520, 0.1, 'triangle', 0.05);
+    const sndPass = () => beep(240, 0.1, 'sine', 0.05);
+    const sndWin = () => { beep(660, 0.15); setTimeout(() => beep(880, 0.2), 130); setTimeout(() => beep(1046, 0.25), 300); };
+    const sndBomb = () => { beep(120, 0.28, 'sawtooth', 0.11); setTimeout(() => beep(80, 0.32, 'sawtooth', 0.1), 60); };
+
+    // 中文语音报牌（浏览器内置 TTS，随音效开关）
+    let zhVoice = null;
+    function pickVoice() {
+      try {
+        const vs = speechSynthesis.getVoices();
+        zhVoice = vs.find(v => /zh|Chinese|中文|普通话/i.test(v.lang + v.name)) || null;
+      } catch (e) {}
+    }
+    if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+    function say(text) {
+      if (!soundOn || !('speechSynthesis' in window)) return;
+      try {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'zh-CN'; if (zhVoice) u.voice = zhVoice;
+        u.rate = 1.15; u.pitch = 1.15; u.volume = 0.95;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      } catch (e) {}
+    }
+
+    // 背景音乐：轻快的循环琶音（两小节 C-Am-F-G 走向），音量很低
+    let bgmTimer = null, bgmStep = 0;
+    const BGM_NOTES = [ // [主旋律Hz, 低音Hz]
+      [523, 131], [659, 131], [784, 165], [659, 165],
+      [440, 110], [523, 110], [659, 147], [523, 147],
+      [349, 175], [440, 175], [523, 196], [440, 196],
+      [392, 196], [494, 147], [587, 196], [494, 131],
+    ];
+    function startBGM() {
+      if (bgmTimer || !ensureCtx()) return;
+      bgmStep = 0;
+      bgmTimer = setInterval(() => {
+        if (!musicOn) return;
+        const [mel, bass] = BGM_NOTES[bgmStep % BGM_NOTES.length];
+        tone(mel, 0.32, 'sine', 0.028);           // 旋律
+        if (bgmStep % 2 === 0) tone(bass, 0.5, 'triangle', 0.02); // 低音垫
+        bgmStep++;
+      }, 340);
+    }
+    function stopBGM() { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } }
+    function applyMusic() {
+      $('musicBtn').textContent = musicOn ? '🎵 音乐' : '🎵 音乐：关';
+      if (musicOn) startBGM(); else stopBGM();
+    }
+
+    // 判断某玩家面对桌面牌是否“接得起”（用于区分“不要”和“要不起”）
+    function canFollowLast(hand, last) {
+      if (!last) return false;
+      return ZSY.genBeatMoves(hand, last).some(m => ZSY.canBeat(m, last));
+    }
+
+    // ---------- 渲染扑克牌 ----------
+    function cardFace(card, mini) {
+      const el = document.createElement('div');
+      el.className = 'card' + (mini ? ' mini' : '');
+      if (card.v >= 16) {
+        const big = card.v === 17;
+        el.classList.add('joker', big ? 'red' : 'black');
+        const lbl = big ? '大<br>王' : '小<br>王';
+        el.innerHTML =
+          `<div class="jk-corner tl"><span class="jk-txt">${lbl}</span><span class="jk-suit">🃏</span></div>` +
+          `<div class="jk-face">🃏</div>` +
+          `<div class="jk-corner br"><span class="jk-txt">${lbl}</span><span class="jk-suit">🃏</span></div>`;
+        return el;
+      }
+      const suit = ZSY.SUITS[card.s];
+      const red = ZSY.RED_SUITS.includes(card.s);
+      el.classList.add(red ? 'red' : 'black');
+      const rk = rankText(card.v);
+      el.innerHTML =
+        `<div class="corner"><span class="rk">${rk}</span><span class="st">${suit}</span></div>` +
+        `<div class="center">${suit}</div>` +
+        `<div class="corner br"><span class="rk">${rk}</span><span class="st">${suit}</span></div>`;
+      return el;
+    }
+    function cardBack(mini) {
+      const el = document.createElement('div');
+      el.className = 'card back' + (mini ? ' mini' : '') + (hasCustomBack ? '' : ' default');
+      return el;
+    }
+
+    // ---------- 渲染整体 ----------
+    function render() {
+      // 电脑手牌（背面堆叠 + 数量）
+      [0, 1].forEach(p => {
+        const wrap = document.createElement('div'); wrap.className = 'oppcards';
+        const show = Math.min(S.hands[p].length, 8);
+        for (let i = 0; i < show; i++) wrap.appendChild(cardBack(true));
+        $('cnt' + p).textContent = S.hands[p].length;
+        // 席位里插入 oppcards：放在 pinfo 后
+        const seat = $('seat' + p);
+        const old = seat.querySelector('.oppcards'); if (old) old.remove();
+        seat.appendChild(wrap);
+        $('ava' + p).classList.toggle('turn', S.current === p && !S.over);
+      });
+
+      // 真人手牌
+      const handEl = $('hand'); handEl.innerHTML = '';
+      const sorted = ZSY.sortByValue(S.hands[HUMAN]);
+      sorted.forEach(card => {
+        const el = cardFace(card);
+        el.dataset.id = card.id;
+        if (S.selected.has(card.id)) el.classList.add('sel');
+        el.onclick = () => toggleSel(card.id);
+        handEl.appendChild(el);
+      });
+
+      // 出牌区
+      [0, 1, 2].forEach(p => renderSlot(p));
+
+      // 控制按钮
+      const myTurn = S.current === HUMAN && !S.over;
+      $('playBtn').disabled = !myTurn;
+      $('hintBtn').disabled = !myTurn;
+      $('passBtn').disabled = !myTurn || !S.lastMove; // 领出时不能不出
+      $('ava2Highlight');
+    }
+
+    function renderSlot(p) {
+      const slot = $('slot' + p); slot.innerHTML = '';
+      const last = S.lastPlayed[p];
+      if (!last) return;
+      if (last === 'pass') { const t = document.createElement('div'); t.className = 'pass-tip'; t.textContent = '不出'; slot.appendChild(t); return; }
+      // 只有当该玩家是当前桌面牌型拥有者，或最近一手时展示；这里展示每人最近出的牌
+      last.forEach(c => slot.appendChild(cardFace(c, true)));
+    }
+
+    // ---------- 选牌 ----------
+    function toggleSel(id) {
+      if (S.current !== HUMAN || S.over) return;
+      if (S.selected.has(id)) S.selected.delete(id); else S.selected.add(id);
+      render();
+    }
+
+    // ---------- 开局 ----------
+    function newGame() {
+      const hands = ZSY.deal();
+      const starter = ZSY.findStarter(hands);
+      S = {
+        hands, current: starter, lastMove: null, lastOwner: null,
+        passStreak: 0, finished: [], selected: new Set(),
+        lastPlayed: [null, null, null], over: false,
+      };
+      $('resultOverlay').classList.remove('show');
+      toast(playerName(starter) + ' 持 ♦3 先出', 1400);
+      render();
+      if (S.current !== HUMAN) scheduleAI();
+    }
+
+    function playerName(p) { return p === HUMAN ? '你' : $('name' + p).textContent; }
+
+    // ---------- 出牌流程 ----------
+    function applyPlay(p, cards) {
+      const combo = ZSY.identify(cards);
+      const wasFollow = !!S.lastMove; // 出牌前桌上有牌 = 这是跟牌压制
+      // 移除手牌
+      const ids = new Set(cards.map(c => c.id));
+      S.hands[p] = S.hands[p].filter(c => !ids.has(c.id));
+      S.lastPlayed = [null, null, null]; // 清掉别人"不出"标记，只显示当前这手
+      S.lastPlayed[p] = cards.slice();
+      if (combo.type === 'rocket') { sndBomb(); toast('💥 王炸！', 900); say('王炸'); }
+      else if (combo.type === 'bomb') { sndBomb(); toast('💥 炸弹！', 900); say('炸弹'); }
+      else { sndPlay(); if (wasFollow) say('管上'); }
+
+      if (S.hands[p].length === 0) {
+        // 出完：记录名次，清桌面（获胜手不可压）
+        S.finished.push(p);
+        S.lastMove = null; S.lastOwner = null; S.passStreak = 0;
+        toast(playerName(p) + ' 打完啦！', 1200);
+        if (S.finished.length >= 2) { endGame(); return; }
+        S.current = nextActive(p);
+      } else {
+        S.lastMove = combo; S.lastOwner = p; S.passStreak = 0;
+        S.current = nextActive(p);
+      }
+      render();
+      if (!S.over && S.current !== HUMAN) scheduleAI();
+    }
+
+    function applyPass(p) {
+      sndPass();
+      say(canFollowLast(S.hands[p], S.lastMove) ? '不要' : '要不起'); // 有牌不出=不要，接不起=要不起
+      S.lastPlayed[p] = 'pass';
+      S.passStreak++;
+      S.current = nextActive(p);
+      // 若回到桌面牌型拥有者，说明其余人都过 -> 拥有者自由领出
+      if (S.current === S.lastOwner) { S.lastMove = null; S.passStreak = 0; S.lastPlayed = [null, null, null]; }
+      render();
+      if (!S.over && S.current !== HUMAN) scheduleAI();
+    }
+
+    function nextActive(from) {
+      let p = from;
+      for (let i = 0; i < 3; i++) {
+        p = (p + 1) % 3;
+        if (!S.finished.includes(p)) return p;
+      }
+      return from;
+    }
+
+    // ---------- 真人操作 ----------
+    $('playBtn').onclick = () => {
+      if (S.current !== HUMAN || S.over) return;
+      const cards = [...S.selected].map(id => S.hands[HUMAN].find(c => c.id === id)).filter(Boolean);
+      if (cards.length === 0) { toast('请先选牌'); return; }
+      const combo = ZSY.identify(cards);
+      if (!combo) { toast('不是合法牌型'); return; }
+      if (S.lastMove && !ZSY.canBeat(combo, S.lastMove)) { toast('压不过上家，换一手或点"不出"'); return; }
+      S.selected.clear();
+      applyPlay(HUMAN, cards);
+    };
+    $('passBtn').onclick = () => {
+      if (S.current !== HUMAN || S.over || !S.lastMove) return;
+      S.selected.clear();
+      applyPass(HUMAN);
+    };
+    $('hintBtn').onclick = () => {
+      if (S.current !== HUMAN || S.over) return;
+      const moves = S.lastMove
+        ? ZSY.genBeatMoves(S.hands[HUMAN], S.lastMove).filter(m => ZSY.canBeat(m, S.lastMove))
+        : ZSY.genLeadMoves(S.hands[HUMAN]);
+      if (moves.length === 0) { toast('没有能压过的牌，建议不出'); return; }
+      // 选最小的一手作为提示
+      moves.sort((a, b) => (a.rank + (a.type === 'bomb' ? 80 : a.type === 'rocket' ? 160 : 0))
+        - (b.rank + (b.type === 'bomb' ? 80 : b.type === 'rocket' ? 160 : 0)));
+      S.selected = new Set(moves[0].cards.map(c => c.id));
+      render();
+    };
+
+    // ---------- AI ----------
+    function scheduleAI() {
+      const p = S.current;
+      showThink(p, true);
+      setTimeout(() => {
+        showThink(p, false);
+        if (S.over) return;
+        const oppMin = Math.min(...[0, 1, 2].filter(x => x !== p && !S.finished.includes(x)).map(x => S.hands[x].length));
+        const isLead = !S.lastMove;
+        const decision = ZSY.aiDecide(S.hands[p], S.lastMove, isLead, oppMin, aiLevel);
+        if (decision === null && !isLead) applyPass(p);
+        else if (decision === null) applyPlay(p, [S.hands[p][0]]); // 领出兜底
+        else applyPlay(p, decision);
+      }, 750 + Math.random() * 550);
+    }
+    function showThink(p, on) {
+      if (p === HUMAN) return;
+      $('think' + p).classList.toggle('show', on);
+    }
+
+    // ---------- 结算 ----------
+    function endGame() {
+      S.over = true;
+      // 补全最后一名
+      const last = [0, 1, 2].find(p => !S.finished.includes(p));
+      const order = S.finished.concat([last]);
+      const titles = ['🏆 上游', '🥈 中游', '💩 下游'];
+      const medals = ['🥇', '🥈', '🥉'];
+      const list = $('rankList'); list.innerHTML = '';
+      order.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'rank-row' + (p === HUMAN ? ' win' : '');
+        row.innerHTML = `<span class="medal">${medals[i]}</span><span>${titles[i]}</span>
+          <span style="flex:1"></span><span>${playerName(p)}</span>`;
+        list.appendChild(row);
+      });
+      const humanRank = order.indexOf(HUMAN);
+      $('resultTitle').textContent = humanRank === 0 ? '🎉 恭喜你当上游！' : humanRank === 1 ? '还不错，中游～' : '哎呀，下游了…';
+      if (humanRank === 0) sndWin();
+      render();
+      setTimeout(() => $('resultOverlay').classList.add('show'), 700);
+    }
+
+    // ---------- Toast ----------
+    let toastTimer = null;
+    function toast(msg, ms) {
+      const t = $('toast'); t.textContent = msg; t.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms || 1100);
+    }
+
+    // ---------- 按钮绑定 ----------
+    $('restartBtn').onclick = newGame;
+    $('againBtn').onclick = newGame;
+    $('soundBtn').onclick = () => {
+      soundOn = !soundOn;
+      localStorage.setItem('zsy_sound', soundOn ? 'on' : 'off');
+      $('soundBtn').textContent = soundOn ? '🔊 音效' : '🔇 静音';
+      if (!soundOn && 'speechSynthesis' in window) speechSynthesis.cancel();
+    };
+    $('musicBtn').onclick = () => {
+      musicOn = !musicOn;
+      localStorage.setItem('zsy_music', musicOn ? 'on' : 'off');
+      applyMusic();
+    };
+    $('levelBtn').onclick = cycleLevel;
+    $('settingsBtn').onclick = () => $('settingsOverlay').classList.add('show');
+    $('closeSettingsBtn').onclick = () => $('settingsOverlay').classList.remove('show');
+    $('resetBackBtn').onclick = () => {
+      localStorage.removeItem('zsy_card_back');
+      document.documentElement.style.removeProperty('--card-back');
+      $('backPreview').style.backgroundImage = ''; $('backPreview').classList.add('default');
+      hasCustomBack = false; render(); toast('已恢复默认牌背');
+    };
+    $('backFile').onchange = e => {
+      const file = e.target.files[0]; if (!file) return;
+      if (file.size > 2.5 * 1024 * 1024) { toast('图片太大，请选 2.5MB 以内'); return; }
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const data = ev.target.result;
+        try { localStorage.setItem('zsy_card_back', data); } catch (err) { toast('保存失败，图片可能太大'); return; }
+        document.documentElement.style.setProperty('--card-back', `url(${data})`);
+        $('backPreview').style.backgroundImage = `url(${data})`; $('backPreview').classList.remove('default');
+        hasCustomBack = true; render(); toast('牌背已更新');
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // ---------- 启动 ----------
+    hasCustomBack = loadBack();
+    applyLevelBtn();
+    $('soundBtn').textContent = soundOn ? '🔊 音效' : '🔇 静音';
+    $('musicBtn').textContent = musicOn ? '🎵 音乐' : '🎵 音乐：关';
+    newGame();
+    // 首次交互解锁音频；若记忆为开则启动背景音乐
+    document.body.addEventListener('pointerdown', () => {
+      ensureCtx();
+      if (musicOn) startBGM();
+    }, { once: true });
+  })();
+  </script>
+</body>
+</html>
