@@ -30,7 +30,9 @@
 
   /* 牌桌 */
   .table { flex: 1; position: relative; margin: 10px; border-radius: 26px;
-    background: radial-gradient(ellipse at 50% 42%, var(--felt-1), var(--felt-2) 78%);
+    background-color: var(--felt-2);
+    background-image: var(--table-bg, radial-gradient(ellipse at 50% 42%, #1a7a4c, #0d5236 78%));
+    background-size: cover; background-position: center;
     border: 8px solid #3c2413; box-shadow: inset 0 0 60px rgba(0,0,0,.55), var(--shadow); overflow: hidden; }
   .table::after { content: "争上游"; position: absolute; inset: 0; display: grid; place-items: center;
     font-size: 90px; font-weight: 900; color: rgba(255,255,255,.05); letter-spacing: 20px; pointer-events: none; }
@@ -133,6 +135,9 @@
   .file-btn { display: inline-block; }
   .preview-back { width: 62px; height: 88px; border-radius: 8px; vertical-align: middle; margin-left: 10px;
     border: 1px solid #ccc; background-size: cover; background-position: center; }
+  .preview-table { display: inline-block; width: 96px; height: 54px; border-radius: 8px; vertical-align: middle;
+    margin-left: 10px; border: 1px solid #ccc; background-size: cover; background-position: center;
+    background-image: radial-gradient(ellipse at 50% 42%, #1a7a4c, #0d5236 78%); }
   .hint { font-size: 12px; color: #7a5a2a; margin-top: 6px; }
 
   .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.8);
@@ -154,7 +159,7 @@
     <button class="btn ghost" id="levelBtn">🧠 智力：普通</button>
     <button class="btn ghost" id="musicBtn">🎵 音乐</button>
     <button class="btn ghost" id="soundBtn">🔊 音效</button>
-    <button class="btn ghost" id="settingsBtn">⚙ 牌背</button>
+    <button class="btn ghost" id="settingsBtn">⚙ 外观</button>
     <button class="btn" id="restartBtn">重新开局</button>
   </div>
 
@@ -200,17 +205,25 @@
   <!-- 设置 -->
   <div class="overlay" id="settingsOverlay">
     <div class="modal">
-      <h2>自定义牌背</h2>
+      <h2>外观设置</h2>
       <div class="settings-row">
-        <label>上传一张图片作为电脑玩家的牌背：</label>
+        <label>🂠 电脑玩家牌背：</label>
         <label class="btn file-btn">选择图片
           <input type="file" id="backFile" accept="image/*" style="display:none" />
         </label>
         <span class="preview-back card back default" id="backPreview"></span>
-        <div class="hint">图片会保存在本地浏览器，下次打开自动生效。</div>
+        <button class="btn ghost" id="resetBackBtn" style="margin-left:8px;padding:6px 10px;">恢复默认</button>
       </div>
-      <button class="btn ghost" id="resetBackBtn">恢复默认牌背</button>
-      <button class="btn" id="closeSettingsBtn">完成</button>
+      <div class="settings-row">
+        <label>🀫 牌桌背景：</label>
+        <label class="btn file-btn">选择图片
+          <input type="file" id="tableFile" accept="image/*" style="display:none" />
+        </label>
+        <span class="preview-table" id="tablePreview"></span>
+        <button class="btn ghost" id="resetTableBgBtn" style="margin-left:8px;padding:6px 10px;">恢复默认</button>
+      </div>
+      <div class="hint">图片保存在本地浏览器，下次打开自动生效。</div>
+      <button class="btn" id="closeSettingsBtn" style="margin-top:14px;">完成</button>
     </div>
   </div>
 
@@ -843,6 +856,24 @@
     }
     let hasCustomBack = false;
 
+    // ---------- 牌桌背景 ----------
+    function loadTableBg() {
+      const data = localStorage.getItem('zsy_table_bg');
+      if (data) {
+        document.documentElement.style.setProperty('--table-bg', `url("${data}")`);
+        $('tablePreview').style.backgroundImage = `url("${data}")`;
+      }
+    }
+    // 通用：把图片按最长边缩放压缩为 JPEG dataURL（不裁剪，保留完整画面）
+    function scaleImageToDataURL(img, maxSide, quality) {
+      let w = img.width, h = img.height;
+      const scale = Math.min(maxSide / Math.max(w, h), 1);
+      w = Math.round(w * scale); h = Math.round(h * scale);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      return c.toDataURL('image/jpeg', quality);
+    }
+
     // ---------- 音效 / 语音 / 背景音乐（全部 Web Audio + 语音合成，无外部文件） ----------
     let actx = null;
     function ensureCtx() {
@@ -1179,8 +1210,37 @@
       img.src = objUrl;
     };
 
+    // 牌桌背景：重置 / 上传
+    $('resetTableBgBtn').onclick = () => {
+      localStorage.removeItem('zsy_table_bg');
+      document.documentElement.style.removeProperty('--table-bg');
+      $('tablePreview').style.backgroundImage = '';
+      toast('已恢复默认牌桌');
+    };
+    $('tableFile').onchange = e => {
+      const file = e.target.files[0]; if (!file) return;
+      if (!/^image\//.test(file.type || '')) { toast('请选择图片文件'); return; }
+      const objUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(objUrl);
+        let data;
+        try { data = scaleImageToDataURL(img, 1100, 0.8); } // 缩放压缩，保留完整画面，CSS 再 cover 填满
+        catch (err) { toast('图片处理失败，请换一张'); return; }
+        try { localStorage.setItem('zsy_table_bg', data); }
+        catch (err) { toast('保存失败，请换一张更小的图'); return; }
+        document.documentElement.style.setProperty('--table-bg', `url("${data}")`);
+        $('tablePreview').style.backgroundImage = `url("${data}")`;
+        toast('牌桌背景已更新');
+        $('tableFile').value = '';
+      };
+      img.onerror = () => { URL.revokeObjectURL(objUrl); toast('图片读取失败，请换一张'); };
+      img.src = objUrl;
+    };
+
     // ---------- 启动 ----------
     hasCustomBack = loadBack();
+    loadTableBg();
     applyLevelBtn();
     $('soundBtn').textContent = soundOn ? '🔊 音效' : '🔇 静音';
     $('musicBtn').textContent = musicOn ? '🎵 音乐' : '🎵 音乐：关';
