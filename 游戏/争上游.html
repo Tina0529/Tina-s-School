@@ -867,46 +867,23 @@
     const sndWin = () => { beep(660, 0.15); setTimeout(() => beep(880, 0.2), 130); setTimeout(() => beep(1046, 0.25), 300); };
     const sndBomb = () => { beep(120, 0.28, 'sawtooth', 0.11); setTimeout(() => beep(80, 0.32, 'sawtooth', 0.1), 60); };
 
-    // 中文语音报牌（浏览器内置 TTS，随音效开关）
-    let zhVoice = null;
-    function pickVoice() {
-      try {
-        const vs = speechSynthesis.getVoices();
-        zhVoice = vs.find(v => /zh|Chinese|中文|普通话/i.test(v.lang + v.name)) || null;
-      } catch (e) {}
-    }
-    if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-    function say(text) {
-      if (!soundOn || !('speechSynthesis' in window)) return;
-      try {
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'zh-CN'; if (zhVoice) u.voice = zhVoice;
-        u.rate = 1.15; u.pitch = 1.15; u.volume = 0.95;
-        speechSynthesis.cancel();
-        speechSynthesis.speak(u);
-      } catch (e) {}
+    // 报牌语音：Gemini 3.1 TTS 预生成的真人级音频（随音效开关）
+    const VOICE_KEYS = ['guanshang', 'yaobuqi', 'buyao', 'zhadan', 'wangzha', 'win'];
+    const VOICES = {};
+    VOICE_KEYS.forEach(k => { const a = new Audio('assets/voice/' + k + '.mp3'); a.preload = 'auto'; VOICES[k] = a; });
+    function say(key) {
+      if (!soundOn) return;
+      const a = VOICES[key]; if (!a) return;
+      try { a.currentTime = 0; a.play().catch(() => {}); } catch (e) {}
     }
 
-    // 背景音乐：轻快的循环琶音（两小节 C-Am-F-G 走向），音量很低
-    let bgmTimer = null, bgmStep = 0;
-    const BGM_NOTES = [ // [主旋律Hz, 低音Hz]
-      [523, 131], [659, 131], [784, 165], [659, 165],
-      [440, 110], [523, 110], [659, 147], [523, 147],
-      [349, 175], [440, 175], [523, 196], [440, 196],
-      [392, 196], [494, 147], [587, 196], [494, 131],
-    ];
+    // 背景音乐：本地 mp3「在星空下」循环播放，音量调低
+    let bgmAudio = null;
     function startBGM() {
-      if (bgmTimer || !ensureCtx()) return;
-      bgmStep = 0;
-      bgmTimer = setInterval(() => {
-        if (!musicOn) return;
-        const [mel, bass] = BGM_NOTES[bgmStep % BGM_NOTES.length];
-        tone(mel, 0.32, 'sine', 0.028);           // 旋律
-        if (bgmStep % 2 === 0) tone(bass, 0.5, 'triangle', 0.02); // 低音垫
-        bgmStep++;
-      }, 340);
+      if (!bgmAudio) { bgmAudio = new Audio('assets/bgm.mp3'); bgmAudio.loop = true; bgmAudio.volume = 0.15; }
+      bgmAudio.play().catch(() => {});
     }
-    function stopBGM() { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } }
+    function stopBGM() { if (bgmAudio) bgmAudio.pause(); }
     function applyMusic() {
       $('musicBtn').textContent = musicOn ? '🎵 音乐' : '🎵 音乐：关';
       if (musicOn) startBGM(); else stopBGM();
@@ -1027,9 +1004,9 @@
       S.hands[p] = S.hands[p].filter(c => !ids.has(c.id));
       S.lastPlayed = [null, null, null]; // 清掉别人"不出"标记，只显示当前这手
       S.lastPlayed[p] = cards.slice();
-      if (combo.type === 'rocket') { sndBomb(); toast('💥 王炸！', 900); say('王炸'); }
-      else if (combo.type === 'bomb') { sndBomb(); toast('💥 炸弹！', 900); say('炸弹'); }
-      else { sndPlay(); if (wasFollow) say('管上'); }
+      if (combo.type === 'rocket') { sndBomb(); toast('💥 王炸！', 900); say('wangzha'); }
+      else if (combo.type === 'bomb') { sndBomb(); toast('💥 炸弹！', 900); say('zhadan'); }
+      else { sndPlay(); if (wasFollow) say('guanshang'); }
 
       if (S.hands[p].length === 0) {
         // 出完：记录名次，清桌面（获胜手不可压）
@@ -1048,7 +1025,7 @@
 
     function applyPass(p) {
       sndPass();
-      say(canFollowLast(S.hands[p], S.lastMove) ? '不要' : '要不起'); // 有牌不出=不要，接不起=要不起
+      say(canFollowLast(S.hands[p], S.lastMove) ? 'buyao' : 'yaobuqi'); // 有牌不出=不要，接不起=要不起
       S.lastPlayed[p] = 'pass';
       S.passStreak++;
       S.current = nextActive(p);
@@ -1134,7 +1111,7 @@
       });
       const humanRank = order.indexOf(HUMAN);
       $('resultTitle').textContent = humanRank === 0 ? '🎉 恭喜你当上游！' : humanRank === 1 ? '还不错，中游～' : '哎呀，下游了…';
-      if (humanRank === 0) sndWin();
+      if (humanRank === 0) { sndWin(); say('win'); }
       render();
       setTimeout(() => $('resultOverlay').classList.add('show'), 700);
     }
@@ -1153,7 +1130,7 @@
       soundOn = !soundOn;
       localStorage.setItem('zsy_sound', soundOn ? 'on' : 'off');
       $('soundBtn').textContent = soundOn ? '🔊 音效' : '🔇 静音';
-      if (!soundOn && 'speechSynthesis' in window) speechSynthesis.cancel();
+      if (!soundOn) VOICE_KEYS.forEach(k => { try { VOICES[k].pause(); } catch (e) {} });
     };
     $('musicBtn').onclick = () => {
       musicOn = !musicOn;
