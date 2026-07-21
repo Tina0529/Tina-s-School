@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub 变现机会报告</title>
+<!--
+数据结构(注入到 __GOLDMINE_DATA__):
+{
+  "meta": {"domain":"播客转文字","date":"2026-07-21","scanMethod":"WebSearch+WebFetch",
+           "counts":{"candidates":12,"shortlisted":6,"opportunities":3}},
+  "ledgerSummary": {"待验证":3,"已验证":1,"已上架":0,"已放弃":2,"已失效":0},
+  "summary": "结论速览文本,可多句。",
+  "candidates": [{"repo":"owner/name","url":"https://...","stars":8400,"updated":"2026-06-01",
+                  "license":"MIT","hasRelease":true,"score":14,"verdict":"需要技术基础"}],
+  "opportunities": [{"title":"帮 Windows 用户一键装好 X","repo":"owner/name","license":"MIT",
+                     "licenseNote":"商用友好,保留版权声明","serviceType":"代装部署",
+                     "pricing":"49-99 一次性,+30/月维护",
+                     "evidence":[{"desc":"12 条 Windows 安装求助","url":"https://..."}],
+                     "competition":{"tier":2,"saturation":"有内容无服务","note":"教程 3 篇,无人卖交付"},
+                     "risks":["上游更新频繁","GPL 衍生需开源"],
+                     "checklist":["搜「X 部署」记录在售数量","记录价格带","看差评关键词"]}],
+  "limitations": ["GitHub API 受限,候选覆盖 8 个"]
+}
+-->
+<style>
+:root{
+  --bg:#f7f7f5;--card:#ffffff;--ink:#1a1a1a;--muted:#6b6b66;--line:#e4e4df;
+  --accent:#4a6fa5;--good:#3d7a4f;--warn:#a8762a;--bad:#a04545;--chip:#eeeeea;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#191917;--card:#232320;--ink:#e8e8e4;--muted:#9c9c94;--line:#383833;
+        --accent:#7fa3d4;--good:#7fba90;--warn:#d4a860;--bad:#d48585;--chip:#2e2e2a}
+}
+:root[data-theme="dark"]{--bg:#191917;--card:#232320;--ink:#e8e8e4;--muted:#9c9c94;--line:#383833;
+  --accent:#7fa3d4;--good:#7fba90;--warn:#d4a860;--bad:#d48585;--chip:#2e2e2a}
+:root[data-theme="light"]{--bg:#f7f7f5;--card:#ffffff;--ink:#1a1a1a;--muted:#6b6b66;--line:#e4e4df;
+  --accent:#4a6fa5;--good:#3d7a4f;--warn:#a8762a;--bad:#a04545;--chip:#eeeeea}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.65 "Noto Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  padding:2rem 1rem 4rem}
+.wrap{max-width:960px;margin:0 auto}
+h1{font-size:1.5rem;margin:0 0 .25rem}
+h2{font-size:1.15rem;margin:2.2rem 0 .8rem;border-bottom:1px solid var(--line);padding-bottom:.4rem}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.7rem;margin:1.2rem 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem}
+.tile .n{font-size:1.6rem;font-weight:700}
+.tile .l{font-size:.8rem;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.3rem;margin:.9rem 0}
+.summary{border-left:4px solid var(--accent)}
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:640px}
+th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:.8rem}
+td.repo{white-space:normal}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.chip{display:inline-block;background:var(--chip);border-radius:999px;padding:.1rem .6rem;font-size:.78rem}
+.v-直接试{color:var(--good)} .v-需要技术基础{color:var(--accent)}
+.v-观望{color:var(--warn)} .v-关掉{color:var(--bad)}
+.bar{background:var(--chip);border-radius:4px;height:8px;width:90px;display:inline-block;vertical-align:middle}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--accent)}
+.opp h3{margin:.1rem 0 .5rem;font-size:1.05rem}
+.opp .meta{font-size:.85rem;color:var(--muted);margin-bottom:.6rem}
+.opp ul{margin:.3rem 0 .6rem;padding-left:1.3rem}
+.opp .sec{font-weight:600;font-size:.85rem;margin-top:.7rem}
+.price{font-weight:700;color:var(--good)}
+.check{list-style:none;padding-left:0}
+.check li::before{content:"☐ ";color:var(--muted)}
+.limit{color:var(--muted);font-size:.88rem}
+footer{margin-top:3rem;color:var(--muted);font-size:.8rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">正在渲染…</div>
+<script>
+const D = __GOLDMINE_DATA__;
+const esc = s => String(s??"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const m = D.meta||{}, c = m.counts||{}, L = D.ledgerSummary||{};
+let h = `<h1>${esc(m.domain)} · GitHub 变现机会报告</h1>
+<div class="sub">${esc(m.date)} · 扫描方式:${esc(m.scanMethod)} · 候选 ${c.candidates??"-"} → 入选 ${c.shortlisted??"-"} → 机会 ${c.opportunities??"-"}</div>
+<div class="card summary">${esc(D.summary)}</div>
+<div class="tiles">${["待验证","已验证","已上架","已放弃","已失效"].map(k=>
+  `<div class="tile"><div class="n">${L[k]??0}</div><div class="l">台账 · ${k}</div></div>`).join("")}</div>`;
+
+h += `<h2>候选项目全景</h2><div class="card tblwrap"><table>
+<tr><th>项目</th><th>Stars</th><th>最近更新</th><th>License</th><th>成品</th><th>四查得分</th><th>结论</th></tr>`;
+for(const r of D.candidates||[]){
+  h += `<tr><td class="repo"><a href="${esc(r.url)}" target="_blank">${esc(r.repo)}</a></td>
+  <td>${(r.stars??0).toLocaleString()}</td><td>${esc(r.updated)}</td><td>${esc(r.license)}</td>
+  <td>${r.hasRelease?"✅":"—"}</td>
+  <td><span class="bar"><i style="width:${Math.min(100,(r.score||0)/20*100)}%"></i></span> ${r.score??"-"}/20</td>
+  <td class="v-${esc(r.verdict)}">${esc(r.verdict)}</td></tr>`;
+}
+h += `</table></div>`;
+
+h += `<h2>机会详情</h2>`;
+(D.opportunities||[]).forEach((o,i)=>{
+  h += `<div class="card opp"><h3>机会 ${i+1} · ${esc(o.title)}</h3>
+  <div class="meta">依托 <a href="https://github.com/${esc(o.repo)}" target="_blank">${esc(o.repo)}</a>
+   · <span class="chip">${esc(o.serviceType)}</span>
+   · <span class="chip">${esc(o.license)}</span> ${esc(o.licenseNote)}</div>
+  <div class="sec">用户卡点证据</div>
+  <ul>${(o.evidence||[]).map(e=>`<li>${esc(e.desc)}${e.url?` <a href="${esc(e.url)}" target="_blank">↗</a>`:""}</li>`).join("")}</ul>
+  <div class="sec">竞争</div>
+  <div>层级 ${esc(o.competition?.tier)} · <span class="chip">${esc(o.competition?.saturation)}</span> ${esc(o.competition?.note)}</div>
+  <div class="sec">定价参考</div><div class="price">${esc(o.pricing)}</div>
+  <div class="sec">风险</div>
+  <ul>${(o.risks||[]).map(r=>`<li>${esc(r)}</li>`).join("")}</ul>
+  <div class="sec">人工验证清单(约 10 分钟)</div>
+  <ul class="check">${(o.checklist||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+  </div>`;
+});
+
+h += `<h2>本次运行局限</h2><div class="card limit"><ul>${
+  (D.limitations||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+<footer>github-goldmine · 卖服务和结果,不卖文件 · 上架前先完成人工验证清单</footer>`;
+document.getElementById("app").innerHTML = h;
+</script>
+</body>
+</html>
