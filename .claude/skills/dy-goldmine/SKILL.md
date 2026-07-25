@@ -1,9 +1,9 @@
 ---
-name: github-goldmine
+name: dy-goldmine
 description: GitHub 变现机会挖掘流水线:输入一个领域关键词,自动扫描 GitHub 候选项目 → 用"五分钟判断法"筛选 → 挖掘 Issues 里跨项目重复出现的用户需求 → 评估市场竞争 → 输出机会报告、可视化 HTML 报告,并把发现追加到可持续积累的机会台账。当用户想"从 GitHub 找赚钱机会/变现机会/选题"、"看看某个领域有什么开源项目能做成服务"、"挖需求"、"评估某个 GitHub 项目靠不靠谱/能不能用"、"更新机会台账"、提到"开源项目 + 闲鱼/淘宝/知识付费"、或想把免费开源项目变成部署/汉化/教学/模板等收费服务时,务必使用本 skill——即使用户没有明确说"挖掘"或"报告"这些词。
 ---
 
-# GitHub 变现机会挖掘(github-goldmine)
+# GitHub 变现机会挖掘(dy-goldmine)
 
 把 GitHub 当作公开的需求库:官网只说产品多好,GitHub 会留下不好看的真相——维护状态、用户卡点、没人接的需求。本 skill 的任务是把这些真相变成**可交付的服务机会**,并沉淀进台账持续积累。
 
@@ -22,10 +22,10 @@ description: GitHub 变现机会挖掘流水线:输入一个领域关键词,自�
 
 ## 数据沉淀位置
 
-所有持久化数据放在当前工作目录(或 git 仓库根目录)的 `github-goldmine-data/` 下:
+所有持久化数据放在当前工作目录(或 git 仓库根目录)的 `dy-goldmine-data/` 下:
 
 ```
-github-goldmine-data/
+dy-goldmine-data/
 ├── ledger.json          # 机会台账(结构化,跨次运行累积)
 ├── opportunities.md     # 台账的人类可读版(每次运行后重新生成)
 └── reports/

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""github-goldmine 候选扫描脚本(仅用 Python 标准库)。
+"""dy-goldmine 候选扫描脚本(仅用 Python 标准库)。
 
 用法:
   python3 scan_github.py --query "podcast transcript stars:>100" \
@@ -18,7 +18,7 @@ def gh_get(path, params=None):
     url = API + path + ("?" + urllib.parse.urlencode(params) if params else "")
     req = urllib.request.Request(url, headers={
         "Accept": "application/vnd.github+json",
-        "User-Agent": "github-goldmine",
+        "User-Agent": "dy-goldmine",
         **({"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}"} if os.environ.get("GITHUB_TOKEN") else {}),
     })
     try:
