@@ -148,38 +148,114 @@ body{
 .stk{font-size:26px;background:#f8fafc;border-radius:12px;padding:6px 8px;position:relative}
 .stk small{position:absolute;bottom:-4px;right:-4px;background:var(--coral2);color:#fff;border-radius:999px;font-size:10px;padding:1px 5px;font-weight:800}
 
-/* ---------- JOURNEY (弯弯曲曲冒险地图) ---------- */
-.journeyInfo{display:flex;align-items:center;gap:10px;background:linear-gradient(120deg,#ecfeff,#eff6ff);
+/* ---------- JOURNEY (大富翁式冒险棋盘) ---------- */
+.journeyInfo{background:linear-gradient(120deg,#ecfeff,#eff6ff);line-height:1.55;
   border-radius:14px;padding:10px 14px;margin-bottom:12px;font-weight:700;color:var(--ink2);font-size:14px}
 .journeyInfo .n{color:var(--sea2);font-weight:900}
 .journeyInfo .nx{color:var(--coral2);font-weight:900}
-/* 整张海岛地图作为固定背景，一屏显示、不滚动 */
-.mapWrap{position:relative;width:100%;border-radius:18px;overflow:hidden;line-height:0;
-  box-shadow:inset 0 0 0 3px #fff, 0 8px 22px rgba(2,132,199,.18)}
+/* 整张海岛地图作为棋盘：一屏显示，可放大跟随小猫 */
+.mapWrap{position:relative;width:100%;border-radius:18px;overflow:hidden;background:#5ab6c9;
+  box-shadow:inset 0 0 0 3px #fff, 0 10px 26px rgba(2,132,199,.22)}
+.mapStage{position:relative;width:100%;line-height:0;transform-origin:0 0;
+  transition:transform .55s cubic-bezier(.3,.85,.3,1)}
 .mapImg{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
-.mchest{position:absolute;transform:translate(-50%,-50%);z-index:3;cursor:pointer;
-  font-size:clamp(20px,4.2vw,30px);line-height:1;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));transition:transform .2s}
-.mchest.locked{filter:grayscale(.35) drop-shadow(0 2px 3px rgba(0,0,0,.3));opacity:.95}
-.mchest.open{animation:chestPop 1.8s ease-in-out infinite}
-.mchest:hover{transform:translate(-50%,-50%) scale(1.15)}
-@keyframes chestPop{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-58%) scale(1.14)}}
-.mtoken{position:absolute;transform:translate(-50%,-80%);z-index:5;width:clamp(34px,8.5vw,54px);height:auto;
-  filter:drop-shadow(0 5px 5px rgba(0,0,0,.4));transition:left .6s ease, top .6s ease;pointer-events:none}
-.mtoken.hop{animation:tokenHop .55s ease-in-out 3}
-@keyframes tokenHop{0%,100%{transform:translate(-50%,-80%)}45%{transform:translate(-50%,-102%) scale(1.1)}75%{transform:translate(-50%,-76%)}}
-/* 每前进一步留下一个金色脚印 */
-.mdot{position:absolute;width:clamp(6px,1.6vw,10px);height:clamp(6px,1.6vw,10px);border-radius:50%;
-  transform:translate(-50%,-50%);z-index:2;pointer-events:none;
-  background:radial-gradient(circle at 35% 30%,#fff7d6,#fbbf24);border:1.5px solid #f59e0b;box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.mdot.new{animation:dotPop .6s cubic-bezier(.2,1.6,.4,1)}
-@keyframes dotPop{0%{transform:translate(-50%,-50%) scale(0)}100%{transform:translate(-50%,-50%) scale(1)}}
-.mpop{position:absolute;transform:translate(-50%,-118%);z-index:6;background:#fff;border-radius:10px;padding:5px 10px;
-  font-size:12.5px;font-weight:800;color:var(--ink);box-shadow:0 5px 12px rgba(0,0,0,.25);pointer-events:none;
-  max-width:min(150px,42vw);width:max-content;text-align:center;line-height:1.3}
-.mpop.got{background:linear-gradient(135deg,#fef9c3,#fde68a);color:#7c2d12}
-.mpop .s{display:block;color:#94a3b8;font-weight:700;font-size:10.5px;margin-top:1px}
-.mpop:after{content:"";position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:#fff;border-bottom:0}
-.mpop.got:after{border-top-color:#fde68a}
+.mapSvg{position:absolute;inset:0;width:100%;height:100%}
+.popLayer{position:absolute;inset:0;pointer-events:none}
+
+/* 地图上的小按钮 */
+.mapBtns{position:absolute;right:9px;top:9px;display:flex;flex-direction:column;gap:7px;z-index:8}
+.mapBtn{width:34px;height:34px;border-radius:11px;border:none;cursor:pointer;font-size:15px;line-height:1;
+  background:rgba(255,255,255,.93);color:var(--ink2);box-shadow:0 4px 10px rgba(0,0,0,.28);transition:.15s}
+.mapBtn:hover{transform:scale(1.09)}
+.mapBtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.mapBtn.on{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff}
+.mapLegend{position:absolute;left:9px;bottom:9px;display:flex;gap:5px;flex-wrap:wrap;z-index:8;line-height:1}
+.lg{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.9);border-radius:999px;
+  padding:3px 8px;font-size:11px;font-weight:800;color:#475569;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.lg em{width:9px;height:9px;border-radius:3px;display:inline-block}
+.lg em.done{background:linear-gradient(160deg,#ffe9a8,#f0b542);box-shadow:0 0 0 1px #b8801f inset}
+.lg em.cur{background:linear-gradient(160deg,#fff,#7dd3fc);box-shadow:0 0 0 1px #0284c7 inset}
+.lg em.todo{background:linear-gradient(160deg,#e8eef2,#b9c7cf);box-shadow:0 0 0 1px #7c8f99 inset}
+@media(max-width:520px){.mapLegend{gap:4px}.lg{font-size:9.5px;padding:2px 6px}}
+
+/* 棋格与宝箱的动画（几何与配色由 JS 生成） */
+.tile{cursor:pointer}
+.tile .halo{opacity:0}
+.tile.cur .halo{opacity:1;transform-box:fill-box;transform-origin:50% 50%;animation:haloPulse 1.7s ease-in-out infinite}
+@keyframes haloPulse{0%,100%{transform:scale(.86);opacity:.85}50%{transform:scale(1.22);opacity:.15}}
+.station{cursor:pointer;transform-box:fill-box;transform-origin:50% 100%}
+.station.open{animation:chestFloat 2.4s ease-in-out infinite}
+@keyframes chestFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3.5px)}}
+.station:hover{filter:brightness(1.08)}
+.spark{transform-box:fill-box;transform-origin:50% 50%;animation:twinkle 1.6s ease-in-out infinite}
+@keyframes twinkle{0%,100%{transform:scale(.5);opacity:.25}50%{transform:scale(1.15);opacity:1}}
+.routeFlow{animation:flow 2.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-40}}
+.mist{transform-box:fill-box;transform-origin:50% 50%;animation:mistDrift 9s ease-in-out infinite}
+@keyframes mistDrift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(10px,-5px) scale(1.08)}}
+.flagWave{transform-box:fill-box;transform-origin:0% 50%;animation:wave 1.8s ease-in-out infinite}
+@keyframes wave{0%,100%{transform:skewY(0deg) scaleX(1)}50%{transform:skewY(-5deg) scaleX(.92)}}
+
+/* ---- 小猫棋子：走路 / 待机 / 欢呼 三态骨骼动画 ---- */
+#catToken{--wd:.42s}
+#catToken .leg,#catToken .tail,#catToken .head,#catToken .bobG,#catToken .cheerG,
+#catToken .earN,#catToken .eyelid,#catToken .pack{transform-box:fill-box}
+#catToken .leg{transform-origin:50% 10%}
+#catToken .tail{transform-origin:92% 88%}
+#catToken .head{transform-origin:35% 88%}
+#catToken .earN{transform-origin:50% 100%}
+#catToken .eyelid{transform-origin:50% 0;transform:scaleY(.02)}
+#catToken .bobG{transform-origin:50% 100%}
+/* 待机：呼吸、摆尾、眨眼、耳朵抖动 */
+#catToken.idle .bobG{animation:catBreath 2.8s ease-in-out infinite}
+#catToken.idle .tail{animation:tailIdle 2.6s ease-in-out infinite}
+#catToken.idle .head{animation:headIdle 3.4s ease-in-out infinite}
+#catToken .eyelid{animation:blink 5.4s infinite}
+#catToken .earN{animation:earTwitch 4.6s infinite}
+@keyframes catBreath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.035) scaleX(.99)}}
+@keyframes tailIdle{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(16deg)}}
+@keyframes headIdle{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(4deg) translateY(-1px)}}
+@keyframes blink{0%,92%{transform:scaleY(.02)}94%,96%{transform:scaleY(1)}98%,100%{transform:scaleY(.02)}}
+@keyframes earTwitch{0%,86%{transform:rotate(0)}90%{transform:rotate(-13deg)}94%{transform:rotate(7deg)}100%{transform:rotate(0)}}
+/* 走路：四条腿交替摆动 + 身体起伏 + 尾巴快摆 */
+#catToken.walking .legFN,#catToken.walking .legBF{animation:legA var(--wd) linear infinite}
+#catToken.walking .legFF,#catToken.walking .legBN{animation:legB var(--wd) linear infinite}
+#catToken.walking .bobG{animation:catTrot var(--wd) linear infinite}
+#catToken.walking .tail{animation:tailWalk var(--wd) ease-in-out infinite}
+#catToken.walking .head{animation:headWalk var(--wd) ease-in-out infinite}
+#catToken.walking .pack{animation:packJiggle var(--wd) ease-in-out infinite}
+@keyframes legA{0%{transform:rotate(26deg)}50%{transform:rotate(-24deg)}100%{transform:rotate(26deg)}}
+@keyframes legB{0%{transform:rotate(-24deg)}50%{transform:rotate(26deg)}100%{transform:rotate(-24deg)}}
+@keyframes catTrot{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-2.4px) rotate(-1.4deg)}
+  50%{transform:translateY(0) rotate(0)}75%{transform:translateY(-2.4px) rotate(1.4deg)}}
+@keyframes tailWalk{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(22deg)}}
+@keyframes headWalk{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(3deg)}}
+@keyframes packJiggle{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+/* 欢呼：抵达宝箱站时举爪跳跃 */
+#catToken.cheer .cheerG{animation:cheerJump .5s ease-in-out 3}
+#catToken.cheer .legFN{transform:rotate(-108deg)}
+#catToken.cheer .legFF{transform:rotate(-88deg)}
+#catToken.cheer .tail{animation:tailWalk .32s ease-in-out infinite}
+@keyframes cheerJump{0%,100%{transform:translateY(0) scaleY(1)}
+  18%{transform:translateY(2px) scaleY(.9)}55%{transform:translateY(-14px) scaleY(1.06)}85%{transform:translateY(1px) scaleY(.95)}}
+.puff{transform-box:fill-box;transform-origin:50% 50%;animation:puffOut .55s ease-out forwards}
+@keyframes puffOut{0%{transform:scale(.3);opacity:.75}100%{transform:scale(1.9) translateY(-6px);opacity:0}}
+
+/* 木牌样式的地图提示 */
+.mpop{position:absolute;transform:translate(-50%,-125%);z-index:7;padding:5px 11px 6px;border-radius:9px;
+  font-size:12.5px;font-weight:800;color:#4a2c10;pointer-events:none;text-align:center;line-height:1.3;
+  max-width:min(160px,44vw);width:max-content;
+  background:linear-gradient(180deg,#fff6e2,#f2dcb0);border:2px solid #b8874e;
+  box-shadow:0 6px 14px rgba(0,0,0,.3),inset 0 1px 0 #fffdf6;animation:popIn .28s cubic-bezier(.2,1.5,.4,1)}
+@keyframes popIn{from{transform:translate(-50%,-118%) scale(.7);opacity:0}to{transform:translate(-50%,-125%) scale(1);opacity:1}}
+.mpop.got{background:linear-gradient(180deg,#fff8c9,#fbd868);border-color:#c9860f;color:#6b3a05}
+.mpop .s{display:block;color:#8a6a45;font-weight:700;font-size:10.5px;margin-top:1px}
+.mpop.got .s{color:#8a5a05}
+.mpop:after{content:"";position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+  border:8px solid transparent;border-top-color:#b8874e;border-bottom:0}
+@media(prefers-reduced-motion:reduce){
+  .station.open,.spark,.routeFlow,.mist,.flagWave,#catToken *{animation:none!important}
+}
 
 /* earned rewards list */
 .rewardList{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
@@ -337,13 +413,171 @@ body{
 
   <!-- JOURNEY MAP -->
   <section class="card">
-    <h2>🗺️ 冒险地图</h2>
-    <p class="sectionSub">每完成一天就前进一步，走到宝箱站就解锁一份奖励！🎁</p>
+    <h2>🗺️ 冒险棋盘</h2>
+    <p class="sectionSub">每完成一天，小猫探险家就沿着石板路走一格；踩到宝箱站就解锁一份奖励！🎁</p>
     <div class="journeyInfo" id="journeyInfo">—</div>
     <div class="mapWrap" id="mapWrap">
-      <img class="mapImg" src="img/adventure_map.jpg" alt="馨儿的暑假冒险岛地图">
-      <img class="mtoken" id="mtoken" src="img/cat_mascot.png" alt="馨儿"
-           onerror="this.replaceWith(Object.assign(document.createElement('div'),{id:'mtoken',className:'mtoken',textContent:'🐱',style:'font-size:30px;width:auto'}))">
+      <div class="mapStage" id="mapStage">
+        <img class="mapImg" src="img/adventure_map.jpg" alt="馨儿的暑假冒险岛地图">
+        <svg class="mapSvg" id="mapSvg" viewBox="0 0 1264 848" role="img" aria-label="冒险棋盘">
+          <defs>
+            <!-- 棋格：走过(金)、当前(蓝白)、未到(灰石) -->
+            <linearGradient id="tDone" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fff3c4"/><stop offset=".55" stop-color="#f7d267"/><stop offset="1" stop-color="#e0ad38"/>
+            </linearGradient>
+            <linearGradient id="tCur" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#9ad9f7"/>
+            </linearGradient>
+            <linearGradient id="tTodo" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#eef2f1"/><stop offset=".55" stop-color="#c3ccce"/><stop offset="1" stop-color="#a3aeb2"/>
+            </linearGradient>
+            <linearGradient id="tStation" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fff8dc"/><stop offset="1" stop-color="#f0a92b"/>
+            </linearGradient>
+            <!-- 宝箱木纹与金饰 -->
+            <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#b5793d"/><stop offset=".5" stop-color="#8f5626"/><stop offset="1" stop-color="#6d3f19"/>
+            </linearGradient>
+            <linearGradient id="woodLid" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#d8985a"/><stop offset="1" stop-color="#9c6229"/>
+            </linearGradient>
+            <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffe9a3"/><stop offset=".5" stop-color="#f2c14e"/><stop offset="1" stop-color="#c98a12"/>
+            </linearGradient>
+            <radialGradient id="glowY" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="#fff6c9" stop-opacity=".95"/>
+              <stop offset=".55" stop-color="#ffd76a" stop-opacity=".45"/>
+              <stop offset="1" stop-color="#ffd76a" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="softSh" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.6"/>
+            </filter>
+            <radialGradient id="glowS" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="#fff6c9" stop-opacity=".5"/>
+              <stop offset=".6" stop-color="#ffd76a" stop-opacity=".26"/>
+              <stop offset="1" stop-color="#ffd76a" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="beamG" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#fff3b8" stop-opacity=".55"/>
+              <stop offset="1" stop-color="#fff3b8" stop-opacity="0"/>
+            </linearGradient>
+            <radialGradient id="mistG" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+              <stop offset="1" stop-color="#dbeafe" stop-opacity="0"/>
+            </radialGradient>
+            <!-- 小猫毛色（对应吉祥物的橘色虎斑） -->
+            <radialGradient id="furBody" cx="38%" cy="30%" r="75%">
+              <stop offset="0" stop-color="#ffd9a6"/><stop offset="1" stop-color="#ef9f52"/>
+            </radialGradient>
+            <radialGradient id="furHead" cx="42%" cy="28%" r="75%">
+              <stop offset="0" stop-color="#ffe3bb"/><stop offset="1" stop-color="#f0a559"/>
+            </radialGradient>
+            <linearGradient id="furLeg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f6bd80"/><stop offset="1" stop-color="#e79a4e"/>
+            </linearGradient>
+          </defs>
+
+          <g id="gRoute"></g>
+          <g id="gMist"></g>
+          <g id="gTiles"></g>
+          <g id="gStations"></g>
+          <g id="gFx"></g>
+
+          <!-- ★ 小猫探险家棋子：多骨骼分层，可走路/待机/欢呼 ★ -->
+          <g id="catToken" class="idle" transform="translate(372,700)">
+            <ellipse class="catShadow" cx="0" cy="5" rx="33" ry="9" fill="#20301c" opacity=".42" filter="url(#softSh)"/>
+            <g class="hopG">
+              <g class="flipG">
+                <g class="cheerG">
+                  <g class="bobG">
+                    <!-- 尾巴 -->
+                    <g class="tail">
+                      <path d="M-26 -26 C-48 -28 -56 -54 -40 -66" fill="none" stroke="#7d4a1c" stroke-width="15" stroke-linecap="round"/>
+                      <path d="M-26 -26 C-48 -28 -56 -54 -40 -66" fill="none" stroke="#dd8c42" stroke-width="12" stroke-linecap="round"/>
+                      <path d="M-26 -26 C-48 -28 -56 -54 -40 -66" fill="none" stroke="#f6b96f" stroke-width="7.5" stroke-linecap="round"/>
+                      <g stroke="#dd8c42" stroke-width="3.4" stroke-linecap="round" opacity=".8">
+                        <path d="M-44 -34 q4 -2 7 -1"/><path d="M-50 -49 q4 -3 7 -2"/>
+                      </g>
+                    </g>
+                    <!-- 远侧两条腿（颜色略深，做出前后层次） -->
+                    <g class="leg legBF"><rect x="-19" y="-25" width="11.5" height="25" rx="5.7" fill="#d9863f" stroke="#7d4a1c" stroke-width="1.8"/>
+                      <ellipse cx="-13.2" cy="-1.5" rx="7" ry="4.2" fill="#e79a4e" stroke="#7d4a1c" stroke-width="1.8"/></g>
+                    <g class="leg legFF"><rect x="9" y="-25" width="11" height="25" rx="5.5" fill="#d9863f" stroke="#7d4a1c" stroke-width="1.8"/>
+                      <ellipse cx="14.5" cy="-1.5" rx="6.8" ry="4.2" fill="#e79a4e" stroke="#7d4a1c" stroke-width="1.8"/></g>
+                    <!-- 身体 -->
+                    <ellipse cx="-3" cy="-36" rx="29" ry="20" fill="url(#furBody)" stroke="#7d4a1c" stroke-width="2.2"/>
+                    <ellipse cx="6" cy="-31" rx="16" ry="11" fill="#fff2e0" opacity=".85"/>
+                    <g stroke="#dd8c42" stroke-width="4" stroke-linecap="round" fill="none" opacity=".6">
+                      <path d="M-12 -52 q3 7 1 11"/><path d="M-22 -47 q4 6 2 10"/>
+                    </g>
+                    <!-- 探险小背包（露在背上） -->
+                    <g class="pack">
+                      <rect x="-27" y="-58" width="21" height="22" rx="7" fill="#a9713c" stroke="#5f3b18" stroke-width="1.8"/>
+                      <rect x="-27" y="-50" width="21" height="6.5" rx="3" fill="#7f5327"/>
+                      <circle cx="-16.5" cy="-46.8" r="2.4" fill="#ffd98a"/>
+                      <path d="M-22 -60 q5.5 -4.5 11 0" fill="none" stroke="#7f5327" stroke-width="3" stroke-linecap="round"/>
+                    </g>
+                    <!-- 近侧两条腿 -->
+                    <g class="leg legBN"><rect x="-13" y="-25" width="12.5" height="26" rx="6.2" fill="url(#furLeg)" stroke="#7d4a1c" stroke-width="2"/>
+                      <ellipse cx="-6.7" cy="-0.5" rx="7.6" ry="4.6" fill="#fff2e0" stroke="#7d4a1c" stroke-width="2"/></g>
+                    <g class="leg legFN"><rect x="16" y="-25" width="12" height="26" rx="6" fill="url(#furLeg)" stroke="#7d4a1c" stroke-width="2"/>
+                      <ellipse cx="22" cy="-0.5" rx="7.4" ry="4.6" fill="#fff2e0" stroke="#7d4a1c" stroke-width="2"/></g>
+                    <!-- 红围巾（探险家标志） -->
+                    <path d="M9 -52 q12 6.5 21 1.5 l-1 8.5 q-11.5 4 -20.5 -2.5 z" fill="#ef5f6b" stroke="#cf4652" stroke-width="1.2"/>
+                    <path d="M11.5 -45 q-6 7.5 -3.5 14.5 l7.5 -3 q-2.5 -5.5 1 -9.5 z" fill="#d94a57"/>
+                    <!-- 头部 -->
+                    <g class="head">
+                      <path class="earF" d="M8 -73 L2 -95 L24 -82 Z" fill="#e9964b" stroke="#7d4a1c" stroke-width="2" stroke-linejoin="round"/>
+                      <path d="M10 -75 L7 -88 L19 -81 Z" fill="#ffc2c9"/>
+                      <path class="earN" d="M34 -78 L48 -95 L49 -70 Z" fill="#f0a559" stroke="#7d4a1c" stroke-width="2" stroke-linejoin="round"/>
+                      <path d="M36 -77 L44 -88 L44.5 -73 Z" fill="#ffc2c9"/>
+                      <circle cx="24" cy="-62" r="20" fill="url(#furHead)" stroke="#7d4a1c" stroke-width="2.2"/>
+                      <g stroke="#e39a4f" stroke-width="3.4" stroke-linecap="round" fill="none" opacity=".75">
+                        <path d="M20 -80 v8"/><path d="M12 -76 q2 5 0 8"/><path d="M29 -80 q-1 5 1 8"/>
+                      </g>
+                      <ellipse cx="14" cy="-54" rx="7" ry="4" fill="#ff9aa8" opacity=".4"/>
+                      <ellipse cx="39" cy="-56" rx="5.6" ry="3.4" fill="#ff9aa8" opacity=".35"/>
+                      <!-- 眼睛（琥珀色大眼 + 高光 + 会眨的眼皮） -->
+                      <g>
+                        <ellipse cx="22" cy="-66" rx="6.4" ry="7.4" fill="#3b2a1c"/>
+                        <ellipse cx="22" cy="-67.4" rx="5" ry="5.6" fill="#c9822b"/>
+                        <ellipse cx="22" cy="-65.4" rx="2.6" ry="4.4" fill="#2a1c10"/>
+                        <circle cx="20" cy="-69" r="2" fill="#fff"/>
+                        <ellipse class="eyelid" cx="22" cy="-66.6" rx="7.4" ry="8.4" fill="url(#furHead)"/>
+                      </g>
+                      <g>
+                        <ellipse cx="37" cy="-67" rx="5.4" ry="6.4" fill="#3b2a1c"/>
+                        <ellipse cx="37" cy="-68.2" rx="4.2" ry="4.8" fill="#c9822b"/>
+                        <ellipse cx="37" cy="-66.4" rx="2.2" ry="3.8" fill="#2a1c10"/>
+                        <circle cx="35.6" cy="-69.6" r="1.7" fill="#fff"/>
+                        <ellipse class="eyelid" cx="37" cy="-67.6" rx="6.4" ry="7.4" fill="url(#furHead)"/>
+                      </g>
+                      <!-- 鼻子、嘴、胡须 -->
+                      <ellipse cx="31" cy="-53" rx="8.6" ry="6.2" fill="#fff2e0" opacity=".8"/>
+                      <path d="M31 -53.5 l-3.8 -3.4 q3.8 -2.4 7.6 0 z" fill="#ff8a9b"/>
+                      <path d="M31 -53 q-3.8 5.6 -8.5 2.8 M31 -53 q3.8 5.6 8.5 2.8" stroke="#c77b4a" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+                      <g stroke="#fff7ec" stroke-width="1.6" stroke-linecap="round" opacity=".95">
+                        <path d="M40 -58 L55 -61 M41 -53 L57 -53 M40 -49 L54 -45"/>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="popLayer" id="popLayer"></div>
+      <div class="mapBtns">
+        <button class="mapBtn" id="zoomBtn" title="放大跟随小猫">🔍</button>
+        <button class="mapBtn" id="replayBtn" title="让小猫重走一遍">▶</button>
+      </div>
+      <div class="mapLegend">
+        <span class="lg"><em class="done"></em>走过</span>
+        <span class="lg"><em class="cur"></em>今天</span>
+        <span class="lg"><em class="todo"></em>未到</span>
+        <span class="lg">🎁 宝箱站</span>
+      </div>
     </div>
   </section>
 
@@ -735,9 +969,10 @@ function toggle(gk,i){
   render();
 }
 
-/* ---- 海岛地图路径（%坐标，由地图石路自动识别，起点码头→终点宝藏） ---- */
-const PATH_PTS = [[0.2943,0.8278],[0.2848,0.7665],[0.3049,0.7909],[0.3146,0.7466],[0.3413,0.7007],[0.3809,0.6773],[0.4237,0.6735],[0.4685,0.6835],[0.5105,0.7016],[0.5530,0.7228],[0.5984,0.7386],[0.6431,0.7413],[0.6863,0.7262],[0.7195,0.6939],[0.7367,0.6482],[0.7320,0.5981],[0.7042,0.5591],[0.6614,0.5382],[0.5981,0.5355],[0.5465,0.5476],[0.5009,0.5620],[0.4530,0.5743],[0.4065,0.5840],[0.3587,0.5841],[0.3092,0.5656],[0.2729,0.5233],[0.2595,0.4631],[0.2739,0.4076],[0.3103,0.3616],[0.3557,0.3420],[0.4000,0.3385],[0.4492,0.3009],[0.4975,0.2807],[0.5499,0.2781],[0.5980,0.2929],[0.6566,0.2996],[0.7099,0.2768],[0.7395,0.2355],[0.7488,0.1448],[0.7160,0.2075]];
-const MAP_AR = 1264/848;   // 地图宽高比，用于按真实距离均匀取点
+/* ---- 海岛地图路径（%坐标，沿地图石板路，起点码头→终点宝藏城堡） ---- */
+const PATH_PTS = [[0.2943,0.8278],[0.2848,0.7665],[0.3049,0.7909],[0.3146,0.7466],[0.3413,0.7007],[0.3809,0.6773],[0.4237,0.6735],[0.4685,0.6835],[0.5105,0.7016],[0.5530,0.7228],[0.5984,0.7386],[0.6431,0.7413],[0.6863,0.7262],[0.7195,0.6939],[0.7367,0.6482],[0.7320,0.5981],[0.7042,0.5591],[0.6614,0.5382],[0.5981,0.5355],[0.5465,0.5476],[0.5009,0.5620],[0.4530,0.5743],[0.4065,0.5840],[0.3587,0.5841],[0.3092,0.5656],[0.2729,0.5233],[0.2595,0.4631],[0.2739,0.4076],[0.3103,0.3616],[0.3557,0.3420],[0.4000,0.3385],[0.4492,0.3009],[0.4975,0.2807],[0.5499,0.2781],[0.5980,0.2929],[0.6566,0.2996],[0.7099,0.2768],[0.7395,0.2355],[0.7488,0.1448]];
+const MAP_W=1264, MAP_H=848;
+const MAP_AR = MAP_W/MAP_H;   // 地图宽高比，用于按真实距离均匀取点
 let _cum=null;
 function cumLen(){
   if(_cum) return _cum; _cum=[0];
@@ -756,58 +991,364 @@ function polyPos(frac){   // 沿路径按比例(0..1)取点，返回百分比坐
   return {x:(a[0]+(b[0]-a[0])*t)*100, y:(a[1]+(b[1]-a[1])*t)*100};
 }
 
-let lastSteps=-1;   // 用于检测"刚前进了一步"，触发猫咪蹦跳
-function renderJourney(){
-  const wrap=document.getElementById("mapWrap");
-  const token=document.getElementById("mtoken");
-  const cur=steps(), maxS=SUMMER_LEN;
-  const advanced = lastSteps>=0 && cur>lastSteps;
-  wrap.querySelectorAll('.mchest,.mpop,.mdot').forEach(e=>e.remove());
-  // 足迹：每前进一步留下一个金色脚印，进度一目了然
-  for(let i=1;i<=Math.min(cur,maxS);i++){
-    const dp=polyPos(i/maxS);
-    const d=document.createElement('div');
-    d.className='mdot'+(advanced && i===cur?' new':'');
-    d.style.left=dp.x+'%'; d.style.top=dp.y+'%';
-    wrap.appendChild(d);
+/* ============================================================
+   大富翁式棋盘：SVG 绘制棋格 / 宝箱站 / 会走路的小猫棋子
+   ============================================================ */
+const SVGNS="http://www.w3.org/2000/svg";
+function sv(tag,attrs,parent){
+  const e=document.createElementNS(SVGNS,tag);
+  for(const k in attrs) e.setAttribute(k,attrs[k]);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+const $svg=id=>document.getElementById(id);
+// 路径取点（地图像素坐标）与切线方向
+function ptAt(f){ const p=polyPos(f); return {x:p.x*MAP_W/100, y:p.y*MAP_H/100}; }
+function stepPt(i){ return ptAt(Math.max(0,Math.min(i,SUMMER_LEN))/SUMMER_LEN); }
+function angAt(f){
+  const d=0.4/SUMMER_LEN, a=ptAt(Math.max(0,f-d)), b=ptAt(Math.min(1,f+d));
+  return Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI;
+}
+// 平滑贝塞尔路径（Catmull-Rom 转三次贝塞尔），用于画金色路线
+function routeD(){
+  const p=PATH_PTS.map(q=>({x:q[0]*MAP_W,y:q[1]*MAP_H}));
+  let d=`M${p[0].x.toFixed(1)} ${p[0].y.toFixed(1)}`;
+  for(let i=0;i<p.length-1;i++){
+    const p0=p[i-1]||p[i], p1=p[i], p2=p[i+1], p3=p[i+2]||p2;
+    d+=`C${(p1.x+(p2.x-p0.x)/6).toFixed(1)} ${(p1.y+(p2.y-p0.y)/6).toFixed(1)}`
+     + ` ${(p2.x-(p3.x-p1.x)/6).toFixed(1)} ${(p2.y-(p3.y-p1.y)/6).toFixed(1)}`
+     + ` ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
   }
-  // 奖励宝箱：按里程碑步数分布在路径上
+  return d;
+}
+
+/* ---- 路线：走过的一段发金光并有流动光点，未到的一段是虚线 ---- */
+let _routeDone=null,_routeFlowMask=null;
+function buildRoute(lit){
+  const g=$svg("gRoute"); const frac=Math.max(0,Math.min(1,lit/SUMMER_LEN));
+  if(!g.firstChild){
+    const d=routeD();
+    sv("path",{d,fill:"none",stroke:"rgba(70,45,15,.28)","stroke-width":26,"stroke-linecap":"round"},g);
+    sv("path",{d,fill:"none",stroke:"rgba(255,255,255,.5)","stroke-width":6,"stroke-linecap":"round",
+      "stroke-dasharray":"2 16","stroke-linejoin":"round"},g);
+    const mask=sv("mask",{id:"doneMask",maskUnits:"userSpaceOnUse"},g);
+    sv("rect",{x:0,y:0,width:MAP_W,height:MAP_H,fill:"black"},mask);
+    _routeFlowMask=sv("path",{d,fill:"none",stroke:"#fff","stroke-width":34,"stroke-linecap":"round",
+      pathLength:1000,"stroke-dasharray":"0 1000"},mask);
+    _routeDone=sv("path",{d,fill:"none",stroke:"#ffd76a","stroke-width":16,"stroke-linecap":"round",
+      pathLength:1000,"stroke-dasharray":"0 1000",opacity:.55},g);
+    sv("path",{d,fill:"none",stroke:"#fff8d2","stroke-width":5,"stroke-linecap":"round",
+      "stroke-dasharray":"5 15",class:"routeFlow",mask:"url(#doneMask)"},g);
+  }
+  const len=(1000*frac).toFixed(1);
+  _routeDone.setAttribute("stroke-dasharray",`${len} 1000`);
+  _routeFlowMask.setAttribute("stroke-dasharray",`${len} 1000`);
+}
+
+/* ---- 棋格：每一步一个立体石板格，走过的点亮成金色并留下猫爪印 ---- */
+const TILE_W=37, TILE_H=28;
+let tileEls=[];
+function tileState(i,lit){ return i<lit?"done" : i===lit?"cur" : "todo"; }
+function paintTile(i,lit){
+  const el=tileEls[i]; if(!el) return;
+  const st=tileState(i,lit), ms=MSTONES[i]!=null;
+  el.g.setAttribute("class","tile "+st+(ms?" ms":""));
+  if(ms){   // 宝箱站：金色圆台
+    el.plate.setAttribute("fill", st==="todo"?"url(#tTodo)":"url(#tStation)");
+    el.lip.setAttribute("fill", st==="todo"?"#8b9299":"#a8701a");
+    el.ring.setAttribute("stroke", st==="todo"?"#7c8f99":"#b57d10");
+    return;
+  }
+  el.plate.setAttribute("fill", st==="done"?"url(#tDone)":st==="cur"?"url(#tCur)":"url(#tTodo)");
+  el.plate.setAttribute("stroke", st==="done"?"#b8801f":st==="cur"?"#0284c7":"#8d9aa2");
+  el.lip.setAttribute("fill", st==="done"?"#a5741c":st==="cur"?"#1d6f96":"#8a949b");
+  el.g.setAttribute("opacity", st==="todo"?.88:1);
+  if(el.paw) el.paw.setAttribute("opacity", st==="done"?.5:0);
+  if(el.num) el.num.setAttribute("fill", st==="todo"?"#5d6b73":"#7a5312");
+}
+function buildTiles(lit){
+  const g=$svg("gTiles"); g.innerHTML=""; tileEls=[];
+  for(let i=1;i<=SUMMER_LEN;i++){
+    const p=stepPt(i), a=angAt(i/SUMMER_LEN)*0.85, ms=MSTONES[i]!=null;
+    const tg=sv("g",{class:"tile",transform:`translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) rotate(${a.toFixed(1)})`},g);
+    const rec={g:tg};
+    sv("ellipse",{class:"halo",cx:0,cy:0,rx:30,ry:24,fill:"url(#glowY)"},tg);
+    if(ms){
+      rec.lip=sv("circle",{cx:0,cy:5,r:21,fill:"#a8701a"},tg);
+      rec.plate=sv("circle",{cx:0,cy:0,r:21,fill:"url(#tStation)"},tg);
+      rec.ring=sv("circle",{cx:0,cy:0,r:16,fill:"none",stroke:"#b57d10","stroke-width":1.6,opacity:.7},tg);
+    }else{
+      rec.lip=sv("rect",{x:-TILE_W/2,y:-TILE_H/2+5,width:TILE_W,height:TILE_H,rx:8,fill:"#a5741c"},tg);
+      rec.plate=sv("rect",{x:-TILE_W/2,y:-TILE_H/2,width:TILE_W,height:TILE_H,rx:8,
+        fill:"url(#tDone)",stroke:"#b8801f","stroke-width":1.6},tg);
+      sv("rect",{x:-TILE_W/2+4,y:-TILE_H/2+3,width:TILE_W-8,height:5,rx:2.5,fill:"#fff",opacity:.35},tg);
+      const inner=sv("g",{transform:`rotate(${(-a).toFixed(1)})`},tg);
+      if(i%5===0){   // 每 5 格标出步数，像大富翁的格子编号
+        rec.num=sv("text",{x:0,y:5,"text-anchor":"middle","font-size":15,"font-weight":900,
+          "font-family":"'Noto Sans SC',sans-serif",fill:"#7a5312"},inner);
+        rec.num.textContent=i;
+      }else{         // 猫爪印：走过的格子才显现
+        rec.paw=sv("g",{fill:"#8a5a12",opacity:0},inner);
+        sv("ellipse",{cx:0,cy:2.6,rx:4.4,ry:3.4},rec.paw);
+        sv("circle",{cx:-4.4,cy:-2.6,r:1.8},rec.paw);
+        sv("circle",{cx:0,cy:-4,r:1.9},rec.paw);
+        sv("circle",{cx:4.4,cy:-2.6,r:1.8},rec.paw);
+      }
+    }
+    tg.addEventListener("click",()=>showTilePop(i));
+    tileEls[i]=rec; paintTile(i,lit);
+  }
+  buildEnds();
+}
+// 起点码头牌 & 终点宝藏旗
+function buildEnds(){
+  const g=$svg("gTiles"), s=stepPt(0), e=stepPt(SUMMER_LEN);
+  const sg=sv("g",{transform:`translate(${(s.x-6).toFixed(1)},${(s.y+30).toFixed(1)})`},g);
+  sv("rect",{x:-30,y:-13,width:60,height:26,rx:9,fill:"#16a34a",stroke:"#0f7a37","stroke-width":2},sg);
+  const st=sv("text",{x:0,y:6,"text-anchor":"middle","font-size":15,"font-weight":900,
+    "font-family":"'Noto Sans SC',sans-serif",fill:"#fff"},sg); st.textContent="起点 ▶";
+  const eg=sv("g",{transform:`translate(${e.x.toFixed(1)},${e.y.toFixed(1)})`},g);
+  sv("path",{d:"M0 6 L0 -46",stroke:"#7c4a12","stroke-width":4,"stroke-linecap":"round"},eg);
+  const fl=sv("g",{class:"flagWave"},sv("g",{transform:"translate(1,-44)"},eg));
+  sv("path",{d:"M0 0 L34 7 L0 15 Z",fill:"#ef4444",stroke:"#b91c1c","stroke-width":1.5},fl);
+  sv("ellipse",{cx:0,cy:8,rx:16,ry:6,fill:"#00000022"},eg);
+}
+
+/* ---- 宝箱站：立体木箱，锁着=挂锁，解锁=开盖冒金光 ---- */
+let MSTONES=milestones();
+function buildStations(lit){
+  const g=$svg("gStations"); g.innerHTML="";
   CONFIG.rewards.forEach((r,idx)=>{
-    const st=rewardStep(idx), pos=polyPos(st/maxS), unlocked=cur>=st;
-    const c=document.createElement('div'); c.className='mchest '+(unlocked?'open':'locked');
-    c.style.left=pos.x+'%'; c.style.top=pos.y+'%'; c.textContent=unlocked?r.ico:'🎁';
-    c.title=r.name; c.onclick=()=>showChestPop(idx,false);
-    wrap.appendChild(c);
+    const st=rewardStep(idx), p=stepPt(st), open=lit>=st;
+    // 外层只做定位（属性 transform），内层才挂 CSS 动画，避免动画覆盖定位
+    const pos=sv("g",{transform:`translate(${p.x.toFixed(1)},${(p.y-16).toFixed(1)})`},g);
+    const cg=sv("g",{class:"station "+(open?"open":"locked")},pos);
+    if(open) sv("ellipse",{cx:0,cy:-6,rx:46,ry:36,fill:"url(#glowS)"},cg);
+    if(open){
+      // 掀开的箱盖（斜向后仰，露出内侧）+ 金光光柱
+      const lid=sv("g",{transform:"translate(0,-25) rotate(-11)"},cg);
+      sv("path",{d:"M-15.5 4 q15.5 8 31 0",fill:"none",stroke:"#4a2a10","stroke-width":4.5,"stroke-linecap":"round"},lid);
+      sv("path",{d:"M-17 3 q17 -18 34 0 z",fill:"url(#woodLid)",stroke:"#5b3413","stroke-width":1.6},lid);
+      sv("rect",{x:-3.4,y:-4,width:6.8,height:7.5,rx:1.5,fill:"url(#gold)"},lid);
+      sv("path",{d:"M-12 -13 L-19 -46 L19 -46 L12 -13 Z",fill:"url(#beamG)"},cg);
+    }
+    // 箱体
+    sv("rect",{x:-17,y:-12,width:34,height:21,rx:3.5,fill:"url(#wood)",stroke:"#5b3413","stroke-width":1.6},cg);
+    sv("rect",{x:-17,y:-4,width:34,height:4.5,fill:"url(#gold)",opacity:.95},cg);
+    sv("rect",{x:-3.2,y:-12,width:6.4,height:21,fill:"url(#gold)",opacity:.9},cg);
+    if(!open){   // 盖着的箱盖 + 锁扣
+      sv("path",{d:"M-18 -12 q18 -15 36 0 z",fill:"url(#woodLid)",stroke:"#5b3413","stroke-width":1.6},cg);
+      sv("path",{d:"M-3.2 -16.6 q3.2 -1 6.4 0 l0 4.6 l-6.4 0 z",fill:"url(#gold)"},cg);
+    }
+    if(open){
+      // 箱内的金币宝物与闪光
+      sv("ellipse",{cx:0,cy:-12,rx:16.5,ry:5.5,fill:"#4a2a10"},cg);
+      sv("ellipse",{cx:0,cy:-11.5,rx:13,ry:5,fill:"url(#gold)"},cg);
+      sv("circle",{cx:-7,cy:-14,r:3.4,fill:"#ffe9a3",stroke:"#c98a12","stroke-width":.8},cg);
+      sv("circle",{cx:1,cy:-16,r:3.8,fill:"#fff3c4",stroke:"#c98a12","stroke-width":.8},cg);
+      sv("circle",{cx:8,cy:-13.5,r:3.2,fill:"#ffe9a3",stroke:"#c98a12","stroke-width":.8},cg);
+      [[-24,-30,4],[22,-34,3.4],[-14,-46,3]].forEach((s,k)=>{
+        const sp=sv("g",{class:"spark",style:`animation-delay:${k*0.45}s`},cg);
+        sv("path",{d:`M${s[0]} ${s[1]-s[2]} L${s[0]+s[2]*.35} ${s[1]-s[2]*.35} L${s[0]+s[2]} ${s[1]}
+          L${s[0]+s[2]*.35} ${s[1]+s[2]*.35} L${s[0]} ${s[1]+s[2]} L${s[0]-s[2]*.35} ${s[1]+s[2]*.35}
+          L${s[0]-s[2]} ${s[1]} L${s[0]-s[2]*.35} ${s[1]-s[2]*.35} Z`,fill:"#fff6c9"},sp);
+      });
+      // 奖励图标徽章
+      sv("circle",{cx:0,cy:-40,r:13,fill:"#fff",stroke:"#f0a92b","stroke-width":2.2},cg);
+      const t=sv("text",{x:0,y:-34.5,"text-anchor":"middle","font-size":16},cg); t.textContent=r.ico;
+    }else{
+      // 挂锁
+      sv("path",{d:"M-4 -3 a4 4 0 0 1 8 0",fill:"none",stroke:"#e2c07a","stroke-width":2},cg);
+      sv("rect",{x:-5,y:-3,width:10,height:8,rx:2,fill:"url(#gold)",stroke:"#8a5f0d","stroke-width":1},cg);
+      sv("circle",{cx:0,cy:1.2,r:1.5,fill:"#6b4a10"},cg);
+      const t=sv("text",{x:0,y:-24,"text-anchor":"middle","font-size":13,"font-weight":900,
+        "font-family":"'Noto Sans SC',sans-serif",fill:"#fff",stroke:"#00000055","stroke-width":3,
+        "paint-order":"stroke"},cg); t.textContent="第"+st+"格";
+    }
+    cg.addEventListener("click",e=>{ e.stopPropagation(); showChestPop(idx,false); });
+    const ttl=sv("title",{},cg); ttl.textContent=r.name;
   });
-  // 猫咪令牌走到当前进度处；刚前进时蹦跳庆祝
-  const tp=polyPos(Math.min(cur,maxS)/maxS);
-  if(token){
-    token.style.left=tp.x+'%'; token.style.top=tp.y+'%';
-    if(advanced){ token.classList.remove('hop'); void token.offsetWidth; token.classList.add('hop'); }
+}
+
+/* ---- 未探索区域的迷雾：越靠前越淡，走到就散开 ---- */
+function buildMist(lit){
+  const g=$svg("gMist"); g.innerHTML="";
+  for(let s=lit+7;s<=SUMMER_LEN;s+=9){
+    const p=stepPt(s), k=Math.min(1,(s-lit)/22);
+    const mg=sv("g",{class:"mist",style:`animation-delay:${(s%5)*0.9}s`},g);
+    sv("ellipse",{cx:p.x.toFixed(1),cy:p.y.toFixed(1),rx:80,ry:52,fill:"url(#mistG)",opacity:(0.16+0.34*k).toFixed(2)},mg);
   }
-  lastSteps=cur;
-  // 进度提示 + 给下一个宝箱一个常驻标签
+}
+
+/* ---- 小猫棋子：定位、朝向、走路、欢呼 ---- */
+const CAT_SCALE=1.02;
+const catEl=()=>document.getElementById("catToken");
+let catStep=0, catDir=0, walking=false, walkRAF=null, walkTarget=0;
+function catParts(){
+  const c=catEl();
+  return {c,hop:c.querySelector(".hopG"),flip:c.querySelector(".flipG"),sh:c.querySelector(".catShadow")};
+}
+function faceDir(d){
+  if(d===catDir) return; catDir=d;
+  catParts().flip.setAttribute("transform",`scale(${(d*CAT_SCALE).toFixed(3)},${CAT_SCALE})`);
+}
+function catMode(m){
+  const c=catEl(); c.classList.remove("idle","walking","cheer"); c.classList.add(m);
+}
+function placeCat(step,mode){
+  const {c,hop,sh}=catParts(), p=stepPt(step);
+  catStep=step;
+  c.setAttribute("transform",`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+  hop.setAttribute("transform","translate(0,0)");
+  sh.setAttribute("rx",33); sh.setAttribute("opacity",.42);
+  const nx=stepPt(Math.min(step+1,SUMMER_LEN)).x, px=stepPt(Math.max(step-1,0)).x;
+  faceDir((step>=SUMMER_LEN? (p.x-px) : (nx-p.x))>=0 ? 1 : -1);
+  if(mode!==false) catMode(mode||"idle");
+  followCat();
+}
+function cancelWalk(){ if(walkRAF) cancelAnimationFrame(walkRAF); walkRAF=null; walking=false; }
+// 一格一格地走过去：抬腿摆尾 + 小跳 + 落地扬尘 + 点亮脚下的格子
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function walkTo(target,per){
+  target=Math.max(0,Math.min(target,SUMMER_LEN));
+  walkTarget=target;
+  if(target===catStep){ placeCat(target); return; }
+  if(REDUCED){   // 系统要求减少动效：直接就位，不走动画
+    cancelWalk();
+    for(let i=1;i<=target;i++) paintTile(i,target);
+    buildRoute(target); placeCat(target); arrive(target); return;
+  }
+  cancelWalk();
+  per=per||460;
+  walking=true; catMode("walking");
+  catEl().style.setProperty("--wd",(per/1000*0.92).toFixed(2)+"s");
+  const {c,hop,sh}=catParts();
+  let i=catStep, t0=null;
+  function frame(ts){
+    if(t0==null) t0=ts;
+    const seg=Math.min(1,(ts-t0)/per), cur=i+seg;
+    const p=stepPt(cur), nx=stepPt(Math.min(cur+0.3,SUMMER_LEN)).x;
+    faceDir(nx-p.x>=0?1:-1);
+    const h=Math.sin(Math.PI*seg)*6;
+    c.setAttribute("transform",`translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+    hop.setAttribute("transform",`translate(0,${(-h).toFixed(2)})`);
+    sh.setAttribute("rx",(33-h*0.7).toFixed(1));
+    sh.setAttribute("opacity",(0.42-h*0.022).toFixed(2));
+    if(seg>=1){
+      i++; t0=ts; catStep=i;
+      paintTile(i-1,i); paintTile(i,i); buildRoute(i); puffAt(p.x,p.y); followCat();
+      if(MSTONES[i]!=null){ buildStations(i); tinySound("ding"); }
+      if(i>=walkTarget){ arrive(i); return; }
+    }
+    walkRAF=requestAnimationFrame(frame);
+  }
+  walkRAF=requestAnimationFrame(frame);
+}
+function arrive(step){
+  cancelWalk(); placeCat(step,false);
+  if(MSTONES[step]!=null){   // 正好踩到宝箱站：举爪欢呼
+    catMode("cheer");
+    setTimeout(()=>{ if(!walking) catMode("idle"); },1600);
+  }else catMode("idle");
+  const rb=document.getElementById("replayBtn"); if(rb) rb.disabled=false;
+  setTimeout(flushCelebrations, MSTONES[step]!=null?750:150);
+}
+// 落地扬尘
+function puffAt(x,y){
+  const g=$svg("gFx");
+  for(let k=0;k<3;k++){
+    const c=sv("circle",{cx:(x+(k-1)*7).toFixed(1),cy:(y+3).toFixed(1),r:3.4+k*0.6,
+      fill:"#fff8e7",opacity:.7,class:"puff",style:`animation-delay:${k*0.05}s`},g);
+    setTimeout(()=>c.remove(),700);
+  }
+}
+
+/* ---- 放大跟随（手机上默认放大，看得清格子） ---- */
+let zoomOn = false, ZOOM = 1.9;
+let _view={z:1,a:0,b:0};
+function followCat(){
+  const st=document.getElementById("mapStage"); if(!st) return;
+  const z=zoomOn?ZOOM:1;
+  if(z===1){ st.style.transform="none"; _view={z:1,a:0,b:0}; return; }
+  const p=stepPt(catStep);
+  let a=(0.5-z*(p.x/MAP_W))*100, b=(0.5-z*(p.y/MAP_H))*100;
+  const lo=(1-z)*100;
+  a=Math.min(0,Math.max(lo,a)); b=Math.min(0,Math.max(lo,b));
+  _view={z,a,b};
+  st.style.transform=`translate(${a.toFixed(2)}%,${b.toFixed(2)}%) scale(${z})`;
+}
+
+/* ---- 整块地图的渲染入口 ---- */
+let lastSteps=-1;
+function renderJourney(){
+  const cur=Math.min(steps(),SUMMER_LEN), maxS=SUMMER_LEN;
+  MSTONES=milestones();
+  const advanced = lastSteps>=0 && cur>lastSteps;
+  if(walking){            // 正在走路：只更新目标，不打断动画
+    walkTarget=Math.max(walkTarget,cur); lastSteps=cur;
+  }else if(advanced){     // 刚完成一天：从旧位置走到新位置
+    buildTiles(lastSteps); buildStations(lastSteps); buildRoute(lastSteps); buildMist(cur);
+    placeCat(lastSteps,false); lastSteps=cur;
+    walkTo(cur, cur-catStep>6?260:460);
+  }else{                  // 首次加载 / 无变化 / 进度回退
+    buildTiles(cur); buildStations(cur); buildRoute(cur); buildMist(cur);
+    placeCat(cur); lastSteps=cur;
+  }
+  // 进度提示 + 下一站预告
   const info=document.getElementById("journeyInfo");
   const next=CONFIG.rewards.map((r,idx)=>({idx,step:rewardStep(idx)})).find(o=>o.step>cur);
-  if(cur>=maxS) info.innerHTML=`🏁 恭喜！你走到了终点宝藏，太了不起了！`;
-  else if(next) info.innerHTML=`已前进 <span class="n">${cur}</span> 步 · 再走 <span class="nx">${next.step-cur}</span> 步就到 ${CONFIG.rewards[next.idx].ico} ${CONFIG.rewards[next.idx].name}`;
-  else info.innerHTML=`已前进 <span class="n">${cur}</span> 步`;
-  if(next) showChestPop(next.idx,true);
+  if(cur>=maxS) info.innerHTML=`🏁 恭喜！你走到了终点宝藏，整座冒险岛都被你走完啦！`;
+  else if(next) info.innerHTML=`🐾 已走到第 <span class="n">${cur}</span> 格 / 共 ${maxS} 格 · 再走 <span class="nx">${next.step-cur}</span> 格就到 ${CONFIG.rewards[next.idx].ico} ${CONFIG.rewards[next.idx].name}`;
+  else info.innerHTML=`🐾 已走到第 <span class="n">${cur}</span> 格 / 共 ${maxS} 格`;
+  if(next && !walking) showChestPop(next.idx,true);
+}
+
+/* ---- 木牌提示（宝箱站 / 普通格子） ---- */
+function mapPop(px,py,html,cls,ms){
+  const layer=document.getElementById("popLayer");
+  layer.querySelectorAll(".mpop").forEach(e=>e.remove());
+  const pop=document.createElement("div");
+  pop.className="mpop"+(cls?" "+cls:"");
+  // 地图坐标 → 容器坐标（考虑放大跟随时的平移与缩放）
+  const vx=_view.a+_view.z*px, vy=_view.b+_view.z*py;
+  pop.style.left=Math.min(Math.max(vx,16),84)+"%";
+  pop.style.top=Math.min(Math.max(vy,14),96)+"%";
+  pop.innerHTML=html;
+  layer.appendChild(pop);
+  clearTimeout(mapPop._t);
+  mapPop._t=setTimeout(()=>{ if(pop.parentNode){ pop.style.transition="opacity .4s"; pop.style.opacity="0";
+    setTimeout(()=>pop.remove(),420); } }, ms||2600);
 }
 function showChestPop(idx,keep){
-  const wrap=document.getElementById("mapWrap");
-  wrap.querySelectorAll('.mpop').forEach(e=>e.remove());
   const st=rewardStep(idx), pos=polyPos(st/SUMMER_LEN), unlocked=steps()>=st;
-  const pop=document.createElement('div'); pop.className='mpop'+(unlocked?' got':'');
-  // 夹住横向位置，避免靠近地图左右边缘时气泡溢出
-  pop.style.left=Math.min(Math.max(pos.x,18),82)+'%'; pop.style.top=pos.y+'%';
-  pop.innerHTML=`${CONFIG.rewards[idx].ico} ${CONFIG.rewards[idx].name}<span class="s">${unlocked?'✅已解锁':'第'+st+'步'}</span>`;
-  wrap.appendChild(pop);
-  // 气泡都会自动收起，不长期遮挡地图：下一站提示停留稍久，点开的提示稍短
-  clearTimeout(showChestPop._t);
-  showChestPop._t=setTimeout(()=>{ if(pop.parentNode){ pop.style.transition="opacity .4s"; pop.style.opacity="0";
-    setTimeout(()=>pop.remove(),420); } }, keep?5000:2600);
+  mapPop(pos.x,pos.y-3,
+    `${CONFIG.rewards[idx].ico} ${CONFIG.rewards[idx].name}<span class="s">${unlocked?"✅ 已解锁":"第 "+st+" 格解锁"}</span>`,
+    unlocked?"got":"", keep?5000:2800);
 }
+function showTilePop(i){
+  if(MSTONES[i]!=null){ showChestPop(MSTONES[i],false); return; }
+  const pos=polyPos(i/SUMMER_LEN), cur=Math.min(steps(),SUMMER_LEN);
+  const s = i<=cur ? "✅ 已走过" : `还差 ${i-cur} 格`;
+  mapPop(pos.x,pos.y,`第 ${i} 格<span class="s">${s}</span>`,i<=cur?"got":"",2000);
+}
+
+/* ---- 地图按钮：放大跟随 / 重走一遍 ---- */
+document.getElementById("zoomBtn").onclick=function(){
+  zoomOn=!zoomOn; this.classList.toggle("on",zoomOn);
+  document.getElementById("popLayer").innerHTML="";   // 换视角时收起木牌，避免指错位置
+  this.textContent=zoomOn?"🔎":"🔍";
+  this.title=zoomOn?"缩小看全岛":"放大跟随小猫";
+  followCat();
+};
+document.getElementById("replayBtn").onclick=function(){
+  const cur=Math.min(steps(),SUMMER_LEN);
+  if(cur<1||walking) return;
+  this.disabled=true;
+  cancelWalk();
+  buildTiles(0); buildStations(0); buildRoute(0); buildMist(0);
+  placeCat(0,"idle");
+  setTimeout(()=>walkTo(cur, Math.max(150,Math.min(420,9000/cur))),450);
+};
 
 function renderRewards(){
   const list=document.getElementById("rewardList"); list.innerHTML="";
@@ -824,7 +1365,13 @@ function renderRewards(){
   });
 }
 
-function celebrateReward(r){
+// 庆祝排队：小猫还在路上时先攒着，等它踩到宝箱站再弹窗，节奏才对
+let _celebQueue=[];
+function celebrateReward(r){ _celebQueue.push(r); setTimeout(flushCelebrations,150); }
+function flushCelebrations(){
+  if(walking) return;                                     // 走到了再说
+  if(document.getElementById("overlay").classList.contains("show")) return;   // 等上一个弹窗关掉
+  const r=_celebQueue.shift(); if(!r) return;
   showReward({ title:"🎉 抵达奖励站！", type:"里程碑奖励", typeColor:"#f59e0b", icon:r.ico, bonus:0,
     body:`你走到了「${r.name}」！\n把这份奖励告诉爸爸妈妈兑现吧～` }, true);
 }
@@ -895,7 +1442,8 @@ function showReward(reward,celebrate){
   ov.classList.add("show");
   if(celebrate){ launchFireworks(3200); tinySound("fanfare"); }
 }
-function closeModal(){ document.getElementById("overlay").classList.remove("show"); stopFireworks(); }
+function closeModal(){ document.getElementById("overlay").classList.remove("show"); stopFireworks();
+  setTimeout(flushCelebrations,350); }
 document.getElementById("mClose").onclick=closeModal;
 document.getElementById("overlay").onclick=e=>{ if(e.target.id==="overlay") closeModal(); };
 
@@ -1037,8 +1585,13 @@ addEventListener("resize",()=>{ if(fwRAF) fwSize(); });
 
 /* ============ go ============ */
 reconcile(false);   // 首次加载：按已有进度补齐已解锁的奖励，不弹庆祝
+// 手机屏幕小，默认放大跟随小猫，格子看得清；点 🔎 可缩回看全岛
+zoomOn = innerWidth<600;
+(function(){ const b=document.getElementById("zoomBtn");
+  b.classList.toggle("on",zoomOn); b.textContent=zoomOn?"🔎":"🔍";
+  b.title=zoomOn?"缩小看全岛":"放大跟随小猫"; })();
 render();
-addEventListener("resize", ()=>renderJourney());
+addEventListener("resize", ()=>{ if(!walking) renderJourney(); else followCat(); });
 </script>
 </body>
 </html>
