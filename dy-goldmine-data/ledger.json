@@ -1,0 +1,96 @@
+[
+  {
+    "id": "gm-2026-07-25-001",
+    "created": "2026-07-25",
+    "updated": "2026-07-25",
+    "domain": "数字人",
+    "repo": "duixcom/Duix.Heygem",
+    "repo_url": "https://github.com/duixcom/Duix.Heygem",
+    "license": "DUIX.COM Community License(自定义)",
+    "license_note": "月活用户 <1000 免费商用,需标注 Built with DUIX.COM;超过阈值需申请商业授权。卖部署服务本身不受限,但要向买家说明该条款",
+    "score": {"readme": 4, "releases": 4, "maintenance": 4, "issues": 2, "total": 14},
+    "verdict": "直接试(配置复杂)",
+    "opportunity": "帮个人/小商家在自有电脑或云 GPU 上装好 HeyGem(Duix.Avatar)数字人克隆环境,交付到'录 1 段视频就能出克隆口播'为止",
+    "service_type": "代装部署+环境适配",
+    "evidence": [
+      {"desc": "Windows 下如何脱离/隐藏 Docker 运行(#613,开放)", "url": "https://github.com/duixcom/Duix.Heygem/issues/613"},
+      {"desc": "'NO D: DRIVE' 报错高频到有人专门发 QUICK FIX(#585)", "url": "https://github.com/duixcom/Duix.Heygem/issues/585"},
+      {"desc": "5060 显卡运行报错(#598)、CUDA 版本不对启动不起来(#592)", "url": "https://github.com/duixcom/Duix.Heygem/issues/598"},
+      {"desc": "README 自述需 30GB+ D 盘、100GB+ C 盘、RTX4070 推荐配置——普通用户门槛极高", "url": "https://github.com/duixcom/Duix.Heygem"}
+    ],
+    "competition": {"tier": 2, "saturation": "有内容无服务(待人工验证)", "note": "中文保姆级教程 >5 篇(CSDN/知乎/B站,近一年);36氪等报道有卖家在闲鱼卖数百元'数字人设备+运营',开源代部署细分需层 3 抽查"},
+    "pricing_hint": "99-199 一次性代装(含一次显卡适配与答疑);云 GPU 方案代配 +49;续答疑 49/月",
+    "status": "待验证",
+    "status_note": ""
+  },
+  {
+    "id": "gm-2026-07-25-002",
+    "created": "2026-07-25",
+    "updated": "2026-07-25",
+    "domain": "数字人",
+    "repo": "lipku/LiveTalking",
+    "repo_url": "https://github.com/lipku/LiveTalking",
+    "license": "Apache-2.0",
+    "license_note": "商用友好,保留版权声明即可",
+    "score": {"readme": 4, "releases": 3, "maintenance": 5, "issues": 3, "total": 15},
+    "verdict": "直接试(配置复杂)",
+    "opportunity": "AI 数字人直播间整套部署+声音链路(GPT-SoVITS/CosyVoice)调优+按月维护陪跑,交付到'能开播且音画同步稳定'为止",
+    "service_type": "部署+按月维护",
+    "evidence": [
+      {"desc": "能否不用 Ubuntu/Docker 直接 Windows 部署(#582)、Win 下跑 MuseTalk 范例求助(#585)", "url": "https://github.com/lipku/LiveTalking/issues/582"},
+      {"desc": "CosyVoice 音质差(#579)、GPT-SoVITS 多路并发延迟(#570)——语音链路是通用卡点", "url": "https://github.com/lipku/LiveTalking/issues/579"},
+      {"desc": "用户公开'有偿求解 p2p 问题'(#556)——明确付费意愿信号", "url": "https://github.com/lipku/LiveTalking/issues/556"},
+      {"desc": "mmdet 装不上(#568)、华为/寒武纪等异构硬件部署求助(#574/#596/#567)", "url": "https://github.com/lipku/LiveTalking/issues/568"}
+    ],
+    "competition": {"tier": 2, "saturation": "已有服务(作者系)", "note": "作者本人运营商业版+知识星球+CSDN 教程专栏,优云智算有一键镜像;差异化位置在'直播间落地陪跑+月维护',不是装机本身"},
+    "pricing_hint": "199-299 一次性部署;99-299/月 维护陪跑(直播场景天然复购);声音克隆链路调优单项 99-199",
+    "status": "待验证",
+    "status_note": ""
+  },
+  {
+    "id": "gm-2026-07-25-003",
+    "created": "2026-07-25",
+    "updated": "2026-07-25",
+    "domain": "数字人",
+    "repo": "TMElyralab/MuseTalk",
+    "repo_url": "https://github.com/TMElyralab/MuseTalk",
+    "license": "MIT(MuseTalk)/ Apache-2.0(EchoMimicV2)",
+    "license_note": "两个底层项目均商用友好,保留版权声明;交付成品视频不受限",
+    "score": {"readme": 3, "releases": 2, "maintenance": 3, "issues": 3, "total": 11},
+    "verdict": "需要技术基础",
+    "opportunity": "面向没显卡/装不起环境的自媒体用户,提供数字人口播视频代跑代生成:客户给形象+文案/音频,交付成品视频(MuseTalk 唇同步 / EchoMimicV2 半身动画)",
+    "service_type": "代跑交付(按条/按包月)",
+    "evidence": [
+      {"desc": "MuseTalk:mmcv._ext 装不上(#387)、模型下载脚本依赖冲突直接跑不了(#399)、嘴部黑框(#400)", "url": "https://github.com/TMElyralab/MuseTalk/issues/387"},
+      {"desc": "EchoMimicV2:Windows 下 c10_cuda.dll 持续报错(#168)、torchao 与 CUDA 12.4 不兼容(#170)、预训练权重目录缺失(#180)", "url": "https://github.com/antgroup/echomimic_v2/issues/168"},
+      {"desc": "有用户为跑通自行整理 H100/5060Ti 安装攻略并回帖分享(MuseTalk #411/#409)——已付出成本的强信号", "url": "https://github.com/TMElyralab/MuseTalk/issues/409"}
+    ],
+    "competition": {"tier": 2, "saturation": "已有服务(SaaS 挤压)", "note": "商用 SaaS 数字人 App 众多且低价,纯代跑打不过;差异化 = 形象自主可控/无水印/私有化,面向反感订阅制和数据出境的客户"},
+    "pricing_hint": "口播成片 19.9-49/条,打包 10 条 149;企业私有形象定制+批量供片 300+/月",
+    "status": "待验证",
+    "status_note": ""
+  },
+  {
+    "id": "gm-2026-07-25-004",
+    "created": "2026-07-25",
+    "updated": "2026-07-25",
+    "domain": "数字人",
+    "repo": "跨项目(SadTalker/MuseTalk/EchoMimicV2/Duix.Heygem)",
+    "repo_url": "https://github.com/TMElyralab/MuseTalk/issues/409",
+    "license": "依托各项目(Apache-2.0/MIT/自定义)",
+    "license_note": "远程调试服务不分发代码,不触发任何许可证的分发条款",
+    "score": {"readme": 0, "releases": 0, "maintenance": 0, "issues": 0, "total": 0},
+    "verdict": "跨项目需求聚合(不适用四查)",
+    "opportunity": "RTX 50 系(Blackwell)显卡数字人环境急救:帮新卡用户把 SadTalker/MuseTalk/EchoMimic/HeyGem 等老项目在 sm_120 上跑通(torch nightly + 依赖补丁),远程一次性交付",
+    "service_type": "远程调试/环境急救",
+    "evidence": [
+      {"desc": "SadTalker 与 RTX 50xx PyTorch 不兼容(#1023),项目近乎停更无人修", "url": "https://github.com/OpenTalker/SadTalker/issues/1023"},
+      {"desc": "MuseTalk 用户自发分享 5060Ti/sm_120 跑通报告(#409)、5060Ti 问题(#375)", "url": "https://github.com/TMElyralab/MuseTalk/issues/409"},
+      {"desc": "EchoMimicV2:5070Ti 不兼容(#161);Duix.Heygem:5060 报错(#598)、CUDA 版本不对(#592)——同类抱怨横跨 4 个项目", "url": "https://github.com/antgroup/echomimic_v2/issues/161"}
+    ],
+    "competition": {"tier": 2, "saturation": "空白(细分)", "note": "教程按单项目写,没人按'新显卡适配'这个横切需求卖服务;时效性红利:50 系普及期约 1-2 年"},
+    "pricing_hint": "单项目远程调通 49-99;'一卡三件套'(装通 3 个项目)打包 149-199",
+    "status": "待验证",
+    "status_note": ""
+  }
+]
