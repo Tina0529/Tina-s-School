@@ -483,83 +483,164 @@ body{
           <g id="gStations"></g>
           <g id="gFx"></g>
 
-          <!-- ★ 小猫探险家棋子：多骨骼分层，可走路/待机/欢呼 ★ -->
+          <!-- ★ 小猫探险家棋子：有机轮廓 + 体积明暗，分层骨骼可走路/待机/欢呼 ★ -->
           <g id="catToken" class="idle" transform="translate(372,700)">
-            <ellipse class="catShadow" cx="0" cy="5" rx="33" ry="9" fill="#20301c" opacity=".42" filter="url(#softSh)"/>
+            <defs>
+              <linearGradient id="furB" x1=".35" y1="0" x2=".6" y2="1">
+                <stop offset="0" stop-color="#ffe0b4"/><stop offset=".45" stop-color="#f7c184"/>
+                <stop offset="1" stop-color="#e08c45"/>
+              </linearGradient>
+              <linearGradient id="furH" x1=".3" y1="0" x2=".65" y2="1">
+                <stop offset="0" stop-color="#ffe7c2"/><stop offset=".5" stop-color="#f8c68b"/>
+                <stop offset="1" stop-color="#e59a55"/>
+              </linearGradient>
+              <linearGradient id="furL" x1="0" y1="0" x2=".3" y2="1">
+                <stop offset="0" stop-color="#f9cc95"/><stop offset="1" stop-color="#e0954f"/>
+              </linearGradient>
+              <linearGradient id="furLD" x1="0" y1="0" x2=".3" y2="1">
+                <stop offset="0" stop-color="#e6a869"/><stop offset="1" stop-color="#c87c37"/>
+              </linearGradient>
+              <filter id="catSoft" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="3.2"/>
+              </filter>
+              <filter id="catSoft2" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="2"/>
+              </filter>
+              <!-- 身体与头部轮廓（同时用于剪裁明暗） -->
+              <path id="pBody" d="M-34 -33 C-38 -47 -30 -61 -14 -63 C-2 -64.5 10 -60 15 -50
+                C19 -42 18 -30 13 -22 C7 -15 -8 -13 -19 -16 C-29 -19 -32 -25 -34 -33 Z"/>
+              <path id="pHead" d="M8 -68 C8 -83 18 -91.5 30 -91.5 C42 -91.5 51 -83 51 -69
+                C51 -60.5 47 -53.5 39 -49.5 C30.5 -45.5 18 -47 12 -55 C9.5 -58.5 8 -63.5 8 -68 Z"/>
+              <path id="pHaunch" d="M-31 -41 C-40 -37 -42 -21 -34 -14 C-26 -8 -14 -12.5 -15 -24 C-16 -33.5 -23 -43 -31 -41 Z"/>
+              <clipPath id="cBody"><use href="#pBody"/></clipPath>
+              <clipPath id="cHead"><use href="#pHead"/></clipPath>
+              <clipPath id="cHaunch"><use href="#pHaunch"/></clipPath>
+            </defs>
+            <ellipse class="catShadow" cx="-2" cy="4" rx="33" ry="9" fill="#20301c" opacity=".42" filter="url(#softSh)"/>
             <g class="hopG">
               <g class="flipG">
                 <g class="cheerG">
                   <g class="bobG">
-                    <!-- 尾巴 -->
+                    <!-- 尾巴：根粗梢细，带环纹与白毛尖 -->
                     <g class="tail">
-                      <path d="M-26 -26 C-48 -28 -56 -54 -40 -66" fill="none" stroke="#7d4a1c" stroke-width="15" stroke-linecap="round"/>
-                      <path d="M-26 -26 C-48 -28 -56 -54 -40 -66" fill="none" stroke="#dd8c42" stroke-width="12" stroke-linecap="round"/>
-                      <path d="M-26 -26 C-48 -28 -56 -54 -40 -66" fill="none" stroke="#f6b96f" stroke-width="7.5" stroke-linecap="round"/>
-                      <g stroke="#dd8c42" stroke-width="3.4" stroke-linecap="round" opacity=".8">
-                        <path d="M-44 -34 q4 -2 7 -1"/><path d="M-50 -49 q4 -3 7 -2"/>
+                      <path d="M-29 -27 C-48 -29 -58.5 -46 -50 -60.5 C-45.5 -68.5 -36.5 -72 -31 -66.5
+                        C-35.5 -62.5 -41.5 -59.5 -43.5 -52.5 C-46.5 -43.5 -39 -35 -26 -33.5 Z"
+                        fill="url(#furL)" stroke="#8a5220" stroke-width="2.2" stroke-linejoin="round"/>
+                      <path d="M-31 -66.5 C-36 -62 -40 -59.5 -42.5 -55 C-44 -58 -43 -62.5 -40.5 -65.5 C-38 -68.5 -34 -69.5 -31 -66.5 Z" fill="#fff3e4" opacity=".9"/>
+                      <path d="M-52.5 -50.5 q5.5 -1.5 8.5 1" fill="none" stroke="#d98240" stroke-width="3.6" stroke-linecap="round" opacity=".75"/>
+                      <path d="M-47.5 -38 q5 -3 9 -2.5" fill="none" stroke="#d98240" stroke-width="3.6" stroke-linecap="round" opacity=".75"/>
+                    </g>
+                    <!-- 远侧两条腿（压暗，拉开前后层次） -->
+                    <g class="leg legBF">
+                      <path d="M-23 -24 C-25.5 -15 -25 -6 -24 -1.5 C-23 2 -12 2.5 -11 -1.5 C-10 -7.5 -11.5 -16 -12.5 -24 Z"
+                        fill="url(#furLD)" stroke="#7d4a1c" stroke-width="2"/>
+                      <ellipse cx="-17" cy="0" rx="8.4" ry="4.4" fill="#e8b784" stroke="#7d4a1c" stroke-width="2"/>
+                    </g>
+                    <g class="leg legFF">
+                      <path d="M8.5 -34 C6.5 -24 6.5 -10 7.5 -3.5 C8.5 0 19.5 0.5 20.5 -3.5 C21.5 -12 20.5 -24 19.5 -34 Z"
+                        fill="url(#furLD)" stroke="#7d4a1c" stroke-width="2"/>
+                      <ellipse cx="14" cy="-1.5" rx="8.2" ry="4.4" fill="#e8b784" stroke="#7d4a1c" stroke-width="2"/>
+                    </g>
+                    <!-- 身体：轮廓 + 体积明暗 + 虎斑 -->
+                    <use href="#pBody" fill="url(#furB)" stroke="#8a5220" stroke-width="2.4" stroke-linejoin="round"/>
+                    <g clip-path="url(#cBody)">
+                      <path d="M-30 -20 C-14 -10 6 -12 18 -26 L20 -8 L-36 -8 Z" fill="#c9762f" opacity=".5" filter="url(#catSoft)"/>
+                      <path d="M-30 -56 C-16 -66 2 -64 14 -52 C2 -60 -16 -60 -30 -56 Z" fill="#fff6e4" opacity=".75" filter="url(#catSoft2)"/>
+                      <path d="M14 -44 C18 -34 15 -24 7 -18 C-1 -13.5 -11 -13.5 -17 -15.5
+                        C-7 -20 -0.5 -28 3 -42 Z" fill="#fff3e4" opacity=".92"/>
+                      <g fill="#d98240" opacity=".62">
+                        <path d="M-20 -62.5 C-15.5 -56 -15.5 -49 -18.5 -43.5 C-23 -49 -24 -56 -20 -62.5 Z"/>
+                        <path d="M-9 -64 C-4.5 -57.5 -4.5 -51 -7.5 -45.5 C-12 -51 -13 -57.5 -9 -64 Z"/>
+                        <path d="M2 -63 C6 -57 6 -51.5 3.5 -46.5 C-0.5 -51.5 -1.5 -57 2 -63 Z"/>
+                        <path d="M-31 -57 C-26 -53 -24 -48 -24.5 -43 C-29.5 -46.5 -32 -51.5 -31 -57 Z"/>
                       </g>
                     </g>
-                    <!-- 远侧两条腿（颜色略深，做出前后层次） -->
-                    <g class="leg legBF"><rect x="-19" y="-25" width="11.5" height="25" rx="5.7" fill="#d9863f" stroke="#7d4a1c" stroke-width="1.8"/>
-                      <ellipse cx="-13.2" cy="-1.5" rx="7" ry="4.2" fill="#e79a4e" stroke="#7d4a1c" stroke-width="1.8"/></g>
-                    <g class="leg legFF"><rect x="9" y="-25" width="11" height="25" rx="5.5" fill="#d9863f" stroke="#7d4a1c" stroke-width="1.8"/>
-                      <ellipse cx="14.5" cy="-1.5" rx="6.8" ry="4.2" fill="#e79a4e" stroke="#7d4a1c" stroke-width="1.8"/></g>
-                    <!-- 身体 -->
-                    <ellipse cx="-3" cy="-36" rx="29" ry="20" fill="url(#furBody)" stroke="#7d4a1c" stroke-width="2.2"/>
-                    <ellipse cx="6" cy="-31" rx="16" ry="11" fill="#fff2e0" opacity=".85"/>
-                    <g stroke="#dd8c42" stroke-width="4" stroke-linecap="round" fill="none" opacity=".6">
-                      <path d="M-12 -52 q3 7 1 11"/><path d="M-22 -47 q4 6 2 10"/>
+                    <!-- 近侧后腿 + 盖在腿根上的大腿（腿从大腿下摆出来才自然） -->
+                    <g class="leg legBN">
+                      <path d="M-28 -22 C-30.5 -13.5 -30 -5 -29 -0.5 C-28 3.5 -15.5 4 -14.5 -0.5 C-13.5 -6.5 -15 -15 -16 -22 Z"
+                        fill="url(#furL)" stroke="#8a5220" stroke-width="2.2"/>
+                      <ellipse cx="-21.5" cy="1.5" rx="9" ry="4.8" fill="#fff3e4" stroke="#8a5220" stroke-width="2.2"/>
+                      <path d="M-25.5 -1 v3 M-21 -1.5 v3.5 M-16.5 -1 v3" stroke="#d9a878" stroke-width="1.3" stroke-linecap="round"/>
                     </g>
-                    <!-- 探险小背包（露在背上） -->
+                    <use href="#pHaunch" fill="url(#furB)" stroke="#8a5220" stroke-width="2.2"/>
+                    <g clip-path="url(#cHaunch)">
+                      <path d="M-40 -18 C-30 -10 -18 -12 -13 -20 L-12 -6 L-42 -6 Z" fill="#c9762f" opacity=".45" filter="url(#catSoft2)"/>
+                      <path d="M-33 -38 C-27 -34 -24 -29 -24 -24 C-29 -28 -33 -32 -33 -38 Z" fill="#d98240" opacity=".55"/>
+                    </g>
+                    <!-- 近侧前腿 -->
+                    <g class="leg legFN">
+                      <path d="M12 -34 C10 -24 10 -10 11 -3 C12 1.5 24.5 2 25.5 -3 C26.5 -12 25.5 -24 24.5 -34 Z"
+                        fill="url(#furL)" stroke="#8a5220" stroke-width="2.2"/>
+                      <ellipse cx="18.5" cy="0" rx="8.8" ry="4.8" fill="#fff3e4" stroke="#8a5220" stroke-width="2.2"/>
+                      <path d="M14.5 -2.5 v3 M18.5 -3 v3.5 M23 -2.5 v3" stroke="#d9a878" stroke-width="1.3" stroke-linecap="round"/>
+                    </g>
+                    <!-- 探险小背包 -->
                     <g class="pack">
-                      <rect x="-27" y="-58" width="21" height="22" rx="7" fill="#a9713c" stroke="#5f3b18" stroke-width="1.8"/>
-                      <rect x="-27" y="-50" width="21" height="6.5" rx="3" fill="#7f5327"/>
-                      <circle cx="-16.5" cy="-46.8" r="2.4" fill="#ffd98a"/>
-                      <path d="M-22 -60 q5.5 -4.5 11 0" fill="none" stroke="#7f5327" stroke-width="3" stroke-linecap="round"/>
+                      <path d="M-30 -57 C-24 -62 -14 -62 -8 -57 C-5 -49 -6 -40 -10 -36 C-18 -33 -25 -34 -30 -37 C-33 -42 -33 -52 -30 -57 Z"
+                        fill="#a9713c" stroke="#5f3b18" stroke-width="2"/>
+                      <path d="M-31 -48 C-24 -44 -14 -44 -8 -48 L-9 -41 C-16 -37.5 -25 -37.5 -30.5 -41 Z" fill="#7f5327"/>
+                      <circle cx="-19.5" cy="-43.5" r="2.6" fill="#ffd98a" stroke="#8a5f2a" stroke-width=".8"/>
+                      <path d="M-25 -60 q6 -5 12 -0.5" fill="none" stroke="#7f5327" stroke-width="3.2" stroke-linecap="round"/>
                     </g>
-                    <!-- 近侧两条腿 -->
-                    <g class="leg legBN"><rect x="-13" y="-25" width="12.5" height="26" rx="6.2" fill="url(#furLeg)" stroke="#7d4a1c" stroke-width="2"/>
-                      <ellipse cx="-6.7" cy="-0.5" rx="7.6" ry="4.6" fill="#fff2e0" stroke="#7d4a1c" stroke-width="2"/></g>
-                    <g class="leg legFN"><rect x="16" y="-25" width="12" height="26" rx="6" fill="url(#furLeg)" stroke="#7d4a1c" stroke-width="2"/>
-                      <ellipse cx="22" cy="-0.5" rx="7.4" ry="4.6" fill="#fff2e0" stroke="#7d4a1c" stroke-width="2"/></g>
-                    <!-- 红围巾（探险家标志） -->
-                    <path d="M9 -52 q12 6.5 21 1.5 l-1 8.5 q-11.5 4 -20.5 -2.5 z" fill="#ef5f6b" stroke="#cf4652" stroke-width="1.2"/>
-                    <path d="M11.5 -45 q-6 7.5 -3.5 14.5 l7.5 -3 q-2.5 -5.5 1 -9.5 z" fill="#d94a57"/>
-                    <!-- 头部 -->
-                    <g class="head">
-                      <path class="earF" d="M8 -73 L2 -95 L24 -82 Z" fill="#e9964b" stroke="#7d4a1c" stroke-width="2" stroke-linejoin="round"/>
-                      <path d="M10 -75 L7 -88 L19 -81 Z" fill="#ffc2c9"/>
-                      <path class="earN" d="M34 -78 L48 -95 L49 -70 Z" fill="#f0a559" stroke="#7d4a1c" stroke-width="2" stroke-linejoin="round"/>
-                      <path d="M36 -77 L44 -88 L44.5 -73 Z" fill="#ffc2c9"/>
-                      <circle cx="24" cy="-62" r="20" fill="url(#furHead)" stroke="#7d4a1c" stroke-width="2.2"/>
-                      <g stroke="#e39a4f" stroke-width="3.4" stroke-linecap="round" fill="none" opacity=".75">
-                        <path d="M20 -80 v8"/><path d="M12 -76 q2 5 0 8"/><path d="M29 -80 q-1 5 1 8"/>
-                      </g>
-                      <ellipse cx="14" cy="-54" rx="7" ry="4" fill="#ff9aa8" opacity=".4"/>
-                      <ellipse cx="39" cy="-56" rx="5.6" ry="3.4" fill="#ff9aa8" opacity=".35"/>
-                      <!-- 眼睛（琥珀色大眼 + 高光 + 会眨的眼皮） -->
-                      <g>
-                        <ellipse cx="22" cy="-66" rx="6.4" ry="7.4" fill="#3b2a1c"/>
-                        <ellipse cx="22" cy="-67.4" rx="5" ry="5.6" fill="#c9822b"/>
-                        <ellipse cx="22" cy="-65.4" rx="2.6" ry="4.4" fill="#2a1c10"/>
-                        <circle cx="20" cy="-69" r="2" fill="#fff"/>
-                        <ellipse class="eyelid" cx="22" cy="-66.6" rx="7.4" ry="8.4" fill="url(#furHead)"/>
-                      </g>
-                      <g>
-                        <ellipse cx="37" cy="-67" rx="5.4" ry="6.4" fill="#3b2a1c"/>
-                        <ellipse cx="37" cy="-68.2" rx="4.2" ry="4.8" fill="#c9822b"/>
-                        <ellipse cx="37" cy="-66.4" rx="2.2" ry="3.8" fill="#2a1c10"/>
-                        <circle cx="35.6" cy="-69.6" r="1.7" fill="#fff"/>
-                        <ellipse class="eyelid" cx="37" cy="-67.6" rx="6.4" ry="7.4" fill="url(#furHead)"/>
-                      </g>
-                      <!-- 鼻子、嘴、胡须 -->
-                      <ellipse cx="31" cy="-53" rx="8.6" ry="6.2" fill="#fff2e0" opacity=".8"/>
-                      <path d="M31 -53.5 l-3.8 -3.4 q3.8 -2.4 7.6 0 z" fill="#ff8a9b"/>
-                      <path d="M31 -53 q-3.8 5.6 -8.5 2.8 M31 -53 q3.8 5.6 8.5 2.8" stroke="#c77b4a" stroke-width="2.1" fill="none" stroke-linecap="round"/>
-                      <g stroke="#fff7ec" stroke-width="1.6" stroke-linecap="round" opacity=".95">
-                        <path d="M40 -58 L55 -61 M41 -53 L57 -53 M40 -49 L54 -45"/>
-                      </g>
+                    <!-- 红围巾 -->
+                    <g transform="translate(-6,9)">
+                    <path d="M9 -56 C17 -48.5 30 -47 38.5 -50 L40 -41 C30 -37 15.5 -39.5 7.5 -47 Z"
+                      fill="#ef5f6b" stroke="#c0414d" stroke-width="1.6" stroke-linejoin="round"/>
+                    <path d="M12 -46 C7 -39 6.5 -31 9 -25.5 L17.5 -29.5 C15 -34 15.5 -39.5 19 -43 Z"
+                      fill="#d94a57" stroke="#b03b46" stroke-width="1.4" stroke-linejoin="round"/>
                     </g>
+                    <!-- 头部：奶猫比例，头要大 -->
+                    <g class="head"><g transform="translate(-13,17) scale(1.2)">
+                      <path class="earF" d="M11 -77 C8 -88 9.5 -96 14 -97 C19.5 -98 27 -91 32 -85 Z"
+                        fill="#eda257" stroke="#8a5220" stroke-width="2.2" stroke-linejoin="round"/>
+                      <path d="M13.5 -79 C12 -86.5 13 -91.5 15.5 -92 C18.5 -92.5 22 -88.5 25 -85 Z" fill="#ffb8bd"/>
+                      <path class="earN" d="M39 -85 C44.5 -94.5 51.5 -99 55.5 -96.5 C59.5 -93.5 58 -83.5 54 -76 Z"
+                        fill="#f5ab61" stroke="#8a5220" stroke-width="2.2" stroke-linejoin="round"/>
+                      <path d="M42.5 -84 C46 -90.5 50 -93.5 52.5 -92 C54.5 -90.5 53.5 -84.5 51.5 -80 Z" fill="#ffb8bd"/>
+                      <use href="#pHead" fill="url(#furH)" stroke="#8a5220" stroke-width="2.4" stroke-linejoin="round"/>
+                      <g clip-path="url(#cHead)">
+                        <path d="M12 -52 C22 -44 38 -45 48 -56 L52 -42 L6 -42 Z" fill="#d2823a" opacity=".45" filter="url(#catSoft)"/>
+                        <path d="M14 -84 C22 -92 36 -92 45 -84 C36 -88 22 -88 14 -84 Z" fill="#fff6e4" opacity=".8" filter="url(#catSoft2)"/>
+                        <g fill="#d98240" opacity=".6">
+                          <path d="M27 -92 C29.5 -87 29.5 -83 28 -79.5 C25.5 -83 25 -87.5 27 -92 Z"/>
+                          <path d="M17 -89 C20.5 -85 21.5 -81 20.5 -77.5 C17.5 -80.5 16 -85 17 -89 Z"/>
+                          <path d="M37.5 -90.5 C38.5 -86 38 -82 36 -79 C34.5 -82.5 35 -87 37.5 -90.5 Z"/>
+                          <path d="M9.5 -74 C13.5 -73 16.5 -70.5 18 -67.5 C14.5 -67.5 11 -69.5 9.5 -74 Z"/>
+                          <path d="M49 -73 C46 -71.5 43.5 -69 42.5 -66.5 C45.5 -66.5 48.5 -68.5 49 -73 Z"/>
+                        </g>
+                      </g>
+                      <ellipse cx="16" cy="-58" rx="6.5" ry="3.8" fill="#ff9aa8" opacity=".4"/>
+                      <ellipse cx="44" cy="-59.5" rx="5.2" ry="3.2" fill="#ff9aa8" opacity=".32"/>
+                      <!-- 眼睛：琥珀虹膜 + 上眼睑投影 + 双高光 -->
+                      <g>
+                        <ellipse cx="24" cy="-70" rx="7.4" ry="8.6" fill="#3b2a1c"/>
+                        <ellipse cx="24" cy="-71" rx="6" ry="7" fill="#d99a3e"/>
+                        <ellipse cx="24" cy="-72.6" rx="5.4" ry="4.6" fill="#b8721f" opacity=".55"/>
+                        <ellipse cx="24" cy="-69.6" rx="3" ry="5.2" fill="#231508"/>
+                        <circle cx="21.6" cy="-73.4" r="2.3" fill="#fff"/>
+                        <circle cx="26.4" cy="-66.8" r="1.2" fill="#fff" opacity=".7"/>
+                        <ellipse class="eyelid" cx="24" cy="-70.6" rx="8.4" ry="9.6" fill="url(#furH)"/>
+                      </g>
+                      <g>
+                        <ellipse cx="40" cy="-71" rx="6.2" ry="7.4" fill="#3b2a1c"/>
+                        <ellipse cx="40" cy="-72" rx="5" ry="6" fill="#d99a3e"/>
+                        <ellipse cx="40" cy="-73.4" rx="4.4" ry="3.8" fill="#b8721f" opacity=".55"/>
+                        <ellipse cx="40" cy="-70.6" rx="2.5" ry="4.4" fill="#231508"/>
+                        <circle cx="38" cy="-74.2" r="1.9" fill="#fff"/>
+                        <ellipse class="eyelid" cx="40" cy="-71.6" rx="7.2" ry="8.4" fill="url(#furH)"/>
+                      </g>
+                      <!-- 口鼻 -->
+                      <path d="M25 -57.5 C25 -61.5 29 -63.5 33.5 -63.5 C38 -63.5 42 -61.5 42 -57.5
+                        C42 -53 38 -50.5 33.5 -50.5 C29 -50.5 25 -53 25 -57.5 Z" fill="#fff3e4" opacity=".85"/>
+                      <path d="M33.5 -60.5 C31 -60.5 29.5 -62 30 -63.2 C30.6 -64.4 36.4 -64.4 37 -63.2 C37.5 -62 36 -60.5 33.5 -60.5 Z" fill="#f4919c" stroke="#d1707c" stroke-width=".8"/>
+                      <path d="M33.5 -60 v3" stroke="#c77b4a" stroke-width="1.6" stroke-linecap="round"/>
+                      <path d="M33.5 -57 q-4 4.5 -8 1.5 M33.5 -57 q4 4.5 8 1.5" stroke="#c77b4a" stroke-width="2" fill="none" stroke-linecap="round"/>
+                      <g stroke="#fff8ee" stroke-width="1.7" stroke-linecap="round" fill="none" opacity=".95">
+                        <path d="M44 -62 C50 -63.5 55 -65.5 58.5 -68"/>
+                        <path d="M45 -57 C51.5 -57 57 -57 61 -56.5"/>
+                        <path d="M44.5 -52.5 C50 -51 54.5 -49 57.5 -46.5"/>
+                      </g>
+                    </g></g>
                   </g>
                 </g>
               </g>
