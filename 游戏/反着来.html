@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>反着来大挑战 🙃</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f172a; --ink2:#334155; --card:#ffffff;
+  --good:#22c55e; --bad:#ef4444; --accent:#8b5cf6; --accent2:#ec4899;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Noto Sans SC',sans-serif;color:var(--ink);
+  background:linear-gradient(160deg,#fdf4ff 0%,#ede9fe 45%,#e0f2fe 100%);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:14px;overflow-x:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none
+}
+.wrap{width:100%;max-width:560px;display:flex;flex-direction:column;gap:14px}
+
+/* ---- header ---- */
+.top{display:flex;align-items:center;justify-content:space-between}
+.back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink2);font-weight:700;
+  background:#fff;border-radius:999px;padding:8px 14px;box-shadow:0 4px 12px rgba(2,6,23,.08);font-size:14px}
+.scoreBox{display:flex;gap:8px}
+.pill{background:#fff;border-radius:999px;padding:8px 16px;font-weight:900;box-shadow:0 4px 12px rgba(2,6,23,.08);font-size:15px}
+.pill b{color:var(--accent)}
+.pill.best b{color:#f59e0b}
+
+/* ---- main card ---- */
+.stage{background:var(--card);border-radius:26px;box-shadow:0 18px 44px rgba(99,102,241,.18);
+  padding:22px 18px 26px;position:relative;overflow:hidden}
+.stage.shake{animation:shk .45s}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(4px)}}
+.flash{position:absolute;inset:0;pointer-events:none;opacity:0;border-radius:26px}
+.flash.good{background:rgba(34,197,94,.22);animation:fl .35s}
+.flash.bad{background:rgba(239,68,68,.25);animation:fl .5s}
+@keyframes fl{0%{opacity:1}100%{opacity:0}}
+
+/* ---- start / over screens ---- */
+.title{font-size:30px;font-weight:900;text-align:center}
+.title .grad{background:linear-gradient(90deg,#8b5cf6,#ec4899,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.subtitle{text-align:center;color:var(--ink2);font-weight:500;margin-top:6px;font-size:14.5px}
+.rules{margin:18px auto 6px;max-width:420px;display:flex;flex-direction:column;gap:10px}
+.rule{display:flex;gap:10px;align-items:flex-start;background:#faf5ff;border-radius:14px;padding:10px 14px;font-size:14.5px;color:var(--ink2)}
+.rule .ico{font-size:20px;line-height:1.2}
+.rule b{color:var(--accent)}
+.demo{text-align:center;font-size:15px;background:#fef3c7;border-radius:14px;padding:10px;font-weight:700;color:#92400e}
+.bigBtn{display:block;margin:20px auto 4px;border:none;cursor:pointer;font-family:inherit;
+  font-size:20px;font-weight:900;color:#fff;padding:16px 44px;border-radius:999px;
+  background:linear-gradient(135deg,#8b5cf6,#ec4899);box-shadow:0 12px 28px rgba(139,92,246,.4);transition:.15s}
+.bigBtn:active{transform:scale(.95)}
+.hidden{display:none!important}
+
+/* ---- game ---- */
+.timeTrack{height:14px;background:#f1f5f9;border-radius:999px;overflow:hidden;margin-bottom:16px}
+.timeBar{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#22c55e,#84cc16)}
+.timeBar.hurry{background:linear-gradient(90deg,#f59e0b,#ef4444)}
+.bossHint{text-align:center;font-weight:900;color:var(--accent2);font-size:16px;letter-spacing:2px;margin-bottom:4px}
+.prompt{
+  text-align:center;padding:18px 10px 8px;min-height:150px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px
+}
+.prompt .big{font-size:88px;line-height:1;filter:drop-shadow(0 6px 12px rgba(2,6,23,.15))}
+.prompt .word{font-size:24px;font-weight:900;color:var(--ink)}
+.pop{animation:pop .28s}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+.pad{margin-top:14px}
+.arrowGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:340px;margin:0 auto}
+.aBtn{border:none;cursor:pointer;font-size:42px;padding:16px 0;border-radius:20px;background:#f5f3ff;
+  box-shadow:0 6px 0 #ddd6fe;transition:transform .08s;line-height:1}
+.aBtn:active{transform:translateY(4px);box-shadow:0 2px 0 #ddd6fe}
+.handRow{display:flex;gap:14px;max-width:400px;margin:0 auto}
+.hBtn{flex:1;border:none;cursor:pointer;font-family:inherit;font-size:22px;font-weight:900;color:var(--ink);
+  padding:22px 0;border-radius:20px;background:#fff7ed;box-shadow:0 6px 0 #fed7aa;transition:transform .08s}
+.hBtn .e{font-size:44px;display:block;margin-bottom:6px}
+.hBtn:active{transform:translateY(4px);box-shadow:0 2px 0 #fed7aa}
+
+.combo{position:absolute;top:14px;right:18px;font-weight:900;color:#f59e0b;font-size:15px;opacity:0;transition:.2s}
+.combo.show{opacity:1}
+
+/* ---- over ---- */
+.overEmoji{font-size:74px;text-align:center}
+.overScore{text-align:center;font-size:52px;font-weight:900;color:var(--accent)}
+.overScore small{font-size:18px;color:var(--ink2);font-weight:700}
+.overMsg{text-align:center;color:var(--ink2);font-weight:700;margin-top:6px;font-size:16px}
+.newRec{text-align:center;font-weight:900;font-size:18px;margin-top:8px;color:#f59e0b;animation:pop .4s}
+
+/* confetti */
+.cf{position:fixed;top:-16px;font-size:20px;pointer-events:none;z-index:99;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+
+footer{text-align:center;color:#94a3b8;font-size:12px;padding:8px 0 4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="../index.html">🏠 返回</a>
+    <div class="scoreBox">
+      <div class="pill">得分 <b id="score">0</b></div>
+      <div class="pill best">最佳 <b id="best">0</b></div>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="flash" id="flash"></div>
+    <div class="combo" id="combo"></div>
+
+    <!-- 开始界面 -->
+    <div id="scrStart">
+      <div class="title">🙃 <span class="grad">反着来大挑战</span></div>
+      <div class="subtitle">大脑体操：我说什么，你就偏不！</div>
+      <div class="rules">
+        <div class="rule"><span class="ico">🗣️</span><span>屏幕喊「<b>伸左手</b>」→ 你要点 <b>右手</b>！</span></div>
+        <div class="rule"><span class="ico">⬆️</span><span>屏幕出现「<b>向上箭头</b>」→ 你要点 <b>向下</b> 的按键！</span></div>
+        <div class="rule"><span class="ico">⭐</span><span>每答对一题 <b>+5 分</b>，速度会越来越快……</span></div>
+        <div class="rule"><span class="ico">💥</span><span>答错或超时，挑战就结束啦。看你能坚持到多少分！</span></div>
+      </div>
+      <button class="bigBtn" id="btnStart">开始挑战 🚀</button>
+    </div>
+
+    <!-- 游戏界面 -->
+    <div id="scrGame" class="hidden">
+      <div class="timeTrack"><div class="timeBar" id="timeBar"></div></div>
+      <div class="bossHint">偏！不！照！做！</div>
+      <div class="prompt" id="prompt"></div>
+      <div class="pad" id="pad"></div>
+    </div>
+
+    <!-- 结束界面 -->
+    <div id="scrOver" class="hidden">
+      <div class="overEmoji" id="overEmoji">😵</div>
+      <div class="overScore"><span id="finalScore">0</span> <small>分</small></div>
+      <div class="overMsg" id="overMsg"></div>
+      <div class="newRec hidden" id="newRec">🏆 新纪录！！</div>
+      <button class="bigBtn" id="btnAgain">再来一局 💪</button>
+    </div>
+  </div>
+
+  <footer>反应力小游戏 · 馨儿的知识乐园</footer>
+</div>
+
+<script>
+"use strict";
+/* ================= 可调参数 ================= */
+const POINT      = 5;      // 每题得分
+const START_MS   = 3800;   // 起始每题时间
+const MIN_MS     = 1500;   // 最快每题时间
+const SPEED_UP   = 22;     // 每 1 分加快多少毫秒（分数越高越快）
+/* =========================================== */
+
+const DIRS = {
+  up:   {e:"⬆️", w:"上", opp:"down"},
+  down: {e:"⬇️", w:"下", opp:"up"},
+  left: {e:"⬅️", w:"左", opp:"right"},
+  right:{e:"➡️", w:"右", opp:"left"},
+};
+const HANDS = {
+  left: {e:"🫲", w:"左手", opp:"right"},
+  right:{e:"🫱", w:"右手", opp:"left"},
+};
+const PRAISE=["反应超快！","就爱唱反调！","太机灵了！","脑瓜转得真快！","完美！","反着来大师！"];
+const OVER_MSG=[
+  [0,  "别灰心，大脑还在热身呢～再来！"],
+  [30, "不错的开始！再专注一点点！"],
+  [80, "厉害呀，反应越来越快了！"],
+  [150,"哇，你已经是唱反调高手了！"],
+  [250,"天呐！这个反应速度超越大人了！🔥"],
+];
+
+const BEST_KEY="tina_opposite_best";
+let best=+(localStorage.getItem(BEST_KEY)||0);
+let score=0, combo=0, playing=false, lock=false;
+let cur=null, timer=null;
+
+const $=id=>document.getElementById(id);
+$("best").textContent=best;
+
+/* ---- 小音效（WebAudio，无外部文件） ---- */
+let AC=null;
+function snd(kind){
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const t=AC.currentTime, o=AC.createOscillator(), g=AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    if(kind==="ok"){ o.type="sine"; o.frequency.setValueAtTime(660,t); o.frequency.setValueAtTime(880,t+.08);
+      g.gain.setValueAtTime(.15,t); g.gain.exponentialRampToValueAtTime(.001,t+.22); o.start(t); o.stop(t+.22);
+    }else if(kind==="bad"){ o.type="sawtooth"; o.frequency.setValueAtTime(200,t); o.frequency.linearRampToValueAtTime(90,t+.4);
+      g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+.45); o.start(t); o.stop(t+.45);
+    }else{ o.type="triangle"; o.frequency.setValueAtTime(523,t); o.frequency.setValueAtTime(659,t+.09); o.frequency.setValueAtTime(784,t+.18);
+      g.gain.setValueAtTime(.14,t); g.gain.exponentialRampToValueAtTime(.001,t+.4); o.start(t); o.stop(t+.4); }
+  }catch(e){}
+}
+
+/* ---- 彩带 ---- */
+function confetti(n){
+  const em=["🎉","⭐","💜","✨","🎊","🧡"];
+  for(let i=0;i<n;i++){
+    const s=document.createElement("span"); s.className="cf";
+    s.textContent=em[Math.floor(Math.random()*em.length)];
+    s.style.left=Math.random()*100+"vw";
+    s.style.animationDuration=(1.6+Math.random()*1.6)+"s";
+    s.style.fontSize=(14+Math.random()*16)+"px";
+    document.body.appendChild(s); setTimeout(()=>s.remove(),3400);
+  }
+}
+
+/* ---- 出题 ---- */
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function newQuestion(){
+  let q;
+  do{
+    if(Math.random()<0.6){
+      const k=pick(Object.keys(DIRS));
+      q={type:"arrow", key:k, answer:DIRS[k].opp};
+    }else{
+      const k=pick(Object.keys(HANDS));
+      q={type:"hand", key:k, answer:HANDS[k].opp};
+    }
+  }while(cur && q.type===cur.type && q.key===cur.key);   // 不连续出一模一样的题
+  cur=q;
+
+  const p=$("prompt");
+  if(q.type==="arrow"){
+    p.innerHTML=`<div class="big pop">${DIRS[q.key].e}</div><div class="word">向${DIRS[q.key].w}！</div>`;
+    $("pad").innerHTML=`<div class="arrowGrid">
+      <span></span><button class="aBtn" data-a="up">⬆️</button><span></span>
+      <button class="aBtn" data-a="left">⬅️</button><button class="aBtn" data-a="down">⬇️</button><button class="aBtn" data-a="right">➡️</button>
+    </div>`;
+  }else{
+    p.innerHTML=`<div class="big pop">${HANDS[q.key].e}</div><div class="word">伸${HANDS[q.key].w}！</div>`;
+    $("pad").innerHTML=`<div class="handRow">
+      <button class="hBtn" data-a="left"><span class="e">🫲</span>左手</button>
+      <button class="hBtn" data-a="right"><span class="e">🫱</span>右手</button>
+    </div>`;
+  }
+  $("pad").querySelectorAll("[data-a]").forEach(b=>{
+    b.addEventListener("pointerdown",()=>answer(b.dataset.a));
+  });
+
+  // 倒计时条：先瞬间回满，再动画缩到 0
+  const ms=Math.max(MIN_MS, START_MS - score*SPEED_UP);
+  const bar=$("timeBar");
+  bar.classList.toggle("hurry", ms<2300);
+  bar.style.transition="none"; bar.style.width="100%";
+  void bar.offsetWidth;
+  bar.style.transition=`width ${ms}ms linear`; bar.style.width="0%";
+  clearTimeout(timer);
+  timer=setTimeout(()=>gameOver("timeout"), ms);
+  lock=false;
+}
+
+/* ---- 作答 ---- */
+function answer(a){
+  if(!playing||lock) return;
+  lock=true; clearTimeout(timer);
+  if(a===cur.answer){
+    score+=POINT; combo++;
+    $("score").textContent=score;
+    snd("ok"); flash("good");
+    const c=$("combo");
+    c.textContent=`🔥 连对 ${combo}`; c.classList.add("show");
+    if(combo%5===0){ confetti(10); toastPraise(); }
+    setTimeout(newQuestion, 180);
+  }else{
+    gameOver("wrong");
+  }
+}
+function toastPraise(){
+  const p=$("prompt");
+  const d=document.createElement("div");
+  d.style.cssText="position:absolute;left:50%;top:8px;transform:translateX(-50%);font-weight:900;color:#8b5cf6;font-size:17px;animation:pop .3s";
+  d.textContent=pick(PRAISE);
+  $("stage").appendChild(d); setTimeout(()=>d.remove(),900);
+}
+function flash(kind){
+  const f=$("flash"); f.className="flash"; void f.offsetWidth; f.classList.add(kind);
+}
+
+/* ---- 流程 ---- */
+function start(){
+  score=0; combo=0; cur=null; playing=true;
+  $("score").textContent=0;
+  $("combo").classList.remove("show");
+  $("scrStart").classList.add("hidden");
+  $("scrOver").classList.add("hidden");
+  $("scrGame").classList.remove("hidden");
+  snd("start");
+  newQuestion();
+}
+function gameOver(why){
+  playing=false; lock=true; clearTimeout(timer);
+  const bar=$("timeBar"); bar.style.transition="none";
+  snd("bad"); flash("bad");
+  $("stage").classList.add("shake");
+  setTimeout(()=>$("stage").classList.remove("shake"),500);
+
+  setTimeout(()=>{
+    $("scrGame").classList.add("hidden");
+    $("scrOver").classList.remove("hidden");
+    $("overEmoji").textContent = why==="timeout" ? "⏰" : "😵";
+    $("finalScore").textContent=score;
+    let msg=OVER_MSG[0][1];
+    for(const [th,m] of OVER_MSG) if(score>=th) msg=m;
+    $("overMsg").textContent=(why==="timeout"?"太慢啦，时间到！":"哎呀，做反了……等等，是做「正」了！")+" "+msg;
+    const rec=score>best;
+    $("newRec").classList.toggle("hidden",!rec);
+    if(rec){ best=score; localStorage.setItem(BEST_KEY,best); $("best").textContent=best; confetti(26); }
+  },550);
+}
+
+$("btnStart").addEventListener("click",start);
+$("btnAgain").addEventListener("click",start);
+
+/* 键盘支持：方向键作答（对手势题 ←=左手 →=右手） */
+document.addEventListener("keydown",e=>{
+  const map={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right"};
+  const a=map[e.key]; if(!a) return;
+  e.preventDefault();
+  if(!playing){ return; }
+  if(cur.type==="hand" && (a==="up"||a==="down")) return;
+  answer(a);
+});
+</script>
+</body>
+</html>
